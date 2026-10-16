@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallax Labs</title>
+<meta name="description" content="Parallax Labs — creating highly capable, yet tiny AI models.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --text: #e8e8e8;
+    --text-dim: #fdfdfd;
+    --text-dim2: #7a7a7a;
+    --text-dimmer: #4a4a4a;
+    --line: #1e1e1e;
+    --accent: #f0f0f0;
+    --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+    --ease: cubic-bezier(.2,.8,.2,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ── SPHERE CANVAS ── */
+  #sphereCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    display: block;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at center,
+        rgba(10, 10, 10, 0) 0%,
+        rgba(10, 10, 10, 0.25) 45%,
+        rgba(10, 10, 10, 0.75) 85%,
+        rgba(10, 10, 10, 0.95) 100%),
+      linear-gradient(180deg,
+        rgba(10, 10, 10, 0.55) 0%,
+        rgba(10, 10, 10, 0) 30%,
+        rgba(10, 10, 10, 0) 70%,
+        rgba(10, 10, 10, 0.75) 100%);
+  }
+
+  /* ── CONTENT ── */
+  .page {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 40px 56px;
+  }
+
+  .topbar {
+    font-size: 12px;
+    color: var(--text-dim2);
+    letter-spacing: 0.08em;
+    margin-bottom: 80px;
+    flex-shrink: 0;
+  }
+  .topbar .sep { display: inline-block; margin: 0 8px; color: var(--text-dimmer); }
+
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 40px 0;
+  }
+
+  .logo-title {
+    font-size: clamp(56px, 9vw, 128px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin-bottom: 56px;
+    color: var(--text);
+    text-transform: uppercase;
+    text-shadow: 0 4px 40px rgba(0, 0, 0, 0.9), 0 2px 12px rgba(0, 0, 0, 0.7);
+  }
+
+  .lede {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text);
+    max-width: 620px;
+    margin: 0 auto 40px;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.85);
+  }
+  .lede em { font-style: normal; color: var(--text-dim2); }
+
+  .body-copy {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-dim2);
+    max-width: 620px;
+    margin: 0 auto 48px;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.85);
+  }
+  .body-copy a {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--text-dimmer);
+    transition: border-color .2s var(--ease);
+  }
+  .body-copy a:hover { border-bottom-color: var(--text); }
+
+  /* ── BUTTONS ── */
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(8px);
+    color: var(--text);
+    border: 1px solid var(--text-dim2);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background .2s var(--ease), border-color .2s var(--ease), color .2s var(--ease);
+  }
+  .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .btn .arrow { display: inline-block; transition: transform .25s var(--ease); }
+  .btn:hover .arrow { transform: translateX(3px); }
+
+  .btn-secondary {
+    background: transparent;
+    border-color: var(--text-dimmer);
+  }
+  .btn-secondary:hover {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--text);
+  }
+
+  /* ── MODAL ── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(5, 5, 5, 0.75);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s var(--ease);
+  }
+  .modal-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal {
+    max-width: 520px;
+    width: 100%;
+    background: #0d0d0d;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 32px;
+    position: relative;
+    transform: translateY(8px);
+    transition: transform .3s var(--ease);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+  }
+  .modal-backdrop.open .modal { transform: none; }
+
+  .modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .modal-sub {
+    font-size: 11px;
+    color: var(--text-dimmer);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .modal-close {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text-dim2);
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    border-radius: 3px;
+    flex-shrink: 0;
+    transition: color .15s, border-color .15s;
+  }
+  .modal-close:hover { color: var(--text); border-color: var(--text-dim2); }
+
+  .modal-body {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text-dim2);
+    margin-bottom: 24px;
+  }
+  .modal-body p { margin-bottom: 14px; }
+  .modal-body p:last-child { margin-bottom: 0; }
+  .modal-body strong { color: var(--text); font-weight: 500; }
+  .modal-body code {
+    background: #171717;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .modal-note {
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 2px solid var(--text-dimmer);
+    margin-bottom: 24px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .modal-foot .btn { padding: 10px 18px; font-size: 12px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: auto;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--text-dimmer);
+    letter-spacing: 0.04em;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .footer a { color: var(--text-dimmer); text-decoration: none; transition: color .2s var(--ease); }
+  .footer a:hover { color: var(--text); }
+
+  @media (max-width: 720px) {
+    .page { padding: 28px 24px; }
+    .topbar { margin-bottom: 48px; }
+    .logo-title { margin-bottom: 36px; }
+    .lede, .body-copy { font-size: 13px; }
+    .modal { padding: 24px; }
+    .actions { flex-direction: column; width: 100%; }
+    .actions .btn { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+  <canvas id="sphereCanvas"></canvas>
+
+  <div class="page">
+    <div class="topbar">
+      <span>PARALLAX STUDIOS</span>
+    </div>
+
+    <main class="hero">
+      <h1 class="logo-title">Parallax<br>Labs</h1>
+
+      <p class="lede">
+        Creating amazing AI <em>models that are highly capable, yet tiny,</em>
+        with a focus on reasoning capabilities as well as
+        coding, our models are highly adaptable.
+      </p>
+
+      <p class="body-copy">
+        Parallax Labs explores the creation of small models,
+        often under 15 billion parameters, but with the capabilities of
+        significantly larger models. Our models can reason like ones
+        100s of times their size. We are actively perfecting reasoning
+        and coding capabilities with each model. Starting with our first model,
+        Parallax 2 Preview, a small 4 billion parameter intelligent
+        reasoning model that can also code, and we look forward to going much further.
+      </p>
+
+      <div class="actions">
+        <button class="btn" onclick="proceedToDemo()">
+          Try Parallax 2 Preview
+        </button>
+        <a class="btn btn-secondary" href="https://huggingface.co/parallaxlabs" target="_blank" rel="noopener">
+          View on HuggingFace
+        </a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>A subsidiary of <a href="https://parallaxstudios.xyz" target="_blank" rel="noopener">Parallax Studios</a></span>
+      <span>© 2026 Parallax Studios</span>
+    </footer>
+  </div>
+<script>
+(() => {
+  // ═══════════════════════════════════════════════════════════
+  // SPHERE
+  // ═══════════════════════════════════════════════════════════
+  const canvas = document.getElementById('sphereCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const maskCanvas = document.createElement('canvas');
+  const maskCtx = maskCanvas.getContext('2d');
+  let samplePixels = [];
+
+  function buildMask() {
+    const MW = 900, MH = 220;
+    maskCanvas.width = MW;
+    maskCanvas.height = MH;
+    maskCtx.clearRect(0, 0, MW, MH);
+    maskCtx.fillStyle = '#fff';
+    maskCtx.font = `700 100px 'JetBrains Mono', monospace`;
+    maskCtx.textAlign = 'center';
+    maskCtx.textBaseline = 'middle';
+
+    const text = 'PARALLAX LABS';
+    const measured = maskCtx.measureText(text).width;
+    const maxW = MW * 0.92;
+    const scale = Math.min(1, maxW / measured);
+
+    maskCtx.save();
+    maskCtx.translate(MW / 2, MH / 2);
+    maskCtx.scale(scale, 1);
+    maskCtx.fillText(text, 0, 0);
+    maskCtx.restore();
+
+    const img = maskCtx.getImageData(0, 0, MW, MH).data;
+    samplePixels = [];
+    const step = 3;
+    for (let y = 0; y < MH; y += step) {
+      for (let x = 0; x < MW; x += step) {
+        const idx = (y * MW + x) * 4;
+        if (img[idx + 3] > 100) {
+          samplePixels.push({
+            nx: (x - MW / 2) / (MW / 2),
+            ny: (y - MH / 2) / (MH / 2),
+          });
+        }
+      }
+    }
+  }
+
+  let points = [];
+
+  function buildPoints() {
+    buildMask();
+    points = [];
+    const N = samplePixels.length;
+    const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+
+    for (let i = 0; i < N; i++) {
+      const sample = samplePixels[i];
+      const t = i / Math.max(1, N - 1);
+      const y = 1 - 2 * t;
+      const r = Math.sqrt(Math.max(0, 1 - y * y));
+      const theta = GOLDEN * i;
+      const x = Math.cos(theta) * r;
+      const z = Math.sin(theta) * r;
+      points.push({
+        x, y, z,
+        tx: sample.nx,
+        ty: sample.ny,
+        screenX: 0, screenY: 0, depth: 0,
+      });
+    }
+  }
+
+  let cssW = window.innerWidth;
+  let cssH = window.innerHeight;
+  let dpr = 1;
+
+  function resize() {
+    cssW = window.innerWidth;
+    cssH = window.innerHeight;
+    dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  let mouseX = -9999, mouseY = -9999;
+
+  window.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+  window.addEventListener('mouseleave', () => {
+    mouseX = -9999; mouseY = -9999;
+  });
+  window.addEventListener('touchmove', e => {
+    if (!e.touches[0]) return;
+    mouseX = e.touches[0].clientX;
+    mouseY = e.touches[0].clientY;
+  }, { passive: true });
+  window.addEventListener('touchend', () => {
+    mouseX = -9999; mouseY = -9999;
+  });
+
+  const ROT_SPEED = 0.00022;
+  const TILT = 0.28;
+  const PULL = 0.26;
+  const HOVER_RADIUS = 130;
+  const RADIUS_FRACTION = 0.55;
+
+  function render(now) {
+    ctx.clearRect(0, 0, cssW, cssH);
+
+    const cx = cssW / 2;
+    const cy = cssH / 2;
+    const R = Math.min(cssW, cssH) * RADIUS_FRACTION;
+
+    const rotY = now * ROT_SPEED;
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const cosX = Math.cos(TILT), sinX = Math.sin(TILT);
+
+    for (const p of points) {
+      const sx = p.x * (1 - PULL) + p.tx * PULL;
+      const sy = p.y * (1 - PULL) + p.ty * PULL;
+      const sz = p.z * (1 - PULL);
+
+      const x1 = sx * cosY - sz * sinY;
+      const z1 = sx * sinY + sz * cosY;
+      const y2 = sy * cosX - z1 * sinX;
+      const z2 = sy * sinX + z1 * cosX;
+
+      const persp = 1.9 / (1.9 + z2);
+      p.screenX = cx + x1 * R * persp;
+      p.screenY = cy + y2 * R * persp;
+      p.depth = z2;
+    }
+
+    points.sort((a, b) => a.depth - b.depth);
+
+    for (const p of points) {
+      const depthT = (p.depth + 1) / 2;
+      let alpha = 0.08 + depthT * 0.55;
+
+      const dx = mouseX - p.screenX;
+      const dy = mouseY - p.screenY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < HOVER_RADIUS) {
+        const f = 1 - dist / HOVER_RADIUS;
+        alpha = Math.min(1, alpha + f * f * 0.85);
+      }
+
+      const dotR = 0.55 + depthT * 1.3 + (alpha > 0.9 ? 0.5 : 0);
+
+      ctx.fillStyle = `rgba(232, 232, 232, ${alpha.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(p.screenX, p.screenY, dotR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  function boot() {
+    resize();
+    buildPoints();
+    requestAnimationFrame(render);
+  }
+
+  window.addEventListener('resize', resize);
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(boot);
+  } else {
+    boot();
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════════
+function openModal() {
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+}
+function proceedToDemo() {
+  // Placeholder — the demo page will prompt for the API endpoint.
+  window.location.href = '/chat';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
