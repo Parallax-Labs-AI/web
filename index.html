@@ -385,10 +385,23 @@
           <div class="card-status">
             <span class="status-dot live"></span> Available Now (via Chat API)
           </div>
-          <div style="margin-top: 12px; padding: 8px 10px; background: rgba(251, 191, 36, 0.1); border-left: 2px solid #fbbf24; border-radius: 2px; font-size: 11px; line-height: 1.4; color: #fbbf24;">
-            NOTICE: Generation speeds on the Chat API are currently degraded.
-            <br>NOTICE: The Chat API is only available on week days, and may go down at any time.
-          </div>
+<div style="margin-top: 16px; padding: 12px 14px; background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.2); border-left: 3px solid #fbbf24; border-radius: 4px; display: flex; gap: 10px; align-items: flex-start;">
+  <!-- Warning Icon -->
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+    <line x1="12" y1="9" x2="12" y2="13"></line>
+    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+  </svg>
+  
+  <!-- Notice Text -->
+  <div style="font-size: 11px; line-height: 1.5; color: #fbbf24; font-family: var(--mono);">
+    <strong style="text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; display: block; margin-bottom: 4px;">Notice</strong>
+    <div style="color: rgba(251, 191, 36, 0.85);">
+      Generation speeds on the Chat API are currently degraded.<br>
+      The Chat API is only available on weekdays, and may go down at any time.
+    </div>
+  </div>
+</div>
         </div>
 
         <!-- Parallax 2 -->
