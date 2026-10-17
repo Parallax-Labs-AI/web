@@ -25,7 +25,6 @@
         .sidebar { width: 260px; background: var(--bg-sidebar); display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid var(--border); }
         .sidebar-top { padding: 16px 14px 8px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--border); }
         .sidebar-brand { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; padding: 0 6px 8px; }
-        .sidebar-brand .sep { color: var(--text-dimmer); margin: 0 6px; }
         .sidebar-status { font-size: 10px; color: var(--text-dimmer); letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; padding: 0 6px; }
         .sidebar-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dimmer); transition: background .3s; flex-shrink: 0; }
         .sidebar-status[data-status="loading"] .dot { background: var(--warn); animation: pulse 1s infinite; }
@@ -60,9 +59,19 @@
         .chat-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
         .chat-inner { max-width: 768px; margin: 0 auto; padding: 32px 24px 80px; width: 100%; }
 
-        .welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; text-align: center; padding: 40px 0; }
+        .welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 40px 0; }
         .welcome-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
-        .welcome-sub { font-size: 13px; color: var(--text-dim); max-width: 480px; line-height: 1.7; }
+        .welcome-sub { font-size: 13px; color: var(--text-dim); max-width: 480px; line-height: 1.7; margin-bottom: 32px; }
+
+        /* UPLOAD ZONE */
+        .upload-zone {
+            border: 2px dashed var(--border-strong); border-radius: 6px; padding: 40px; width: 100%; max-width: 500px;
+            cursor: pointer; transition: border-color 0.2s, background 0.2s; background: var(--bg-elev);
+        }
+        .upload-zone:hover { border-color: var(--text-dim); background: var(--bg-elev-2); }
+        .upload-icon { margin-bottom: 16px; color: var(--text-dimmer); }
+        .upload-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+        .upload-desc { font-size: 12px; color: var(--text-dim); }
 
         .msg { display: flex; gap: 14px; padding: 20px 0; border-bottom: 1px solid var(--border-soft); animation: fadeUp .25s var(--ease) both; }
         .msg:last-child { border-bottom: none; }
@@ -146,14 +155,13 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-top">
-            <div class="sidebar-brand">PARALLAX LABS
+            <div class="sidebar-brand">PARALLAX LABS</div>
             <div class="sidebar-status" id="statusIndicator" data-status="loading">
                 <span class="dot"></span>
-                <span id="statusText">Initializing...</span>
+                <span id="statusText">Awaiting file...</span>
             </div>
         </div>
         
-        <!-- CONTEXT METER -->
         <div class="context-meter">
             <svg class="ctx-svg" viewBox="0 0 36 36">
                 <circle class="ctx-bg" cx="18" cy="18" r="15" />
@@ -183,9 +191,19 @@
 
         <div class="chat-scroll" id="chatScroll">
             <div class="chat-inner" id="chatInner">
-                <div class="welcome">
+                <!-- UPLOAD UI -->
+                <div class="welcome" id="welcomeScreen">
                     <div class="welcome-title">Parallax 2 Mini Preview</div>
-                    <div class="welcome-sub" id="welcomeSub">Downloading the model (~500MB) to your browser cache. This will only happen once. Please wait...</div>
+                    <div class="welcome-sub">Select your local <code>.gguf</code> file to load the model. It runs entirely on your device and is never uploaded.</div>
+                    
+                    <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        </div>
+                        <div class="upload-title">Click or drag file here</div>
+                        <div class="upload-desc">p2-mini-preview_q4.gguf</div>
+                    </div>
+                    <input type="file" id="fileInput" accept=".gguf" style="display:none">
                 </div>
             </div>
         </div>
@@ -193,7 +211,7 @@
         <div class="composer-wrap">
             <div class="composer-inner">
                 <div class="composer">
-                    <textarea id="prompt" placeholder="Wait for model to load..." rows="1" disabled></textarea>
+                    <textarea id="prompt" placeholder="Load a .gguf file to begin..." rows="1" disabled></textarea>
                     <div class="composer-footer">
                         <div class="composer-tools"></div>
                         <button id="stopBtn" class="action-circle" title="Stop">
@@ -204,7 +222,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="composer-hint">Parallax 2 Mini Preview is an AI model, an experimental model. Double-check all information given.</div>
+                <div class="composer-hint">Parallax 2 Mini Preview is an experimental AI model. Double-check all information given.</div>
             </div>
         </div>
     </div>
@@ -234,18 +252,6 @@
                     </div>
                 </div>
             </div>
-            <div class="setting-group">
-                <div class="setting-group-label">Storage</div>
-                <div class="setting-row">
-                    <div class="setting-text">
-                        <div class="setting-label">Clear Model Cache</div>
-                        <div class="setting-desc">Delete the ~500MB model from your browser.</div>
-                    </div>
-                    <div class="setting-control">
-                        <button class="action-btn" id="clearCacheBtn">Clear Cache</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -257,8 +263,6 @@
     <script type="module">
         import { Wllama } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama@3.6.1/esm/index.js';
 
-        const MODEL_URL = 'https://github.com/Parallax-Labs-AI/web/releases/download/parallax-2-mini-preview-10-17/p2-mini-preview_q4.gguf';
-        
         const chatScroll = document.getElementById('chatScroll');
         const chatInner = document.getElementById('chatInner');
         const promptEl = document.getElementById('prompt');
@@ -269,7 +273,8 @@
         const ctxCircle = document.getElementById('ctxCircle');
         const ctxPercent = document.getElementById('ctxPercent');
         const ctxTokens = document.getElementById('ctxTokens');
-        const cfgCtxSelect = document.getElementById('cfgCtx');
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
         
         let wllama = null;
         let isGenerating = false;
@@ -303,77 +308,75 @@
             ctxTokens.textContent = `${estimatedTokens} / ${currentContextLimit}`;
         }
 
-        async function init(forceReload = false) {
-            try {
-                if (forceReload && wllama) {
-                    await wllama.exit();
-                    wllama = null;
-                }
+        // --- FILE UPLOAD LOGIC ---
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--ok)';
+            dropZone.style.background = 'var(--bg-elev-2)';
+        });
 
-                setStatus('loading', forceReload ? 'Reloading model...' : 'Checking cache...');
-                
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--border-strong)';
+            dropZone.style.background = 'var(--bg-elev)';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--border-strong)';
+            dropZone.style.background = 'var(--bg-elev)';
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        async function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.gguf')) {
+                alert('Please select a valid .gguf file.');
+                return;
+            }
+
+            document.getElementById('welcomeScreen').style.display = 'none';
+            setStatus('loading', 'Loading file...');
+
+            try {
                 wllama = new Wllama({
                     default: 'https://cdn.jsdelivr.net/npm/@wllama/wllama@3.6.1/esm/wasm/wllama.wasm',
                 });
 
-                await wllama.loadModelFromUrl(MODEL_URL, {
+                // Load directly from the File object (no download required!)
+                await wllama.loadModel([file], {
                     n_threads: 1,
                     n_ctx: currentContextLimit,
                     progressCallback: ({ loaded, total }) => {
                         const pct = Math.round((loaded / total) * 100);
-                        setStatus('loading', `Loading: ${pct}% (${(loaded/1024/1024).toFixed(0)}MB)`);
+                        setStatus('loading', `Compiling: ${pct}%`);
                     }
                 });
 
                 setStatus('ready', `Ready (${currentContextLimit} ctx)`);
-                document.getElementById('welcomeSub').textContent = "Model loaded locally. Ask anything.";
                 promptEl.disabled = false;
                 promptEl.placeholder = "Message Parallax...";
                 promptEl.focus();
                 updateSendBtn();
                 
+                chatInner.innerHTML = ''; // Clear welcome screen
                 chatHistory = [];
                 updateContextUsage();
 
             } catch (err) {
                 console.error(err);
                 setStatus('error', 'Load Failed');
-                document.getElementById('welcomeSub').innerHTML = `<span style="color:var(--bad)">Error loading model.</span><br>If on a Chromebook, switch context to 2048.`;
+                document.getElementById('welcomeScreen').style.display = 'flex';
+                alert(`Failed to load model: ${err.message}`);
             }
         }
 
-        cfgCtxSelect.addEventListener('change', (e) => {
-            const newSize = parseInt(e.target.value);
-            if (newSize !== currentContextLimit) {
-                if (confirm(`Changing context to ${newSize} will restart the model and clear your chat. Continue?`)) {
-                    currentContextLimit = newSize;
-                    init(true);
-                } else {
-                    e.target.value = currentContextLimit;
-                }
-            }
-        });
-
-        // --- CLEAR CACHE LOGIC ---
-        document.getElementById('clearCacheBtn').addEventListener('click', async () => {
-            if (!wllama) {
-                alert("Model not loaded yet, nothing to clear.");
-                return;
-            }
-            if (confirm("Are you sure you want to delete the model from your browser cache? You will have to re-download the 500MB file next time.")) {
-                try {
-                    await wllama.cacheManager.clear();
-                    alert("Cache cleared! Reloading page...");
-                    window.location.reload();
-                } catch (e) {
-                    console.error(e);
-                    alert("Failed to clear cache. Check console.");
-                }
-            }
-        });
-
-        init();
-
+        // --- CHAT LOGIC ---
         function updateSendBtn() {
             sendBtn.disabled = !promptEl.value.trim() || isGenerating;
             if (isGenerating) {
@@ -410,7 +413,6 @@
         });
 
         function addMessage(role, content) {
-            chatInner.querySelector('.welcome')?.remove();
             const msg = document.createElement('div');
             msg.className = `msg ${role}`;
             msg.innerHTML = `
@@ -470,7 +472,7 @@
             abortController = new AbortController();
 
             try {
-                const sysPrompt = document.getElementById('cfgSystem').value;
+                const sysPrompt = "You are Parallax-2-Mini-Preview. You are a helpful, smart assistant. If asked a complex question, briefly show your reasoning step-by-step before giving a thorough, detailed answer. Do not over-explain simple facts.";
 
                 const stream = await wllama.createChatCompletion({
                     messages: [
