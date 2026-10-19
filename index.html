@@ -62,7 +62,7 @@
         rgba(10, 10, 10, 0.55) 0%,
         rgba(10, 10, 10, 0) 30%,
         rgba(10, 10, 10, 0) 50%,
-        rgba(10, 10, 10, 0.9) 100%); /* Darker at bottom for text */
+        rgba(10, 10, 10, 0.9) 100%);
   }
 
   /* ── CONTENT ── */
@@ -178,42 +178,72 @@
     border-color: var(--text);
   }
 
-  /* ── INTRODUCING SECTION ── */
-  .intro-section {
+  /* ── NEW SHOWCASE SECTIONS ── */
+  .showcase-section {
     max-width: 900px;
     margin: 0 auto;
-    padding: 80px 0;
+    padding: 40px 0;
     width: 100%;
-    border-top: 1px solid var(--line);
     text-align: center;
   }
 
-  .intro-title {
-    font-size: clamp(24px, 4vw, 42px);
+  .showcase-card {
+    background: rgba(13, 13, 13, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle glow effect for the cards */
+  .showcase-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 60%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  }
+
+  .showcase-title {
+    font-size: clamp(28px, 5vw, 48px);
     font-weight: 700;
     letter-spacing: -0.02em;
     margin-bottom: 24px;
     color: var(--text);
+    text-shadow: 0 0 20px rgba(255,255,255,0.1);
   }
 
-  .intro-desc {
-    font-size: 15px;
+  .showcase-desc {
+    font-size: 16px;
     line-height: 1.8;
     color: var(--text-dim2);
     max-width: 680px;
     margin: 0 auto 32px;
   }
-
-  .intro-teaser {
-    font-size: 14px;
-    font-weight: 700;
+  
+  .showcase-desc strong {
     color: var(--text);
+    font-weight: 500;
+  }
+
+  .showcase-teaser {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bg);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    padding: 12px 24px;
-    border: 1px solid var(--text-dimmer);
+    padding: 12px 28px;
+    background: var(--text);
     display: inline-block;
-    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+  }
+
+  .showcase-teaser.outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--text);
   }
 
   /* ── MODEL FAMILY SECTION ── */
@@ -349,6 +379,7 @@
     .actions { flex-direction: column; width: 100%; }
     .actions .btn { width: 100%; }
     .family-grid { grid-template-columns: 1fr; }
+    .showcase-card { padding: 32px 20px; }
   }
 </style>
 </head>
@@ -391,13 +422,26 @@
       </div>
     </main>
 
-    <!-- NEW INTRODUCING SECTION -->
-    <section class="intro-section">
-      <h2 class="intro-title">Introducing Parallax 2</h2>
-      <p class="intro-desc">
-        Our flagship reasoning model, with 9 billion parameters. Trained on over 150,000 quality reasoning, coding, and debugging traces. Experience top-tier Claude Opus reasoning locally, tool calling via MCP, and more. It is comparable to models like Claude Sonnet and GPT-5.6. What's the best part? Parallax 2 can run all locally.
-      </p>
-      <div class="intro-teaser">Coming to a computer near you, later today.</div>
+    <!-- INTRODUCING PARALLAX 2 SECTION -->
+    <section class="showcase-section">
+      <div class="showcase-card">
+        <h2 class="showcase-title">Introducing Parallax 2</h2>
+        <p class="showcase-desc">
+          Our flagship reasoning model, with <strong>9 billion parameters</strong>. Trained on over 150,000 quality reasoning, coding, and debugging traces. Experience top-tier Claude Opus reasoning locally, tool calling via MCP, and more. It is comparable to models like Claude Sonnet and GPT-5.6. What's the best part? <strong>Parallax 2 can run all locally.</strong>
+        </p>
+        <div class="showcase-teaser">Coming to a computer near you, later today.</div>
+      </div>
+    </section>
+
+    <!-- INTRODUCING PARADE SECTION -->
+    <section class="showcase-section">
+      <div class="showcase-card">
+        <h2 class="showcase-title">Introducing ParADE</h2>
+        <p class="showcase-desc">
+          The world's first <strong>local-first Agentic Development Environment</strong>. Built from the ground up to run Parallax 2 natively inside your IDE. No cloud APIs. No subscriptions. Just you, your hardware, and the most capable open-source coding agent ever built. Experience MCP tool calling, live web search, and native vision—completely offline.
+        </p>
+        <div class="showcase-teaser outline">Join the parade. Soon.</div>
+      </div>
     </section>
 
     <!-- MODEL FAMILY SECTION -->
