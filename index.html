@@ -964,9 +964,7 @@
             <button class="composer-tool" onclick="openSettings()" title="Settings">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0}
-
-// ═ 1 0════-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
               </svg>
             </button>
           </div>
@@ -997,6 +995,7 @@
     <div class="service-body">
       The Parallax 2 endpoint is not responding. This usually means the backend is starting up or temporarily offline.
       <div class="service-endpoint" id="serviceEndpoint"></div>
+      <div class="service-endpoint" id="serviceError" style="color:var(--bad);display:none;"></div>
     </div>
     <div class="service-actions">
       <button class="btn-ghost" onclick="closeServiceModal()">Continue offline</button>
@@ -1173,7 +1172,9 @@ function saveCfg() {
   localStorage.setItem('px_systemPrompt', cfg.systemPrompt);
   localStorage.setItem('px_customPrompt', cfg.customPrompt);
   localStorage.setItem('px_showReasoning', cfg.showReasoning);
-═════════════════════════════════════════
+}
+
+// ══════════════════════════════════════════════
 // CONNECTION STATUS
 // ══════════════════════════════════════════════
 function setStatus(status) {
@@ -1215,14 +1216,19 @@ async function checkConnection(userInitiated = false) {
       promptEl.disabled = true;
       promptEl.placeholder = 'Service unavailable…';
       if (userInitiated) toast(`Endpoint returned HTTP ${r.status}`);
-      showServiceModal();
+      showServiceModal(r.status, `HTTP ${r.status} ${r.statusText}`);
     }
   } catch (e) {
     setStatus(e.name === 'AbortError' ? 'offline' : 'error');
     promptEl.disabled = true;
     promptEl.placeholder = 'Service unavailable…';
-    if (userInitiated) toast(e.name === 'AbortError' ? 'Connection timed out' : 'Connection failed');
-    showServiceModal();
+    let detail = e.name === 'AbortError' ? 'Connection timed out after 6s' : (e.message || 'Network error');
+    if (e.name !== 'AbortError' && /Failed to fetch/i.test(e.message || '')) {
+      detail += ' — likely a CORS block or the server is down. Check the browser console (F12).';
+    }
+    if (userInitiated) toast('Connection failed');
+    showServiceModal(null, detail);
+    console.error('[Parallax] Connection failed:', e);
   }
 }
 
@@ -1236,8 +1242,15 @@ function startHealthPolling() {
 // ══════════════════════════════════════════════
 // SERVICE MODAL
 // ══════════════════════════════════════════════
-function showServiceModal() {
+function showServiceModal(httpStatus, detail) {
   $('serviceEndpoint').textContent = API_BASE;
+  const errEl = $('serviceError');
+  if (detail) {
+    errEl.textContent = detail;
+    errEl.style.display = 'inline-block';
+  } else {
+    errEl.style.display = 'none';
+  }
   $('serviceModal').classList.add('open');
 }
 function closeServiceModal() {
@@ -1679,3 +1692,143 @@ async function send() {
     }
 
     conv.messages.push({
+      role: 'assistant',
+      content: contentBuffer || reasoningBuffer,
+      reasoning: hasReasoning ? reasoningBuffer : undefined,
+    });
+    saveConversations();
+  } catch (e) {
+    msgEl.remove();
+    appendMessageToDOM('error', `Stream failed: ${e.message}`);
+    setStatus('error');
+  } finally {
+    isStreaming = false;
+    sendBtn.disabled = !promptEl.value.trim() || connectionStatus !== 'online';
+    promptEl.focus();
+  }
+}
+
+function buildSystemPrompt(conv, userText) {
+  const base = cfg.systemPrompt === 'custom' ? cfg.customPrompt : SYSTEM_PROMPTS[cfg.systemPrompt];
+
+  // Dynamic reasoning depth based on user message length
+  const len = (userText || '').length;
+  let reasoningHint;
+  if (len < 50) {
+    reasoningHint = "The user's message is short. Answer directly and concisely. Do not use extended step-by-step reasoning unless the question is inherently complex.";
+  } else if (len < 200) {
+    reasoningHint = "The user's message is moderately sized. Use brief reasoning only if the task is genuinely complex.";
+  } else {
+    reasoningHint = "The user's message is substantial. You may use full step-by-step reasoning if the task warrants it.";
+  }
+
+  const recent = conv.messages.slice(-8).filter(m => m.role !== 'error');
+  let contextBlock = '';
+  if (recent.length > 1) {
+    const lines = recent.slice(0, -1).map(m => {
+      const role = m.role === 'user' ? 'User' : 'Assistant';
+      const content = (m.content || '').slice(0, 300);
+      return `${role}: ${content}`;
+    });
+    contextBlock = `\n\n[CONTEXT]\nPrior conversation summary. Use for continuity only; do not re-answer or reference it unless required by the current message.\n\n${lines.join('\n')}\n[/CONTEXT]`;
+  }
+
+  return `${base}\n\n[REASONING DEPTH]\n${reasoningHint}${contextBlock}`;
+}
+
+// ══════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════
+function openSettings() {
+  $('temperature').value = cfg.temperature;
+  $('temperatureVal').textContent = parseFloat(cfg.temperature).toFixed(1);
+  $('maxTokens').value = cfg.maxTokens;
+  $('maxTokensVal').textContent = cfg.maxTokens;
+  $('systemPrompt').value = cfg.systemPrompt;
+  $('customPrompt').value = cfg.customPrompt;
+  $('customPromptRow').style.display = cfg.systemPrompt === 'custom' ? '' : 'none';
+  $('showReasoning').value = cfg.showReasoning;
+
+  // Sync status indicator
+  const settingsStatus = $('settingsStatus');
+  settingsStatus.dataset.status = connectionStatus;
+  const map = {
+    checking: 'Checking…',
+    online: 'Online',
+    offline: 'Offline',
+    error: 'Error'
+  };
+  $('settingsStatusText').textContent = map[connectionStatus] || 'Unknown';
+
+  $('settingsModal').classList.add('open');
+}
+
+function closeSettings() {
+  $('settingsModal').classList.remove('open');
+}
+
+$('temperature').addEventListener('input', e => {
+  cfg.temperature = e.target.value;
+  $('temperatureVal').textContent = parseFloat(e.target.value).toFixed(1);
+  saveCfg();
+});
+$('maxTokens').addEventListener('input', e => {
+  cfg.maxTokens = e.target.value;
+  $('maxTokensVal').textContent = e.target.value;
+  saveCfg();
+});
+$('systemPrompt').addEventListener('change', e => {
+  cfg.systemPrompt = e.target.value;
+  $('customPromptRow').style.display = e.target.value === 'custom' ? '' : 'none';
+  saveCfg();
+});
+$('customPrompt').addEventListener('input', e => {
+  cfg.customPrompt = e.target.value;
+  saveCfg();
+});
+$('showReasoning').addEventListener('change', e => {
+  cfg.showReasoning = e.target.value;
+  saveCfg();
+});
+
+// ══════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════
+function toggleSidebar() {
+  $('sidebar').classList.toggle('hidden');
+}
+function closeSidebarOnMobile() {
+  if (window.innerWidth <= 768) $('sidebar').classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+let toastTimer;
+function toast(msg) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+loadConversations();
+renderConvList();
+renderMessages();
+
+// Start sidebar collapsed on mobile only
+if (window.innerWidth <= 768) {
+  $('sidebar').classList.add('hidden');
+}
+
+promptEl.disabled = true;
+promptEl.placeholder = 'Connecting…';
+checkConnection(false).then(() => startHealthPolling());
+promptEl.focus();
+</script>
+</body>
+</html>
