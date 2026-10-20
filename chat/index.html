@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Parallax Labs — Chat</title>
-<meta name="description" content="Parallax 2 Preview — a compact reasoning model by Parallax Labs.">
+<meta name="description" content="Parallax 2 — a compact reasoning model by Parallax Labs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -947,7 +947,7 @@
     <div class="topbar-title" id="topbarTitle">New chat</div>
     <button class="model-pill" id="modelPill" data-status="checking" onclick="openSettings()">
       <span class="status-dot"></span>
-      <span id="modelName">Parallax 2 Preview</span>
+      <span id="modelName">Parallax 2</span>
     </button>
   </div>
 
@@ -976,7 +976,7 @@
           </button>
         </div>
       </div>
-      <div class="composer-hint">Parallax 2 Preview is an experimental model. Verify all outputs before relying on them.</div>
+      <div class="composer-hint">Parallax 2 is an experimental model. Verify all outputs before relying on them.</div>
     </div>
   </div>
 </div>
@@ -993,7 +993,7 @@
     </div>
     <div class="service-title">Service unreachable</div>
     <div class="service-body">
-      The Parallax 2 Preview endpoint is not responding. This usually means the backend is starting up or temporarily offline.
+      The Parallax 2 endpoint is not responding. This usually means the backend is starting up or temporarily offline.
       <div class="service-endpoint" id="serviceEndpoint"></div>
     </div>
     <div class="service-actions">
@@ -1131,7 +1131,7 @@
 // CONSTANTS
 // ══════════════════════════════════════════════
 const API_BASE = 'https://labsapi.parallaxstudios.xyz/v1';
-const MODEL_ID = 'parallax-2-preview';
+const MODEL_ID = 'parallax-2';
 
 const $ = id => document.getElementById(id);
 const chatScroll = $('chatScroll');
@@ -1151,9 +1151,9 @@ let connectionStatus = 'checking';
 let healthCheckInterval = null;
 
 const SYSTEM_PROMPTS = {
-  default: "You are Parallax 2 Preview, a compact reasoning model developed by Parallax Labs. You reason through problems carefully before answering. You are an experimental preview and may make mistakes.",
-  concise: "You are Parallax 2 Preview, developed by Parallax Labs. Answer concisely without showing reasoning. Do not include chain-of-thought.",
-  coding: "You are Parallax 2 Preview, developed by Parallax Labs, optimized for coding assistance. Provide clean, working code with brief explanations. Output code in fenced blocks with language tags.",
+  default: "You are Parallax 2, a compact reasoning model developed by Parallax Labs. You reason through problems carefully before answering. You are an experimental preview and may make mistakes.",
+  concise: "You are Parallax 2, developed by Parallax Labs. Answer concisely without showing reasoning. Do not include chain-of-thought.",
+  coding: "You are Parallax 2, developed by Parallax Labs, optimized for coding assistance. Provide clean, working code with brief explanations. Output code in fenced blocks with language tags.",
   custom: ""
 };
 
@@ -1356,7 +1356,7 @@ marked.setOptions({ breaks: true, gfm: true });
 function renderWelcome() {
   chatInner.innerHTML = `
     <div class="welcome">
-      <div class="welcome-title">Parallax 2 Preview</div>
+      <div class="welcome-title">Parallax 2</div>
       <div class="welcome-sub">A compact reasoning model by Parallax Labs — step-by-step answers, coding assistance, and general problem solving.</div>
       <div class="suggestions">
         <button class="suggestion" onclick="useSuggestion('Solve the classic 3-gallon / 5-gallon jug puzzle and explain your reasoning.')">
@@ -1413,7 +1413,7 @@ function appendMessageToDOM(role, content, reasoning) {
 
   const roleLabel = document.createElement('div');
   roleLabel.className = 'msg-role';
-  roleLabel.textContent = role === 'user' ? 'You' : role === 'error' ? 'Error' : 'Parallax 2 Preview';
+  roleLabel.textContent = role === 'user' ? 'You' : role === 'error' ? 'Error' : 'Parallax 2';
   contentWrap.appendChild(roleLabel);
 
   if (reasoning) {
@@ -1567,7 +1567,7 @@ async function send() {
   msgEl.innerHTML = `
     <div class="msg-avatar">P</div>
     <div class="msg-content">
-      <div class="msg-role">Parallax 2 Preview</div>
+      <div class="msg-role">Parallax 2</div>
     </div>`;
   const contentWrap = msgEl.querySelector('.msg-content');
 
