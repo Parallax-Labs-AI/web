@@ -12,16 +12,16 @@
   :root {
     --bg: #0a0a0a;
     --text: #e8e8e8;
-    --text-dim: #fdfdfd;
     --text-dim2: #7a7a7a;
     --text-dimmer: #4a4a4a;
     --line: #1e1e1e;
+    --line-bright: #333333;
     --accent: #f0f0f0;
     --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
     --ease: cubic-bezier(.2,.8,.2,1);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; scroll-behavior: smooth; }
+  html, body { height: 100%; overflow-x: hidden; }
   body {
     background: var(--bg);
     color: var(--text);
@@ -29,13 +29,11 @@
     font-size: 14px;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
     position: relative;
-    overflow-x: hidden;
   }
 
-  /* ── SPHERE CANVAS ── */
-  #sphereCanvas {
+  /* ── BACKGROUND CANVASES ── */
+  #sphereCanvas, #orbCanvas {
     position: fixed;
     inset: 0;
     width: 100vw;
@@ -44,45 +42,58 @@
     pointer-events: none;
     display: block;
   }
-
-  /* ── GRADIENT OVERLAY ── */
+  #orbCanvas {
+    z-index: 1; /* Floating above the background text, below the content */
+    opacity: 0.4;
+  }
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    z-index: 1;
+    z-index: 2;
     pointer-events: none;
     background:
-      radial-gradient(ellipse at center,
-        rgba(10, 10, 10, 0) 0%,
-        rgba(10, 10, 10, 0.25) 45%,
-        rgba(10, 10, 10, 0.85) 85%,
-        rgba(10, 10, 10, 0.95) 100%),
-      linear-gradient(180deg,
-        rgba(10, 10, 10, 0.55) 0%,
-        rgba(10, 10, 10, 0) 30%,
-        rgba(10, 10, 10, 0) 50%,
-        rgba(10, 10, 10, 0.9) 100%);
+      radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.25) 45%, rgba(10,10,10,0.85) 85%, rgba(10,10,10,0.95) 100%),
+      linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.9) 100%);
   }
 
-  /* ── CONTENT ── */
-  .page {
+  /* ── MAIN LAYOUT ── */
+  .main-wrapper {
     position: relative;
-    z-index: 2;
+    z-index: 3;
+    transition: transform 0.6s var(--ease), opacity 0.4s var(--ease);
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    padding: 40px 56px;
+  }
+  .main-wrapper.slide-out {
+    transform: translateX(-100vw);
+    opacity: 0;
+    pointer-events: none;
   }
 
+  .page {
+    display: flex;
+    flex-direction: column;
+    padding: 40px 56px;
+    flex: 1;
+  }
   .topbar {
     font-size: 12px;
     color: var(--text-dim2);
     letter-spacing: 0.08em;
     margin-bottom: 80px;
-    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .topbar .sep { display: inline-block; margin: 0 8px; color: var(--text-dimmer); }
+  .topbar nav { display: flex; gap: 16px; }
+  .topbar button {
+    background: transparent; border: 1px solid transparent;
+    color: var(--text-dimmer); font-family: var(--mono); font-size: 12px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .topbar button:hover { color: var(--text); border-bottom-color: var(--text); }
 
   .hero {
     flex: 1;
@@ -96,7 +107,6 @@
     margin: 0 auto;
     padding: 40px 0 80px;
   }
-
   .logo-title {
     font-size: clamp(56px, 9vw, 128px);
     font-weight: 700;
@@ -105,34 +115,17 @@
     margin-bottom: 56px;
     color: var(--text);
     text-transform: uppercase;
-    text-shadow: 0 4px 40px rgba(0, 0, 0, 0.9), 0 2px 12px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 4px 40px rgba(0,0,0,0.9), 0 2px 12px rgba(0,0,0,0.7);
   }
-
   .lede {
     font-size: 15px;
     line-height: 1.8;
     color: var(--text);
     max-width: 620px;
     margin: 0 auto 40px;
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.85);
+    text-shadow: 0 2px 20px rgba(0,0,0,0.85);
   }
   .lede em { font-style: normal; color: var(--text-dim2); }
-
-  .body-copy {
-    font-size: 14px;
-    line-height: 1.8;
-    color: var(--text-dim2);
-    max-width: 620px;
-    margin: 0 auto 48px;
-    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.85);
-  }
-  .body-copy a {
-    color: var(--text);
-    text-decoration: none;
-    border-bottom: 1px solid var(--text-dimmer);
-    transition: border-color .2s var(--ease);
-  }
-  .body-copy a:hover { border-bottom-color: var(--text); }
 
   /* ── BUTTONS ── */
   .actions {
@@ -141,7 +134,6 @@
     flex-wrap: wrap;
     justify-content: center;
   }
-
   .btn {
     display: inline-flex;
     align-items: center;
@@ -156,90 +148,78 @@
     font-size: 13px;
     font-weight: 500;
     text-decoration: none;
-    letter-spacing: 0.02em;
     cursor: pointer;
-    transition: background .2s var(--ease), border-color .2s var(--ease), color .2s var(--ease), box-shadow .2s var(--ease);
+    transition: all .2s var(--ease);
   }
   .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: 0 4px 20px rgba(255,255,255,0.1); }
-  .btn .arrow { display: inline-block; transition: transform .25s var(--ease); }
-  .btn:hover .arrow { transform: translateX(3px); }
+  .btn-primary { border-color: var(--text); }
+  .btn-secondary { background: transparent; border-color: var(--text-dimmer); }
+  .btn-secondary:hover { background: transparent; color: var(--text); border-color: var(--text); }
 
-  .btn-primary {
-    border-color: var(--text);
-  }
-
-  .btn-secondary {
-    background: transparent;
-    border-color: var(--text-dimmer);
-  }
-  .btn-secondary:hover {
-    background: transparent;
-    color: var(--text);
-    border-color: var(--text);
-  }
-
-  /* ── NEW SHOWCASE SECTIONS ── */
-  .showcase-section {
+  /* ── SHOWCASE GRID ── */
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
     max-width: 900px;
     margin: 0 auto;
     padding: 40px 0;
     width: 100%;
-    text-align: center;
   }
-
   .showcase-card {
     background: rgba(13, 13, 13, 0.6);
     backdrop-filter: blur(10px);
     border: 1px solid var(--line);
     border-radius: 8px;
-    padding: 48px 32px;
+    padding: 32px 24px;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
   }
-
-  /* Subtle glow effect for the cards */
+  .showcase-card:hover {
+    border-color: var(--line-bright);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
   .showcase-card::before {
     content: '';
     position: absolute;
     top: 0; left: 50%; transform: translateX(-50%);
     width: 60%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   }
-
   .showcase-title {
-    font-size: clamp(28px, 5vw, 48px);
+    font-size: 24px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     color: var(--text);
     text-shadow: 0 0 20px rgba(255,255,255,0.1);
   }
-
   .showcase-desc {
-    font-size: 16px;
-    line-height: 1.8;
-    color: var(--text-dim2);
-    max-width: 680px;
-    margin: 0 auto 32px;
-  }
-  
-  .showcase-desc strong {
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .showcase-teaser {
     font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-dim2);
+    margin: 0 auto 24px;
+    flex: 1;
+  }
+  .showcase-desc strong { color: var(--text); font-weight: 500; }
+  .showcase-teaser {
+    font-size: 11px;
     font-weight: 700;
     color: var(--bg);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    padding: 12px 28px;
+    padding: 10px 20px;
     background: var(--text);
     display: inline-block;
     border-radius: 4px;
+    align-self: center;
+    transition: transform 0.2s var(--ease);
   }
-
+  .showcase-card:hover .showcase-teaser { transform: scale(1.05); }
   .showcase-teaser.outline {
     background: transparent;
     color: var(--text);
@@ -254,7 +234,6 @@
     width: 100%;
     border-top: 1px solid var(--line);
   }
-
   .section-label {
     font-size: 10px;
     letter-spacing: 0.2em;
@@ -265,440 +244,405 @@
     align-items: center;
     gap: 16px;
   }
-  .section-label::after {
-    content: '';
-    height: 1px;
-    flex: 1;
-    background: var(--line);
-  }
-
-  .family-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
-  }
-
+  .section-label::after { content: ''; height: 1px; flex: 1; background: var(--line); }
+  .family-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
   .family-card {
     background: rgba(13, 13, 13, 0.6);
     backdrop-filter: blur(10px);
     border: 1px solid var(--line);
-    border-radius: 4px;
+    border-radius: 8px;
     padding: 24px;
-    display: flex;
-    flex-direction: column;
-    transition: border-color .2s var(--ease), transform .2s var(--ease);
+    display: flex; flex-direction: column;
+    transition: all 0.3s var(--ease);
   }
-  .family-card:hover {
-    border-color: var(--text-dimmer);
-    transform: translateY(-2px);
-  }
-
-  .family-card.active {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(20, 20, 20, 0.8);
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 16px;
-  }
-  .card-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
-  }
-  .card-size {
-    font-size: 11px;
-    font-family: var(--mono);
-    background: var(--bg);
-    padding: 2px 8px;
-    border-radius: 99px;
-    border: 1px solid var(--line);
-    color: var(--text-dim2);
-  }
-  .card-desc {
-    font-size: 12px;
-    color: var(--text-dim2);
-    line-height: 1.6;
-    flex: 1;
-  }
-  .card-status {
-    margin-top: 20px;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-dim2);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--text-dimmer);
-  }
-  .status-dot.live {
-    background: #4ade80;
-    box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
-  }
-  .status-dot.training {
-    background: #fbbf24;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
+  .family-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.4); }
+  .family-card.active { border-color: rgba(255, 255, 255, 0.3); background: rgba(20, 20, 20, 0.8); }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+  .card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .card-size { font-size: 10px; background: var(--bg); padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--text-dim2); }
+  .card-desc { font-size: 12px; color: var(--text-dim2); line-height: 1.6; flex: 1; }
+  .card-status { margin-top: 20px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: var(--text-dim2); text-transform: uppercase; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dimmer); }
+  .status-dot.live { background: #4ade80; box-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
+  .status-dot.training { background: #fbbf24; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
 
   /* ── FOOTER ── */
   .footer {
-    margin-top: auto;
-    padding-top: 32px;
-    border-top: 1px solid var(--line);
-    font-size: 12px;
-    color: var(--text-dimmer);
-    letter-spacing: 0.04em;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    flex-shrink: 0;
+    padding-top: 32px; border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--text-dimmer);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
   }
-  .footer a { color: var(--text-dimmer); text-decoration: none; transition: color .2s var(--ease); }
+  .footer a { color: var(--text-dimmer); text-decoration: none; }
   .footer a:hover { color: var(--text); }
 
+  /* ── NEWSROOM OVERLAY ── */
+  .newsroom-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: var(--bg);
+    transform: translateX(100vw);
+    transition: transform 0.6s var(--ease);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .newsroom-overlay.active { transform: translateX(0); }
+  
+  .newsroom-header {
+    position: sticky; top: 0; z-index: 11;
+    padding: 20px 56px; background: rgba(10,10,10,0.9); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .newsroom-close {
+    background: transparent; border: 1px solid var(--text-dimmer);
+    color: var(--text); padding: 8px 16px; cursor: pointer;
+    font-family: var(--mono); font-size: 12px; transition: 0.2s;
+  }
+  .newsroom-close:hover { background: var(--text); color: var(--bg); }
+  
+  .newsroom-content { max-width: 800px; margin: 0 auto; padding: 60px 24px; width: 100%; }
+  .news-article {
+    margin-bottom: 60px; padding-bottom: 40px;
+    border-bottom: 1px solid var(--line);
+    opacity: 0; transform: translateY(20px);
+    transition: all 0.5s var(--ease);
+  }
+  .newsroom-overlay.active .news-article { opacity: 1; transform: translateY(0); }
+  .newsroom-overlay.active .news-article:nth-child(2) { transition-delay: 0.1s; }
+  .newsroom-overlay.active .news-article:nth-child(3) { transition-delay: 0.2s; }
+  
+  .news-date { font-size: 11px; color: var(--text-dim2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .news-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .news-body { font-size: 14px; color: var(--text-dim2); line-height: 1.8; }
+  .news-body p { margin-bottom: 16px; }
+  .news-body code { background: var(--line); padding: 2px 6px; border-radius: 4px; font-family: var(--mono); font-size: 12px; color: var(--text); }
+
   @media (max-width: 720px) {
-    .page { padding: 28px 24px; }
-    .topbar { margin-bottom: 48px; }
-    .logo-title { margin-bottom: 36px; }
-    .lede, .body-copy { font-size: 13px; }
-    .actions { flex-direction: column; width: 100%; }
-    .actions .btn { width: 100%; }
+    .page { padding: 24px; }
+    .topbar { margin-bottom: 40px; }
+    .newsroom-header { padding: 16px 24px; }
+    .hero .actions { flex-direction: column; width: 100%; }
+    .hero .actions .btn { width: 100%; }
     .family-grid { grid-template-columns: 1fr; }
-    .showcase-card { padding: 32px 20px; }
   }
 </style>
 </head>
 <body>
 
+  <!-- MAIN BACKGROUND SPHERE -->
   <canvas id="sphereCanvas"></canvas>
+  <!-- FLOATING PIXEL ORB -->
+  <canvas id="orbCanvas"></canvas>
 
-  <div class="page">
-    <div class="topbar">
-      <span>PARALLAX LABS</span>
-    </div>
-
-    <main class="hero">
-      <h1 class="logo-title">Parallax<br>Labs</h1>
-
-      <p class="lede">
-        Creating amazing AI <em>models that are highly capable, yet tiny,</em>
-        with a focus on reasoning capabilities as well as
-        coding, our models are highly adaptable.
-      </p>
-
-      <p class="body-copy">
-        Parallax Labs explores the creation of small models,
-        often under 15 billion parameters, but with the capabilities of
-        significantly larger models. Our models can reason like ones
-        100s of times their size. We are actively perfecting reasoning
-        and coding capabilities with each model.
-      </p>
-
-      <div class="actions">
-        <a href="./chat/wch" class="btn btn-primary">
-          Try Parallax 2 Mini Preview <span class="arrow">→</span>
-        </a>
-        <button class="btn btn-secondary" onclick="proceedToDemo()">
-          Try Parallax 2 Preview
-        </button>
-        <a class="btn btn-secondary" href="https://huggingface.co/parallaxlabs" target="_blank" rel="noopener">
-          HuggingFace
-        </a>
+  <!-- MAIN WEBSITE WRAPPER -->
+  <div class="main-wrapper" id="main-wrapper">
+    <div class="page">
+      <div class="topbar">
+        <span>PARALLAX LABS</span>
+        <nav>
+          <button onclick="openNewsroom()">Newsroom</button>
+          <a href="https://huggingface.co/parallaxlabs" target="_blank" style="color:var(--text-dimmer); text-decoration:none; border-bottom:1px solid transparent; transition:0.2s;" onmouseover="this.style.color='var(--text)'; this.style.borderBottomColor='var(--text)'" onmouseout="this.style.color='var(--text-dimmer)'; this.style.borderBottomColor='transparent'">HuggingFace</a>
+        </nav>
       </div>
-    </main>
 
-    <!-- INTRODUCING PARALLAX 2 SECTION -->
-    <section class="showcase-section">
-      <div class="showcase-card">
-        <h2 class="showcase-title">Introducing Parallax 2</h2>
-        <p class="showcase-desc">
-          Our flagship reasoning model, with <strong>9 billion parameters</strong>. Trained on over 150,000 quality reasoning, coding, and debugging traces. Experience top-tier Claude Opus reasoning locally, tool calling via MCP, and more. It is comparable to models like Claude Sonnet and GPT-5.6. What's the best part? <strong>Parallax 2 can run all locally.</strong>
+      <main class="hero">
+        <h1 class="logo-title">Parallax<br>Labs</h1>
+        <p class="lede">
+          Creating amazing AI <em>models that are highly capable, yet tiny,</em>
+          with a focus on reasoning capabilities as well as coding.
         </p>
-        <div class="showcase-teaser">Coming to a computer near you, later today.</div>
-      </div>
-    </section>
+        <div class="actions">
+          <a href="./chat/wch" class="btn btn-primary">Try Parallax 2 Mini</a>
+          <button class="btn btn-secondary" onclick="proceedToDemo()">Try Parallax 2 Preview</button>
+        </div>
+      </main>
 
-    <!-- INTRODUCING PARADE SECTION -->
-    <section class="showcase-section">
-      <div class="showcase-card">
-        <h2 class="showcase-title">Introducing ParADE</h2>
-        <p class="showcase-desc">
-          The world's first <strong>local-first Agentic Development Environment</strong>. Built from the ground up to run Parallax 2 natively inside your IDE. No cloud APIs. No subscriptions. Just you, your hardware, and the most capable open-source coding agent ever built. Experience MCP tool calling, live web search, and native vision—completely offline.
-        </p>
-        <div class="showcase-teaser outline">Join the parade. Soon.</div>
-      </div>
-    </section>
+      <!-- SHOWCASE GRID (RESTORED) -->
+      <div class="showcase-grid">
+        <!-- INTRODUCING PARALLAX 2 -->
+        <section class="showcase-card">
+          <h2 class="showcase-title">Introducing Parallax 2</h2>
+          <p class="showcase-desc">
+            Our flagship reasoning model, with <strong>9 billion parameters</strong>. Trained on over 150,000 quality reasoning, coding, and debugging traces. Experience top-tier Claude Opus reasoning locally, tool calling via MCP, and more. It is comparable to models like Claude Sonnet and GPT-5.6. What's the best part? <strong>Parallax 2 can run all locally.</strong>
+          </p>
+          <div class="showcase-teaser">Coming in ? hours...</div>
+        </section>
 
-    <!-- MODEL FAMILY SECTION -->
-    <section class="family-section">
-      <div class="section-label">The Parallax 2 Family</div>
-      
-      <div class="family-grid">
-        <!-- Mini Preview -->
-        <div class="family-card active">
-          <div class="card-header">
-            <div class="card-title">Parallax 2 Mini Preview</div>
-            <div class="card-size">0.8B</div>
+        <!-- INTRODUCING PARALLAX APP -->
+        <section class="showcase-card">
+          <h2 class="showcase-title">Introducing Parallax App</h2>
+          <p class="showcase-desc">
+            Our simple, yet powerful <strong>local-first AI workbench</strong>. Chat with Parallax 2, build complex projects with Parallax 2 Agent, and chat with Parallax 2 in Chat Mode.
+          </p>
+          <div class="showcase-teaser outline">Available Soon</div>
+        </section>
+      </div>
+
+      <section class="family-section">
+        <div class="section-label">The Parallax 2 Family</div>
+        <div class="family-grid">
+          <div class="family-card active">
+            <div class="card-header">
+              <div class="card-title">Parallax 2 Mini Preview</div>
+              <div class="card-size">0.8B</div>
+            </div>
+            <div class="card-desc">The smallest model in the family, running on laptops with just 2GB of RAM.</div>
+            <div class="card-status"><span class="status-dot live"></span> Available Now</div>
           </div>
-          <div class="card-desc">
-            The smallest model in the Parallax 2 family (PREVIEW), with just 800 million parameters, it can run on a laptop with 2GB of RAM, or locally with a local AI application.
+
+          <div class="family-card">
+            <div class="card-header">
+              <div class="card-title">Parallax 2 Preview</div>
+              <div class="card-size">4B</div>
+            </div>
+            <div class="card-desc">A scaled-down version of the flagship model, featuring structured Opus-style reasoning.</div>
+            <div class="card-status"><span class="status-dot live"></span> Available Now</div>
           </div>
-          <div class="card-status">
-            <span class="status-dot live"></span> Available Now
+
+          <div class="family-card">
+            <div class="card-header">
+              <div class="card-title">Parallax 2</div>
+              <div class="card-size">9B</div>
+            </div>
+            <div class="card-desc">The flagship reasoning model. 9 billion parameters, trained on 150K+ frontier traces.</div>
+            <div class="card-status"><span class="status-dot training"></span> Coming Soon</div>
           </div>
         </div>
+      </section>
 
-        <!-- 4B Preview -->
-        <div class="family-card">
-          <div class="card-header">
-            <div class="card-title">Parallax 2 Preview</div>
-            <div class="card-size">4B</div>
-          </div>
-          <div class="card-desc">
-            A scaled down version of the flagship Parallax 2 model. This demo can reason with structure, like Claude Opus models. It can code very well for its size, and is very intelligent with problem solving.
-          </div>
-          <div class="card-status">
-            <span class="status-dot live"></span> Available Now (via Chat API)
-          </div>
-<div style="margin-top: 16px; padding: 12px 14px; background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.2); border-left: 3px solid #fbbf24; border-radius: 4px; display: flex; gap: 10px; align-items: flex-start;">
-  <!-- Warning Icon -->
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-    <line x1="12" y1="9" x2="12" y2="13"></line>
-    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-  </svg>
-  
-  <!-- Notice Text -->
-  <div style="font-size: 11px; line-height: 1.5; color: #fbbf24; font-family: var(--mono);">
-    <strong style="text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; display: block; margin-bottom: 4px;">Notice</strong>
-    <div style="color: rgba(251, 191, 36, 0.85);">
-      Generation speeds on the Chat API are currently degraded, and is only available on weekdays, and could go down at any time.
+      <footer class="footer">
+        <span>A subsidiary of <a href="https://parallaxstudios.xyz">Parallax Studios</a></span>
+        <span>© 2026 Parallax Studios</span>
+      </footer>
     </div>
   </div>
-</div>
-        </div>
 
-        <!-- Parallax 2 -->
-        <div class="family-card">
-          <div class="card-header">
-            <div class="card-title">Parallax 2</div>
-          </div>
-          <div class="card-desc">
-            The flagship model of the Parallax 2 family, designed for frontier-quality local AI performance and multimodal functionality.
-          </div>
-          <div class="card-status">
-            <span class="status-dot training"></span> Coming Soon
-          </div>
+  <!-- NEWSROOM OVERLAY -->
+  <div class="newsroom-overlay" id="newsroom">
+    <div class="newsroom-header">
+      <span style="font-family:var(--mono); font-weight:700;">PARALLAX NEWSROOM</span>
+      <button class="newsroom-close" onclick="closeNewsroom()">Close ×</button>
+    </div>
+    
+    <div class="newsroom-content">
+      <article class="news-article">
+        <div class="news-date">October 19, 2026</div>
+        <h2 class="news-title">Parallax 2 Training Run Complete</h2>
+        <div class="news-body">
+          <p>We have officially finished training the flagship <strong>Parallax 2</strong> model on ~160,000 frontier reasoning and coding traces.</p>
+          <p>We are currently preparing to launch the weights and GGUF onto Hugging Face by tomorrow.</p>
         </div>
-      </div>
-    </section>
+      </article>
 
-    <footer class="footer">
-      <span>A subsidiary of <a href="https://parallaxstudios.xyz" target="_blank" rel="noopener">Parallax Studios</a></span>
-      <span>© 2026 Parallax Studios</span>
-    </footer>
+      <article class="news-article">
+        <div class="news-date">October 19, 2026</div>
+        <h2 class="news-title">Introducing Parallax App: Our local-first AI mini-lab, just for you!</h2>
+        <div class="news-body">
+          <p>We are building the simplest, easiest way to enjoy local AI, <strong>Parallax App</strong>. Parallax App is a unified desktop application that combines a lightning-fast Chat interface with an autonomous Agentic coding.</p>
+          <p>Parallax App empowers you to build multi-file complex project structures using Parallax Agent, or chat and reason with Parallax Chat.</p>
+        </div>
+      </article>
+
+      <article class="news-article">
+        <div class="news-date">October 17, 2026</div>
+        <h2 class="news-title">The $32 Frontier: How We Trained an Incredible Model on a Budget</h2>
+        <div class="news-body">
+          <p>While OpenAI and Anthropic are busy spending billions on GPUs, datacenters, and more... we rented a single RTX PRO 6000 for <code>$32</code>. By curating 160,000 elite traces from Opus, Fable, and OpenSWE, we distilled frontier-level intelligence into a 9B model that runs on consumer hardware.</p>
+          <p>We play by one belief in local AI: "Intelligence you can run should be intelligence you can run on YOUR OWN PHYSICAL HARDWARE."</p>
+        </div>
+      </article>
+    </div>
   </div>
 
 <script>
+// ── 1. BACKGROUND SPHERE ANIMATION ──
 (() => {
-  // ═══════════════════════════════════════════════════════════
-  // SPHERE
-  // ═══════════════════════════════════════════════════════════
   const canvas = document.getElementById('sphereCanvas');
   const ctx = canvas.getContext('2d');
-
   const maskCanvas = document.createElement('canvas');
   const maskCtx = maskCanvas.getContext('2d');
   let samplePixels = [];
 
   function buildMask() {
     const MW = 900, MH = 220;
-    maskCanvas.width = MW;
-    maskCanvas.height = MH;
+    maskCanvas.width = MW; maskCanvas.height = MH;
     maskCtx.clearRect(0, 0, MW, MH);
     maskCtx.fillStyle = '#fff';
     maskCtx.font = `700 100px 'JetBrains Mono', monospace`;
-    maskCtx.textAlign = 'center';
-    maskCtx.textBaseline = 'middle';
-
+    maskCtx.textAlign = 'center'; maskCtx.textBaseline = 'middle';
     const text = 'PARALLAX LABS';
     const measured = maskCtx.measureText(text).width;
-    const maxW = MW * 0.92;
-    const scale = Math.min(1, maxW / measured);
-
     maskCtx.save();
     maskCtx.translate(MW / 2, MH / 2);
-    maskCtx.scale(scale, 1);
+    maskCtx.scale(Math.min(1, (MW * 0.92) / measured), 1);
     maskCtx.fillText(text, 0, 0);
     maskCtx.restore();
 
     const img = maskCtx.getImageData(0, 0, MW, MH).data;
     samplePixels = [];
-    const step = 3;
-    for (let y = 0; y < MH; y += step) {
-      for (let x = 0; x < MW; x += step) {
-        const idx = (y * MW + x) * 4;
-        if (img[idx + 3] > 100) {
-          samplePixels.push({
-            nx: (x - MW / 2) / (MW / 2),
-            ny: (y - MH / 2) / (MH / 2),
-          });
+    for (let y = 0; y < MH; y += 3) {
+      for (let x = 0; x < MW; x += 3) {
+        if (img[(y * MW + x) * 4 + 3] > 100) {
+          samplePixels.push({ nx: (x - MW / 2) / (MW / 2), ny: (y - MH / 2) / (MH / 2) });
         }
       }
     }
   }
 
   let points = [];
-
   function buildPoints() {
     buildMask();
     points = [];
-    const N = samplePixels.length;
     const GOLDEN = Math.PI * (3 - Math.sqrt(5));
-
-    for (let i = 0; i < N; i++) {
-      const sample = samplePixels[i];
-      const t = i / Math.max(1, N - 1);
+    for (let i = 0; i < samplePixels.length; i++) {
+      const t = i / Math.max(1, samplePixels.length - 1);
       const y = 1 - 2 * t;
       const r = Math.sqrt(Math.max(0, 1 - y * y));
       const theta = GOLDEN * i;
-      const x = Math.cos(theta) * r;
-      const z = Math.sin(theta) * r;
-      points.push({
-        x, y, z,
-        tx: sample.nx,
-        ty: sample.ny,
-        screenX: 0, screenY: 0, depth: 0,
-      });
+      points.push({ x: Math.cos(theta) * r, y, z: Math.sin(theta) * r, tx: samplePixels[i].nx, ty: samplePixels[i].ny, screenX: 0, screenY: 0, depth: 0 });
     }
   }
 
-  let cssW = window.innerWidth;
-  let cssH = window.innerHeight;
-  let dpr = 1;
-
+  let cssW = window.innerWidth, cssH = window.innerHeight;
   function resize() {
-    cssW = window.innerWidth;
-    cssH = window.innerHeight;
-    dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(cssW * dpr);
-    canvas.height = Math.floor(cssH * dpr);
-    canvas.style.width = cssW + 'px';
-    canvas.style.height = cssH + 'px';
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   let mouseX = -9999, mouseY = -9999;
-
-  window.addEventListener('mousemove', e => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-  window.addEventListener('mouseleave', () => {
-    mouseX = -9999; mouseY = -9999;
-  });
-  window.addEventListener('touchmove', e => {
-    if (!e.touches[0]) return;
-    mouseX = e.touches[0].clientX;
-    mouseY = e.touches[0].clientY;
-  }, { passive: true });
-  window.addEventListener('touchend', () => {
-    mouseX = -9999; mouseY = -9999;
-  });
-
-  const ROT_SPEED = 0.00022;
-  const TILT = 0.28;
-  const PULL = 0.26;
-  const HOVER_RADIUS = 130;
-  const RADIUS_FRACTION = 0.55;
+  window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+  window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
 
   function render(now) {
     ctx.clearRect(0, 0, cssW, cssH);
-
-    const cx = cssW / 2;
-    const cy = cssH / 2;
-    const R = Math.min(cssW, cssH) * RADIUS_FRACTION;
-
-    const rotY = now * ROT_SPEED;
-    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-    const cosX = Math.cos(TILT), sinX = Math.sin(TILT);
+    const cx = cssW / 2, cy = cssH / 2, R = Math.min(cssW, cssH) * 0.55;
+    const rotY = now * 0.00022, cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const cosX = Math.cos(0.28), sinX = Math.sin(0.28);
+    const PULL = 0.26, HOVER_RADIUS = 130;
 
     for (const p of points) {
-      const sx = p.x * (1 - PULL) + p.tx * PULL;
-      const sy = p.y * (1 - PULL) + p.ty * PULL;
-      const sz = p.z * (1 - PULL);
-
-      const x1 = sx * cosY - sz * sinY;
-      const z1 = sx * sinY + sz * cosY;
-      const y2 = sy * cosX - z1 * sinX;
-      const z2 = sy * sinX + z1 * cosX;
-
+      const sx = p.x * (1 - PULL) + p.tx * PULL, sy = p.y * (1 - PULL) + p.ty * PULL, sz = p.z * (1 - PULL);
+      const x1 = sx * cosY - sz * sinY, z1 = sx * sinY + sz * cosY;
+      const y2 = sy * cosX - z1 * sinX, z2 = sy * sinX + z1 * cosX;
       const persp = 1.9 / (1.9 + z2);
-      p.screenX = cx + x1 * R * persp;
-      p.screenY = cy + y2 * R * persp;
-      p.depth = z2;
+      p.screenX = cx + x1 * R * persp; p.screenY = cy + y2 * R * persp; p.depth = z2;
     }
 
     points.sort((a, b) => a.depth - b.depth);
-
     for (const p of points) {
       const depthT = (p.depth + 1) / 2;
       let alpha = 0.08 + depthT * 0.55;
-
-      const dx = mouseX - p.screenX;
-      const dy = mouseY - p.screenY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < HOVER_RADIUS) {
-        const f = 1 - dist / HOVER_RADIUS;
-        alpha = Math.min(1, alpha + f * f * 0.85);
-      }
-
-      const dotR = 0.55 + depthT * 1.3 + (alpha > 0.9 ? 0.5 : 0);
-
+      const dist = Math.sqrt(Math.pow(mouseX - p.screenX, 2) + Math.pow(mouseY - p.screenY, 2));
+      if (dist < HOVER_RADIUS) alpha = Math.min(1, alpha + Math.pow(1 - dist / HOVER_RADIUS, 2) * 0.85);
       ctx.fillStyle = `rgba(232, 232, 232, ${alpha.toFixed(3)})`;
-      ctx.beginPath();
-      ctx.arc(p.screenX, p.screenY, dotR, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(p.screenX, p.screenY, 0.55 + depthT * 1.3, 0, Math.PI * 2); ctx.fill();
     }
-
-    requestAnimationFrame(render);
-  }
-
-  function boot() {
-    resize();
-    buildPoints();
     requestAnimationFrame(render);
   }
 
   window.addEventListener('resize', resize);
-
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(boot);
-  } else {
-    boot();
-  }
+  document.fonts.ready.then(() => { resize(); buildPoints(); requestAnimationFrame(render); });
 })();
 
-// ═══════════════════════════════════════════════════════════
-// ROUTING
-// ═══════════════════════════════════════════════════════════
+// ── 2. FLOATING PIXEL ORB ──
+(() => {
+  const canvas = document.getElementById('orbCanvas');
+  const ctx = canvas.getContext('2d');
+  let cssW = window.innerWidth, cssH = window.innerHeight;
+  
+  function resize() {
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+
+  // Create a small sphere of points
+  const orbPoints = [];
+  const ORB_RADIUS = 100;
+  const NUM_POINTS = 300;
+  for (let i = 0; i < NUM_POINTS; i++) {
+    const phi = Math.acos(-1 + (2 * i) / NUM_POINTS);
+    const theta = Math.sqrt(NUM_POINTS * Math.PI) * phi;
+    orbPoints.push({
+      x: ORB_RADIUS * Math.cos(theta) * Math.sin(phi),
+      y: ORB_RADIUS * Math.sin(theta) * Math.sin(phi),
+      z: ORB_RADIUS * Math.cos(phi),
+      ox: 0, oy: 0, oz: 0
+    });
+  }
+
+  let time = 0;
+  function renderOrb() {
+    ctx.clearRect(0, 0, cssW, cssH);
+    time += 0.01;
+
+    // Move the orb in a figure-8 / lissajous pattern
+    const cx = cssW / 2 + Math.sin(time * 0.5) * (cssW * 0.3);
+    const cy = cssH / 2 + Math.cos(time * 0.8) * (cssH * 0.3);
+    
+    // Rotation matrices
+    const rotX = time * 0.5;
+    const rotY = time * 0.7;
+    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+
+    for (const p of orbPoints) {
+      // Rotate Y
+      let x1 = p.x * cosY - p.z * sinY;
+      let z1 = p.x * sinY + p.z * cosY;
+      // Rotate X
+      let y2 = p.y * cosX - z1 * sinX;
+      let z2 = p.y * sinX + z1 * cosX;
+
+      const persp = 300 / (300 + z2);
+      p.ox = cx + x1 * persp;
+      p.oy = cy + y2 * persp;
+      p.oz = z2;
+    }
+
+    orbPoints.sort((a, b) => a.oz - b.oz);
+
+    for (const p of orbPoints) {
+      const depthT = (p.oz + ORB_RADIUS) / (2 * ORB_RADIUS);
+      // Fade out points that are farther away
+      let alpha = 0.1 + depthT * 0.5;
+      
+      // Neon green/blue accent for the orb
+      ctx.fillStyle = `rgba(120, 255, 180, ${alpha.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(p.ox, p.oy, 1 + depthT * 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    requestAnimationFrame(renderOrb);
+  }
+
+  resize();
+  requestAnimationFrame(renderOrb);
+})();
+
+// ── 3. NEWSROOM SLIDING LOGIC ──
+function openNewsroom() {
+  document.getElementById('main-wrapper').classList.add('slide-out');
+  document.getElementById('newsroom').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNewsroom() {
+  document.getElementById('main-wrapper').classList.remove('slide-out');
+  document.getElementById('newsroom').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
 function proceedToDemo() {
-  // Point this to wherever your 4B Colab/Cloudflare tunnel demo is
   window.location.href = '/chat';
 }
 </script>
