@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parallax Labs</title>
-<meta name="description" content="Parallax Labs — creating highly capable, yet tiny AI models.">
+<title>Parallax Labs - The $32 Frontier is Here</title>
+<meta name="description" content="Parallax Labs — creating highly capable, yet tiny AI models. Parallax 2 (9B) is now available.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -43,7 +43,7 @@
     display: block;
   }
   #orbCanvas {
-    z-index: 1; /* Floating above the background text, below the content */
+    z-index: 1;
     opacity: 0.4;
   }
   body::after {
@@ -152,7 +152,8 @@
     transition: all .2s var(--ease);
   }
   .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: 0 4px 20px rgba(255,255,255,0.1); }
-  .btn-primary { border-color: var(--text); }
+  .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .btn-primary:hover { background: #fff; }
   .btn-secondary { background: transparent; border-color: var(--text-dimmer); }
   .btn-secondary:hover { background: transparent; color: var(--text); border-color: var(--text); }
 
@@ -213,7 +214,7 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     padding: 10px 20px;
-    background: var(--text);
+    background: #4ade80; /* Green for available */
     display: inline-block;
     border-radius: 4px;
     align-self: center;
@@ -318,6 +319,7 @@
   .news-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
   .news-body { font-size: 14px; color: var(--text-dim2); line-height: 1.8; }
   .news-body p { margin-bottom: 16px; }
+  .news-body strong { color: var(--text); font-weight: 500; }
   .news-body code { background: var(--line); padding: 2px 6px; border-radius: 4px; font-family: var(--mono); font-size: 12px; color: var(--text); }
 
   @media (max-width: 720px) {
@@ -326,18 +328,15 @@
     .newsroom-header { padding: 16px 24px; }
     .hero .actions { flex-direction: column; width: 100%; }
     .hero .actions .btn { width: 100%; }
-    .family-grid { grid-template-columns: 1fr; }
+    .family-grid, .showcase-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
-  <!-- MAIN BACKGROUND SPHERE -->
   <canvas id="sphereCanvas"></canvas>
-  <!-- FLOATING PIXEL ORB -->
   <canvas id="orbCanvas"></canvas>
 
-  <!-- MAIN WEBSITE WRAPPER -->
   <div class="main-wrapper" id="main-wrapper">
     <div class="page">
       <div class="topbar">
@@ -355,27 +354,24 @@
           with a focus on reasoning capabilities as well as coding.
         </p>
         <div class="actions">
-          <a href="./chat/wch" class="btn btn-primary">Try Parallax 2 Mini</a>
-          <button class="btn btn-secondary" onclick="proceedToDemo()">Try Parallax 2 Preview</button>
+          <a href="./chat/wch" class="btn btn-primary">Try Parallax 2 Now</a>
+          <button class="btn btn-secondary" onclick="proceedToDemo()">Try Parallax 2 Mini</button>
         </div>
       </main>
 
-      <!-- SHOWCASE GRID (RESTORED) -->
       <div class="showcase-grid">
-        <!-- INTRODUCING PARALLAX 2 -->
         <section class="showcase-card">
           <h2 class="showcase-title">Introducing Parallax 2</h2>
           <p class="showcase-desc">
-            Our flagship reasoning model, with <strong>9 billion parameters</strong>. Trained on over 150,000 quality reasoning, coding, and debugging traces. Experience top-tier Claude Opus reasoning locally, tool calling via MCP, and more. It is comparable to models like Claude Sonnet and GPT-5.6. What's the best part? <strong>Parallax 2 can run all locally.</strong>
+            Our flagship reasoning model, with <strong>9 billion parameters</strong>. Trained on over 202,000 elite reasoning, coding, and agentic traces from models like Claude Opus and GPT-5.6. It is comparable to frontier models, but <strong>Parallax 2 can run all locally</strong>. Experience top-tier reasoning locally with a 262K context window.
           </p>
-          <div class="showcase-teaser">Coming in ? hours...</div>
+          <a href="https://huggingface.co/parallaxlabs/parallax-2" target="_blank" class="showcase-teaser">Available Now</a>
         </section>
 
-        <!-- INTRODUCING PARALLAX APP -->
         <section class="showcase-card">
           <h2 class="showcase-title">Introducing Parallax App</h2>
           <p class="showcase-desc">
-            Our simple, yet powerful <strong>local-first AI workbench</strong>. Chat with Parallax 2, build complex projects with Parallax 2 Agent, and chat with Parallax 2 in Chat Mode.
+            Our simple, yet powerful <strong>local-first AI workbench</strong>. Chat with Parallax 2, build complex projects with Parallax 2 Agent, and chat with Parallax 2 in Chat Mode. No cloud, no APIs, no subscriptions. Just you, your hardware, and the most capable local AI suite ever built.
           </p>
           <div class="showcase-teaser outline">Available Soon</div>
         </section>
@@ -402,13 +398,13 @@
             <div class="card-status"><span class="status-dot live"></span> Available Now</div>
           </div>
 
-          <div class="family-card">
+          <div class="family-card active">
             <div class="card-header">
               <div class="card-title">Parallax 2</div>
               <div class="card-size">9B</div>
             </div>
-            <div class="card-desc">The flagship reasoning model. 9 billion parameters, trained on 150K+ frontier traces.</div>
-            <div class="card-status"><span class="status-dot training"></span> Coming Soon</div>
+            <div class="card-desc">The flagship reasoning model. 9 billion parameters, trained on 202K+ frontier traces.</div>
+            <div class="card-status"><span class="status-dot live"></span> Available Now</div>
           </div>
         </div>
       </section>
@@ -429,31 +425,33 @@
     
     <div class="newsroom-content">
       <article class="news-article">
-        <div class="news-date">October 19, 2026</div>
-        <h2 class="news-title">Parallax 2 Training Run Complete</h2>
+        <div class="news-date">October 20, 2026</div>
+        <h2 class="news-title">Parallax 2 is Officially Available</h2>
         <div class="news-body">
-          <p>We have officially finished training the flagship <strong>Parallax 2</strong> model on ~160,000 frontier reasoning and coding traces.</p>
-          <p>We are currently preparing to launch the weights and GGUF onto Hugging Face by tomorrow.</p>
+          <p>We are thrilled to announce the public release of <strong>Parallax 2</strong>. After a successful training run on over 202,456 frontier traces, our flagship 9-billion-parameter model is ready for the world. It is designed to be a top-tier local AI for reasoning, coding, and autonomous agentic tasks.</p>
+          <p>Parallax 2 is now available for download on HuggingFace. You can run it locally using tools like LM Studio or Ollama, and experience frontier-level intelligence on your own hardware.</p>
+        </div>
+      </article>
+    
+            <article class="news-article">
+        <div class="news-date">October 19, 2026</div>
+        <h2 class="news-title">A Game Built by AI: Parallax 2 on an RTX 5070</h2>
+        <div class="news-body">
+          <p>In a recent internal test, we tasked Parallax 2 with building a multiplayer, 3D game from scratch. Running locally on an RTX 5070, the model autonomously architected a multi-file project (JS, CSS, HTML), wrote a WebRTC-based networking layer, and generated a full 3D game engine using Three.js.</p>
+          <p>The model's ability to build a complex codebase and debug its own errors in real-time demonstrates the power of our agentic training data. This is a new era for local AI software engineering.</p>
         </div>
       </article>
 
       <article class="news-article">
         <div class="news-date">October 19, 2026</div>
-        <h2 class="news-title">Introducing Parallax App: Our local-first AI mini-lab, just for you!</h2>
+        <h2 class="news-title">The $32 Frontier: How We Trained a 9B Model on a Budget</h2>
         <div class="news-body">
-          <p>We are building the simplest, easiest way to enjoy local AI, <strong>Parallax App</strong>. Parallax App is a unified desktop application that combines a lightning-fast Chat interface with an autonomous Agentic coding.</p>
-          <p>Parallax App empowers you to build multi-file complex project structures using Parallax Agent, or chat and reason with Parallax Chat.</p>
+          <p>While cloud giants spend billions on data centers, we rented a single RTX PRO 6000 for <code>$32</code>. By curating elite traces from Opus, Fable, and OpenSWE, we distilled frontier-level intelligence into a 9B model that runs on consumer hardware.</p>
+          <p>This is our manifesto: <strong>Intelligence belongs on the hardware you actually own.</strong></p>
         </div>
       </article>
 
-      <article class="news-article">
-        <div class="news-date">October 17, 2026</div>
-        <h2 class="news-title">The $32 Frontier: How We Trained an Incredible Model on a Budget</h2>
-        <div class="news-body">
-          <p>While OpenAI and Anthropic are busy spending billions on GPUs, datacenters, and more... we rented a single RTX PRO 6000 for <code>$32</code>. By curating 160,000 elite traces from Opus, Fable, and OpenSWE, we distilled frontier-level intelligence into a 9B model that runs on consumer hardware.</p>
-          <p>We play by one belief in local AI: "Intelligence you can run should be intelligence you can run on YOUR OWN PHYSICAL HARDWARE."</p>
-        </div>
-      </article>
+
     </div>
   </div>
 
@@ -565,7 +563,6 @@
   }
   window.addEventListener('resize', resize);
 
-  // Create a small sphere of points
   const orbPoints = [];
   const ORB_RADIUS = 100;
   const NUM_POINTS = 300;
@@ -585,21 +582,17 @@
     ctx.clearRect(0, 0, cssW, cssH);
     time += 0.01;
 
-    // Move the orb in a figure-8 / lissajous pattern
     const cx = cssW / 2 + Math.sin(time * 0.5) * (cssW * 0.3);
     const cy = cssH / 2 + Math.cos(time * 0.8) * (cssH * 0.3);
     
-    // Rotation matrices
     const rotX = time * 0.5;
     const rotY = time * 0.7;
     const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
     const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
 
     for (const p of orbPoints) {
-      // Rotate Y
       let x1 = p.x * cosY - p.z * sinY;
       let z1 = p.x * sinY + p.z * cosY;
-      // Rotate X
       let y2 = p.y * cosX - z1 * sinX;
       let z2 = p.y * sinX + z1 * cosX;
 
@@ -613,10 +606,8 @@
 
     for (const p of orbPoints) {
       const depthT = (p.oz + ORB_RADIUS) / (2 * ORB_RADIUS);
-      // Fade out points that are farther away
       let alpha = 0.1 + depthT * 0.5;
       
-      // Neon green/blue accent for the orb
       ctx.fillStyle = `rgba(120, 255, 180, ${alpha.toFixed(3)})`;
       ctx.beginPath();
       ctx.arc(p.ox, p.oy, 1 + depthT * 2, 0, Math.PI * 2);
