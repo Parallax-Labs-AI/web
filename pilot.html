@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallax Pilot — The Local AI Agent</title>
+<meta name="description" content="Parallax Pilot: The all-new local AI agent with up to 1 million context. It doesn't just chat—it executes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Added FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --text: #e8e8e8;
+    --text-dim2: #7a7a7a;
+    --text-dimmer: #4a4a4a;
+    --line: #1e1e1e;
+    --line-bright: #333333;
+    --accent: #f0f0f0;
+    --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+    --ease: cubic-bezier(.2,.8,.2,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow-x: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+
+  /* ── BACKGROUND CANVASES (Reused from index) ── */
+  #sphereCanvas, #orbCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    display: block;
+  }
+  #orbCanvas { z-index: 1; opacity: 0.4; }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.25) 45%, rgba(10,10,10,0.85) 85%, rgba(10,10,10,0.95) 100%),
+      linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.9) 100%);
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 56px;
+    min-height: 100vh;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .topbar {
+    font-size: 12px;
+    color: var(--text-dim2);
+    letter-spacing: 0.08em;
+    margin-bottom: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .topbar a {
+    color: var(--text); text-decoration: none; border-bottom: 1px solid transparent;
+    transition: 0.2s; display: flex; align-items: center; gap: 8px;
+  }
+  .topbar a:hover { border-bottom-color: var(--text); }
+
+  /* ── HERO ── */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 40px 0 80px;
+    border-bottom: 1px solid var(--line);
+  }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--bg);
+    background: #4ade80;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    display: inline-block;
+  }
+  .logo-title {
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin-bottom: 24px;
+    color: var(--text);
+    text-transform: uppercase;
+    text-shadow: 0 4px 40px rgba(0,0,0,0.9);
+  }
+  .lede {
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--text-dim2);
+    max-width: 720px;
+    margin-bottom: 40px;
+  }
+  .lede strong { color: var(--text); font-weight: 500; }
+
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 14px 22px; background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(8px);
+    color: var(--text); border: 1px solid var(--text-dim2);
+    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    text-decoration: none; cursor: pointer; transition: all .2s var(--ease);
+  }
+  .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .btn-primary:hover { background: #fff; }
+
+  /* ── FEATURES GRID ── */
+  .features-section {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-title {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text-dimmer); margin-bottom: 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-title::after { content: ''; height: 1px; flex: 1; background: var(--line); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .feature-card {
+    background: rgba(13, 13, 13, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    padding: 32px;
+    border-radius: 8px;
+    transition: border-color 0.3s var(--ease);
+  }
+  .feature-card:hover { border-color: var(--line-bright); }
+  
+  /* Updated Feature Icon Styles */
+  .feature-icon {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--line-bright); border-radius: 6px;
+    margin-bottom: 20px; font-size: 18px; color: var(--text);
+    background: var(--bg);
+  }
+  
+  .feature-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+  .feature-desc { font-size: 13px; color: var(--text-dim2); line-height: 1.7; }
+
+  /* ── TERMINAL PREVIEW ── */
+  .terminal-section { padding: 80px 0 120px; }
+  .terminal {
+    background: #050505;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 13px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  }
+  .term-header {
+    background: #0d0d0d; padding: 10px 16px; border-bottom: 1px solid var(--line);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .term-dot { width: 10px; height: 10px; border-radius: 50%; background: #333; }
+  .term-body { padding: 24px; color: var(--text-dim2); line-height: 1.8; }
+  .term-prompt { color: #4ade80; }
+  .term-cmd { color: var(--text); }
+  .term-out { color: var(--text-dimmer); margin-bottom: 16px; }
+  .term-success { color: #4ade80; }
+  .term-cursor {
+    display: inline-block; width: 8px; height: 15px; background: var(--text);
+    vertical-align: text-bottom; animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  @media (max-width: 720px) {
+    .page { padding: 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .actions { flex-direction: column; }
+    .actions .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+  <canvas id="sphereCanvas"></canvas>
+  <canvas id="orbCanvas"></canvas>
+
+  <div class="page">
+    <div class="topbar">
+      <span>PARALLAX LABS</span>
+      <a href="index.html">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to Home
+      </a>
+    </div>
+
+    <main class="hero">
+      <div class="badge">Coming Soon</div>
+      <h1 class="logo-title">Parallax<br>Pilot</h1>
+      <p class="lede">
+        The all-new <strong>local AI agent</strong> that doesn't just chat—it executes. Powered by the Parallax 2 architecture and featuring a massive <strong>1 million token context window</strong>, Pilot can read entire codebases, navigate file systems, and run complex tasks autonomously on your own hardware.
+      </p>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="alert('The Parallax Pilot waitlist is currently closed.')">Join Waitlist</button>
+        <a href="index.html" class="btn">Explore Parallax Labs</a>
+      </div>
+    </main>
+
+    <section class="features-section">
+      <div class="section-title">Pilot vs. Competition</div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+          <div class="feature-title">1 Million Token Context</div>
+          <div class="feature-desc">Pilot, powered by Parallax 2 Mini, uses Gated DeltaNet architecture. This means that Pilot can run significantly more efficient than standard Transformer models. It can run its full 1 million context on approximately 5GB of VRAM.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          <div class="feature-title">Agentic Toolcalling</div>
+          <div class="feature-desc">Pilot doesn't just provide an answer, it can take action, such as create or edit files, create folders, run commands, search the web, and more tasks with the Parallax App API.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="feature-title">100% Local, 100% Private</div>
+          <div class="feature-desc">Pilot is designed for local on-device inference, meaning your data is safe with Pilot, and never leaves your device.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+          <div class="feature-title">Powered by Parallax 2 models</div>
+          <div class="feature-desc">Pilot is powered by our leading Parallax 2 family of AI models. Pilot uses Parallax 2 Mini, with an extended 1 million context window for maximum understanding and capability.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="terminal-section">
+      <div class="section-title">See it in action</div>
+      <div class="terminal">
+        <div class="term-header">
+          <div class="term-dot"></div>
+          <div class="term-dot"></div>
+          <div class="term-dot"></div>
+        </div>
+        <div class="term-body">
+          <div><span class="term-prompt">❯</span> <span class="term-cmd">pilot "I need you to create me a report on why NVIDIA GPUs are great for gaming."</span></div>
+          <div class="term-out">
+[Thinking...] I need to use the web to research about NVIDIA and AMD GPUs and their advantages and disadvantages.<br>
+[Tool: web_search] <span class="term-out">Search google.com</span><br>
+[Tool Output] greenwaveelectronics.com/blog/amd-vs-nvidia-gpu-comparison, redswitches.com/blog/amd-vs-nvidia-gpus/, reddit.com/r/buildapc/comments/1oxqqne/which_is_better_nvidia_or_amd/<br>
+[Thinking...] I will read these articles / websites to extract information and compile the report.<br>
+[Tool: create_file] <span class="term-out">./nvidia-vs-amd.md</span><br>
+[Thinking...] I will now begin to write the report, and validate it.
+          </div>
+          <div><span class="term-prompt">❯</span> <span class="term-cmd">[Agent is executing 4 tool calls...]</span> <span class="term-cursor"></span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+// ── 1. BACKGROUND SPHERE ANIMATION ──
+(() => {
+  const canvas = document.getElementById('sphereCanvas');
+  const ctx = canvas.getContext('2d');
+  const maskCanvas = document.createElement('canvas');
+  const maskCtx = maskCanvas.getContext('2d');
+  let samplePixels = [];
+
+  function buildMask() {
+    const MW = 900, MH = 220;
+    maskCanvas.width = MW; maskCanvas.height = MH;
+    maskCtx.clearRect(0, 0, MW, MH);
+    maskCtx.fillStyle = '#fff';
+    maskCtx.font = `700 100px 'JetBrains Mono', monospace`;
+    maskCtx.textAlign = 'center'; maskCtx.textBaseline = 'middle';
+    const text = 'PARALLAX LABS';
+    const measured = maskCtx.measureText(text).width;
+    maskCtx.save();
+    maskCtx.translate(MW / 2, MH / 2);
+    maskCtx.scale(Math.min(1, (MW * 0.92) / measured), 1);
+    maskCtx.fillText(text, 0, 0);
+    maskCtx.restore();
+
+    const img = maskCtx.getImageData(0, 0, MW, MH).data;
+    samplePixels = [];
+    for (let y = 0; y < MH; y += 3) {
+      for (let x = 0; x < MW; x += 3) {
+        if (img[(y * MW + x) * 4 + 3] > 100) {
+          samplePixels.push({ nx: (x - MW / 2) / (MW / 2), ny: (y - MH / 2) / (MH / 2) });
+        }
+      }
+    }
+  }
+
+  let points = [];
+  function buildPoints() {
+    buildMask();
+    points = [];
+    const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < samplePixels.length; i++) {
+      const t = i / Math.max(1, samplePixels.length - 1);
+      const y = 1 - 2 * t;
+      const r = Math.sqrt(Math.max(0, 1 - y * y));
+      const theta = GOLDEN * i;
+      points.push({ x: Math.cos(theta) * r, y, z: Math.sin(theta) * r, tx: samplePixels[i].nx, ty: samplePixels[i].ny, screenX: 0, screenY: 0, depth: 0 });
+    }
+  }
+
+  let cssW = window.innerWidth, cssH = window.innerHeight;
+  function resize() {
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  let mouseX = -9999, mouseY = -9999;
+  window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+  window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
+
+  function render(now) {
+    ctx.clearRect(0, 0, cssW, cssH);
+    const cx = cssW / 2, cy = cssH / 2, R = Math.min(cssW, cssH) * 0.55;
+    const rotY = now * 0.00022, cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const cosX = Math.cos(0.28), sinX = Math.sin(0.28);
+    const PULL = 0.26, HOVER_RADIUS = 130;
+
+    for (const p of points) {
+      const sx = p.x * (1 - PULL) + p.tx * PULL, sy = p.y * (1 - PULL) + p.ty * PULL, sz = p.z * (1 - PULL);
+      const x1 = sx * cosY - sz * sinY, z1 = sx * sinY + sz * cosY;
+      const y2 = sy * cosX - z1 * sinX, z2 = sy * sinX + z1 * cosX;
+      const persp = 1.9 / (1.9 + z2);
+      p.screenX = cx + x1 * R * persp; p.screenY = cy + y2 * R * persp; p.depth = z2;
+    }
+
+    points.sort((a, b) => a.depth - b.depth);
+    for (const p of points) {
+      const depthT = (p.depth + 1) / 2;
+      let alpha = 0.08 + depthT * 0.55;
+      const dist = Math.sqrt(Math.pow(mouseX - p.screenX, 2) + Math.pow(mouseY - p.screenY, 2));
+      if (dist < HOVER_RADIUS) alpha = Math.min(1, alpha + Math.pow(1 - dist / HOVER_RADIUS, 2) * 0.85);
+      ctx.fillStyle = `rgba(232, 232, 232, ${alpha.toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(p.screenX, p.screenY, 0.55 + depthT * 1.3, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(render);
+  }
+
+  window.addEventListener('resize', resize);
+  document.fonts.ready.then(() => { resize(); buildPoints(); requestAnimationFrame(render); });
+})();
+
+// ── 2. FLOATING PIXEL ORB ──
+(() => {
+  const canvas = document.getElementById('orbCanvas');
+  const ctx = canvas.getContext('2d');
+  let cssW = window.innerWidth, cssH = window.innerHeight;
+  
+  function resize() {
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+
+  const orbPoints = [];
+  const ORB_RADIUS = 100;
+  const NUM_POINTS = 300;
+  for (let i = 0; i < NUM_POINTS; i++) {
+    const phi = Math.acos(-1 + (2 * i) / NUM_POINTS);
+    const theta = Math.sqrt(NUM_POINTS * Math.PI) * phi;
+    orbPoints.push({
+      x: ORB_RADIUS * Math.cos(theta) * Math.sin(phi),
+      y: ORB_RADIUS * Math.sin(theta) * Math.sin(phi),
+      z: ORB_RADIUS * Math.cos(phi),
+      ox: 0, oy: 0, oz: 0
+    });
+  }
+
+  let time = 0;
+  function renderOrb() {
+    ctx.clearRect(0, 0, cssW, cssH);
+    time += 0.01;
+
+    const cx = cssW / 2 + Math.sin(time * 0.5) * (cssW * 0.3);
+    const cy = cssH / 2 + Math.cos(time * 0.8) * (cssH * 0.3);
+    
+    const rotX = time * 0.5;
+    const rotY = time * 0.7;
+    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+
+    for (const p of orbPoints) {
+      let x1 = p.x * cosY - p.z * sinY;
+      let z1 = p.x * sinY + p.z * cosY;
+      let y2 = p.y * cosX - z1 * sinX;
+      let z2 = p.y * sinX + z1 * cosX;
+
+      const persp = 300 / (300 + z2);
+      p.ox = cx + x1 * persp;
+      p.oy = cy + y2 * persp;
+      p.oz = z2;
+    }
+
+    orbPoints.sort((a, b) => a.oz - b.oz);
+
+    for (const p of orbPoints) {
+      const depthT = (p.oz + ORB_RADIUS) / (2 * ORB_RADIUS);
+      let alpha = 0.1 + depthT * 0.5;
+      
+      ctx.fillStyle = `rgba(120, 255, 180, ${alpha.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(p.ox, p.oy, 1 + depthT * 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    requestAnimationFrame(renderOrb);
+  }
+
+  resize();
+  requestAnimationFrame(renderOrb);
+})();
+</script>
+</body>
+</html>
