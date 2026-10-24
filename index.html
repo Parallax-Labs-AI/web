@@ -17,6 +17,8 @@
     --line: #1e1e1e;
     --line-bright: #333333;
     --accent: #f0f0f0;
+    --accent-green: #4ade80;
+    --accent-amber: #fbbf24;
     --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
     --ease: cubic-bezier(.2,.8,.2,1);
   }
@@ -32,35 +34,55 @@
     position: relative;
   }
 
-  /* ── BACKGROUND CANVASES ── */
-  #sphereCanvas, #orbCanvas {
+  /* ── LAB ENVIRONMENT BACKGROUND ── */
+  .lab-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    pointer-events: none;
+  }
+
+  #sphereCanvas, #orbCanvas, #glowCanvas {
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
     display: block;
   }
   #orbCanvas {
-    z-index: 1;
-    opacity: 0.4;
+    z-index: 2;
+    opacity: 0.3;
+    transform: scale(1.5) translate(10%, 5%);
   }
+  #glowCanvas {
+    z-index: 0;
+    opacity: 0.15;
+    filter: blur(40px);
+  }
+  
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
     background:
-      radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.25) 45%, rgba(10,10,10,0.85) 85%, rgba(10,10,10,0.95) 100%),
-      linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.9) 100%);
+      radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.4) 45%, rgba(10,10,10,0.9) 85%, rgba(10,10,10,1) 100%),
+      linear-gradient(180deg, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.95) 100%);
   }
 
   /* ── MAIN LAYOUT ── */
   .main-wrapper {
     position: relative;
-    z-index: 3;
+    z-index: 4;
     transition: transform 0.6s var(--ease), opacity 0.4s var(--ease);
     min-height: 100vh;
     display: flex;
@@ -82,10 +104,12 @@
     font-size: 12px;
     color: var(--text-dim2);
     letter-spacing: 0.08em;
-    margin-bottom: 80px;
+    margin-bottom: 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
   }
   .topbar nav { display: flex; gap: 16px; }
   .topbar button {
@@ -105,14 +129,14 @@
     max-width: 720px;
     width: 100%;
     margin: 0 auto;
-    padding: 40px 0 80px;
+    padding: 40px 0 60px;
   }
   .logo-title {
     font-size: clamp(56px, 9vw, 128px);
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 0.95;
-    margin-bottom: 56px;
+    margin-bottom: 48px;
     color: var(--text);
     text-transform: uppercase;
     text-shadow: 0 4px 40px rgba(0,0,0,0.9), 0 2px 12px rgba(0,0,0,0.7);
@@ -150,71 +174,102 @@
     text-decoration: none;
     cursor: pointer;
     transition: all .2s var(--ease);
+    position: relative;
+    overflow: hidden;
   }
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    transition: left 0.5s;
+  }
+  .btn:hover::before { left: 100%; }
   .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: 0 4px 20px rgba(255,255,255,0.1); }
   .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
   .btn-primary:hover { background: #fff; }
   .btn-secondary { background: transparent; border-color: var(--text-dimmer); }
   .btn-secondary:hover { background: transparent; color: var(--text); border-color: var(--text); }
 
-  /* ── SHOWCASE GRID ── */
+  /* ── SHOWCASE GRID (HORIZONTAL) ── */
   .showcase-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 0;
+    padding: 20px 0;
     width: 100%;
   }
   .showcase-card {
-    background: rgba(13, 13, 13, 0.6);
-    backdrop-filter: blur(10px);
+    background: rgba(13, 13, 13, 0.65);
+    backdrop-filter: blur(12px);
     border: 1px solid var(--line);
     border-radius: 8px;
-    padding: 32px 24px;
+    padding: 28px 24px;
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     text-align: center;
-    transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+    transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), transform 0.3s var(--ease);
   }
   .showcase-card:hover {
     border-color: var(--line-bright);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    transform: translateY(-2px);
   }
-  .showcase-card::before {
+  /* Lab-style corner brackets */
+  .showcase-card::before, .showcase-card::after {
     content: '';
     position: absolute;
-    top: 0; left: 50%; transform: translateX(-50%);
-    width: 60%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    width: 12px; height: 12px;
+    border-color: var(--text-dimmer);
+    border-style: solid;
+    pointer-events: none;
+    transition: border-color 0.3s;
   }
+  .showcase-card::before {
+    top: 8px; left: 8px;
+    border-width: 1px 0 0 1px;
+  }
+  .showcase-card::after {
+    bottom: 8px; right: 8px;
+    border-width: 0 1px 1px 0;
+  }
+  .showcase-card:hover::before, .showcase-card:hover::after {
+    border-color: var(--text);
+  }
+  .showcase-card.upcoming:hover::before, .showcase-card.upcoming:hover::after {
+    border-color: var(--accent-amber);
+  }
+
   .showcase-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     color: var(--text);
     text-shadow: 0 0 20px rgba(255,255,255,0.1);
   }
   .showcase-desc {
-    font-size: 13px;
-    line-height: 1.7;
+    font-size: 12px;
+    line-height: 1.6;
     color: var(--text-dim2);
-    margin: 0 auto 24px;
+    margin: 0 auto 20px;
     flex: 1;
   }
   .showcase-desc strong { color: var(--text); font-weight: 500; }
+  
   .showcase-teaser {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: var(--bg);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 10px 20px;
-    background: #4ade80; /* Green for available */
+    padding: 8px 16px;
+    background: var(--accent-green);
     display: inline-block;
     border-radius: 4px;
     align-self: center;
@@ -227,11 +282,34 @@
     border: 1px solid var(--text);
   }
 
+  /* ── UPCOMING TEASER CARD ── */
+  .showcase-card.upcoming {
+    border-color: rgba(251, 191, 36, 0.15);
+    background: rgba(13, 13, 13, 0.4);
+  }
+  .showcase-card.upcoming .showcase-title {
+    color: var(--text-dim2);
+  }
+  .showcase-card.upcoming .showcase-desc {
+    color: var(--text-dimmer);
+    font-style: italic;
+  }
+  .showcase-teaser.coming {
+    background: transparent;
+    color: var(--accent-amber);
+    border: 1px dashed rgba(251, 191, 36, 0.4);
+    animation: pulse-border 3s infinite;
+  }
+  @keyframes pulse-border {
+    0%, 100% { border-color: rgba(251, 191, 36, 0.4); }
+    50% { border-color: rgba(251, 191, 36, 0.9); box-shadow: 0 0 15px rgba(251, 191, 36, 0.1); }
+  }
+
   /* ── MODEL FAMILY SECTION ── */
   .family-section {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 80px 0 120px;
+    padding: 60px 0 100px;
     width: 100%;
     border-top: 1px solid var(--line);
   }
@@ -246,15 +324,16 @@
     gap: 16px;
   }
   .section-label::after { content: ''; height: 1px; flex: 1; background: var(--line); }
-  .family-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .family-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
   .family-card {
-    background: rgba(13, 13, 13, 0.6);
+    background: rgba(13, 13, 13, 0.5);
     backdrop-filter: blur(10px);
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 24px;
     display: flex; flex-direction: column;
     transition: all 0.3s var(--ease);
+    position: relative;
   }
   .family-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.4); }
   .family-card.active { border-color: rgba(255, 255, 255, 0.3); background: rgba(20, 20, 20, 0.8); }
@@ -264,8 +343,8 @@
   .card-desc { font-size: 12px; color: var(--text-dim2); line-height: 1.6; flex: 1; }
   .card-status { margin-top: 20px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: var(--text-dim2); text-transform: uppercase; }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dimmer); }
-  .status-dot.live { background: #4ade80; box-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
-  .status-dot.training { background: #fbbf24; animation: pulse 2s infinite; }
+  .status-dot.live { background: var(--accent-green); box-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
+  .status-dot.training { background: var(--accent-amber); animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
 
   /* ── FOOTER ── */
@@ -322,6 +401,10 @@
   .news-body strong { color: var(--text); font-weight: 500; }
   .news-body code { background: var(--line); padding: 2px 6px; border-radius: 4px; font-family: var(--mono); font-size: 12px; color: var(--text); }
 
+  @media (max-width: 1024px) {
+    .showcase-grid { grid-template-columns: 1fr 1fr; }
+    .showcase-card.upcoming { grid-column: 1 / -1; max-width: 480px; margin: 0 auto; }
+  }
   @media (max-width: 720px) {
     .page { padding: 24px; }
     .topbar { margin-bottom: 40px; }
@@ -334,6 +417,9 @@
 </head>
 <body>
 
+  <!-- Background Lab Elements -->
+  <div class="lab-grid"></div>
+  <canvas id="glowCanvas"></canvas>
   <canvas id="sphereCanvas"></canvas>
   <canvas id="orbCanvas"></canvas>
 
@@ -350,7 +436,7 @@
       <main class="hero">
         <h1 class="logo-title">Parallax<br>Labs</h1>
         <p class="lede">
-          Creating amazing AI <em>models that are highly capable, yet tiny,</em>
+          Creating stunning AI <em>models that are highly capable, yet easy to run,</em>
           with a focus on reasoning capabilities as well as coding.
         </p>
         <div class="actions">
@@ -360,6 +446,7 @@
         </div>
       </main>
 
+      <!-- Horizontal Showcase Grid -->
       <div class="showcase-grid">
         <section class="showcase-card">
           <h2 class="showcase-title">Introducing Parallax 2</h2>
@@ -376,6 +463,15 @@
           </p>
           <div class="showcase-teaser outline">Available Soon</div>
         </section>
+
+        <!-- Upcoming Teaser Card (Now inline) -->
+        <section class="showcase-card upcoming">
+          <h2 class="showcase-title">Parallax 2.1 Max</h2>
+          <p class="showcase-desc">
+            Something a little spooky is happening in the lab right now. Be ware, big AI companies.
+          </p>
+          <div class="showcase-teaser coming">Coming Soon</div>
+        </section>
       </div>
 
       <section class="family-section">
@@ -387,15 +483,6 @@
               <div class="card-size">0.8B</div>
             </div>
             <div class="card-desc">The smallest model in the family, running on laptops with just 2GB of RAM.</div>
-            <div class="card-status"><span class="status-dot live"></span> Available Now</div>
-          </div>
-
-          <div class="family-card">
-            <div class="card-header">
-              <div class="card-title">Parallax 2 Preview</div>
-              <div class="card-size">4B</div>
-            </div>
-            <div class="card-desc">A scaled-down version of the flagship model, featuring structured Opus-style reasoning.</div>
             <div class="card-status"><span class="status-dot live"></span> Available Now</div>
           </div>
 
@@ -423,6 +510,15 @@
       <span style="font-family:var(--mono); font-weight:700;">PARALLAX NEWSROOM</span>
       <button class="newsroom-close" onclick="closeNewsroom()">Close ×</button>
     </div>
+        <div class="newsroom-content">
+      <article class="news-article">
+        <div class="news-date">October 24, 2026</div>
+        <h2 class="news-title">Something spooky in the lab - Parallax 2.1 Max</h2>
+        <div class="news-body">
+          <p>Something quite spooky is happening in the lab today,<strong> they're saying that big AI companies should be scared.</strong>. What could they mean? Something truly terrifying must be brewing in the lab.</p>
+          <p>Parallax 2.1 Max is trying to be spooooooky again.</p>
+        </div>
+      </article>
     
     <div class="newsroom-content">
       <article class="news-article">
@@ -434,7 +530,7 @@
         </div>
       </article>
     
-            <article class="news-article">
+      <article class="news-article">
         <div class="news-date">October 19, 2026</div>
         <h2 class="news-title">A Game Built by AI: Parallax 2 on an RTX 5070</h2>
         <div class="news-body">
@@ -451,8 +547,6 @@
           <p>This is our manifesto: <strong>Intelligence belongs on the hardware you actually own.</strong></p>
         </div>
       </article>
-
-
     </div>
   </div>
 
@@ -549,7 +643,7 @@
   document.fonts.ready.then(() => { resize(); buildPoints(); requestAnimationFrame(render); });
 })();
 
-// ── 2. FLOATING PIXEL ORB ──
+// ── 2. FLOATING PIXEL ORB (Green / Amber mix) ──
 (() => {
   const canvas = document.getElementById('orbCanvas');
   const ctx = canvas.getContext('2d');
@@ -565,8 +659,8 @@
   window.addEventListener('resize', resize);
 
   const orbPoints = [];
-  const ORB_RADIUS = 100;
-  const NUM_POINTS = 300;
+  const ORB_RADIUS = 120;
+  const NUM_POINTS = 400;
   for (let i = 0; i < NUM_POINTS; i++) {
     const phi = Math.acos(-1 + (2 * i) / NUM_POINTS);
     const theta = Math.sqrt(NUM_POINTS * Math.PI) * phi;
@@ -581,13 +675,13 @@
   let time = 0;
   function renderOrb() {
     ctx.clearRect(0, 0, cssW, cssH);
-    time += 0.01;
+    time += 0.008;
 
-    const cx = cssW / 2 + Math.sin(time * 0.5) * (cssW * 0.3);
-    const cy = cssH / 2 + Math.cos(time * 0.8) * (cssH * 0.3);
+    const cx = cssW / 2 + Math.sin(time * 0.4) * (cssW * 0.35);
+    const cy = cssH / 2 + Math.cos(time * 0.6) * (cssH * 0.35);
     
-    const rotX = time * 0.5;
-    const rotY = time * 0.7;
+    const rotX = time * 0.4;
+    const rotY = time * 0.6;
     const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
     const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
 
@@ -597,7 +691,7 @@
       let y2 = p.y * cosX - z1 * sinX;
       let z2 = p.y * sinX + z1 * cosX;
 
-      const persp = 300 / (300 + z2);
+      const persp = 400 / (400 + z2);
       p.ox = cx + x1 * persp;
       p.oy = cy + y2 * persp;
       p.oz = z2;
@@ -607,11 +701,16 @@
 
     for (const p of orbPoints) {
       const depthT = (p.oz + ORB_RADIUS) / (2 * ORB_RADIUS);
-      let alpha = 0.1 + depthT * 0.5;
+      let alpha = 0.05 + depthT * 0.4;
       
-      ctx.fillStyle = `rgba(120, 255, 180, ${alpha.toFixed(3)})`;
+      // Mix green and amber based on x-position for a lab feel
+      const isAmber = p.x > 20;
+      ctx.fillStyle = isAmber 
+        ? `rgba(251, 191, 36, ${alpha.toFixed(3)})`
+        : `rgba(74, 222, 128, ${alpha.toFixed(3)})`;
+      
       ctx.beginPath();
-      ctx.arc(p.ox, p.oy, 1 + depthT * 2, 0, Math.PI * 2);
+      ctx.arc(p.ox, p.oy, 1 + depthT * 2.5, 0, Math.PI * 2);
       ctx.fill();
     }
     requestAnimationFrame(renderOrb);
@@ -621,7 +720,58 @@
   requestAnimationFrame(renderOrb);
 })();
 
-// ── 3. NEWSROOM SLIDING LOGIC ──
+// ── 3. GLOWING BACKGROUND ORBS ──
+(() => {
+  const canvas = document.getElementById('glowCanvas');
+  const ctx = canvas.getContext('2d');
+  let cssW = window.innerWidth, cssH = window.innerHeight;
+  
+  function resize() {
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+
+  let time = 0;
+  function renderGlow() {
+    ctx.clearRect(0, 0, cssW, cssH);
+    time += 0.005;
+
+    const cx1 = cssW * 0.2 + Math.sin(time) * 100;
+    const cy1 = cssH * 0.3 + Math.cos(time * 0.8) * 100;
+    const r1 = 150 + Math.sin(time * 1.2) * 30;
+    
+    const grd1 = ctx.createRadialGradient(cx1, cy1, 0, cx1, cy1, r1);
+    grd1.addColorStop(0, 'rgba(74, 222, 128, 0.08)');
+    grd1.addColorStop(1, 'rgba(74, 222, 128, 0)');
+    ctx.fillStyle = grd1;
+    ctx.beginPath();
+    ctx.arc(cx1, cy1, r1, 0, Math.PI * 2);
+    ctx.fill();
+
+    const cx2 = cssW * 0.8 + Math.cos(time * 0.7) * 120;
+    const cy2 = cssH * 0.7 + Math.sin(time * 0.9) * 120;
+    const r2 = 200 + Math.cos(time) * 40;
+    
+    const grd2 = ctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, r2);
+    grd2.addColorStop(0, 'rgba(251, 191, 36, 0.05)');
+    grd2.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    ctx.fillStyle = grd2;
+    ctx.beginPath();
+    ctx.arc(cx2, cy2, r2, 0, Math.PI * 2);
+    ctx.fill();
+
+    requestAnimationFrame(renderGlow);
+  }
+
+  resize();
+  requestAnimationFrame(renderGlow);
+})();
+
+// ── 4. NEWSROOM SLIDING LOGIC ──
 function openNewsroom() {
   document.getElementById('main-wrapper').classList.add('slide-out');
   document.getElementById('newsroom').classList.add('active');
