@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parallax 2.1 Pro — The Next Leap</title>
-<meta name="description" content="Parallax 2.1 Pro: The upcoming super-flagship. Designed to push the limits of local inference and disrupt the AI status quo.">
+<title>The Parallax 2 Family — Parallax Labs</title>
+<meta name="description" content="The Parallax 2 Family: Frontier-level intelligence at every scale. Featuring Parallax 2 and the upcoming Parallax 2 Mini.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -13,8 +13,8 @@
   :root {
     --bg: #0a0a0a;
     --text: #e8e8e8;
-    --text-dim2: #e8e8e8;
-    --text-dimmer: #e8e8e8;
+    --text-dim2: #7a7a7a;
+    --text-dimmer: #4a4a4a;
     --line: #1e1e1e;
     --line-bright: #333333;
     --accent: #f0f0f0;
@@ -110,7 +110,7 @@
     transition: 0.2s; display: flex; align-items: center; gap: 8px;
     font-weight: 500;
   }
-  .topbar a:hover { border-bottom-color: var(--text); color: var(--accent-amber); }
+  .topbar a:hover { border-bottom-color: var(--text); color: var(--accent-green); }
 
   /* ── HERO (Centered) ── */
   .hero {
@@ -128,19 +128,13 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--bg);
-    background: var(--accent-amber);
+    background: var(--accent-green);
     padding: 4px 10px;
     margin-bottom: 24px;
     display: inline-block;
-    border: 1px solid var(--accent-amber);
-    box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
-    animation: pulse-amber 3s infinite;
+    border: 1px solid var(--accent-green);
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
   }
-  @keyframes pulse-amber {
-    0%, 100% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
-    50% { box-shadow: 0 0 25px rgba(251, 191, 36, 0.4); }
-  }
-  
   .logo-title {
     font-size: clamp(48px, 8vw, 96px);
     font-weight: 700;
@@ -159,7 +153,7 @@
     margin: 0 auto 40px;
   }
   .lede strong { color: var(--text); font-weight: 500; }
-  .lede em { font-style: normal; color: var(--accent-amber); }
+  .lede em { font-style: normal; color: var(--accent-green); }
 
   .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
   .btn {
@@ -177,9 +171,9 @@
   .btn:hover::before { background: var(--text); }
   .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); padding-left: 30px; }
   
-  .btn-primary { background: var(--accent-amber); color: var(--bg); border-color: var(--accent-amber); }
+  .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
   .btn-primary::before { background: var(--bg); }
-  .btn-primary:hover { background: #fcd34d; padding-left: 24px; }
+  .btn-primary:hover { background: #fff; padding-left: 24px; }
   .btn-primary:hover::before { background: var(--bg); }
 
   /* ── SECTIONS (Centered) ── */
@@ -201,7 +195,7 @@
   }
   .section-kicker {
     font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--accent-amber); margin-bottom: 12px; display: block;
+    color: var(--accent-green); margin-bottom: 12px; display: block;
   }
   .section-heading {
     font-size: 32px; font-weight: 700; color: var(--text);
@@ -211,109 +205,100 @@
     font-size: 15px; color: var(--text-dim2); line-height: 1.7;
   }
 
-  /* ── PRO ADVANTAGES GRID ── */
-  .adv-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+  /* ── MODEL SHOWCASE (Centered) ── */
+  .model-showcase {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
     width: 100%;
     max-width: 900px;
   }
-  .adv-card {
+  
+  .model-card {
     border: 1px solid var(--line);
-    padding: 32px;
+    padding: 40px;
     background: rgba(13, 13, 13, 0.5);
     position: relative;
     transition: all 0.3s var(--ease);
-    text-align: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    text-align: left;
   }
-  .adv-card::before {
+  .model-card::before {
     content: ''; position: absolute; left: 0; top: 0; bottom: 0;
     width: 2px; background: var(--line-bright); transition: background 0.3s;
   }
-  .adv-card:hover {
+  .model-card:hover {
     border-color: var(--line-bright);
     background: rgba(20, 20, 20, 0.7);
     transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
-  .adv-card:hover::before { background: var(--accent-amber); }
+  .model-card:hover::before { background: var(--accent-green); }
   
-  .adv-icon {
-    width: 48px; height: 48px;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--line-bright);
-    margin-bottom: 20px; font-size: 20px; color: var(--accent-amber);
-    background: var(--bg);
+  .model-card.active {
+    border-color: rgba(74, 222, 128, 0.3);
+    background: linear-gradient(180deg, rgba(74, 222, 128, 0.03) 0%, rgba(13, 13, 13, 0.6) 100%);
   }
-  .adv-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
-  .adv-desc { font-size: 13px; color: var(--text-dim2); line-height: 1.6; }
-  .adv-desc strong { color: var(--text); font-weight: 500; }
-
-  /* ── ARCHITECTURE SPECS ── */
-  .specs-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    width: 100%;
-    max-width: 900px;
-  }
-  .spec-row {
-    border: 1px solid var(--line);
-    padding: 24px;
-    background: rgba(13, 13, 13, 0.4);
+  .model-card.active::before { background: var(--accent-green); box-shadow: 0 0 15px var(--accent-green); }
+  
+  .model-header {
     display: flex;
-    flex-direction: column;
-    text-align: center;
-  }
-  .spec-label {
-    font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
-    color: var(--text-dimmer); margin-bottom: 8px;
-  }
-  .spec-value {
-    font-size: 18px; font-weight: 700; color: var(--text);
-  }
-  .spec-desc {
-    font-size: 12px; color: var(--text-dim2); margin-top: 8px; line-height: 1.5;
-  }
-
-  /* ── ROADMAP ── */
-  .roadmap-list {
-    width: 100%;
-    max-width: 700px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .roadmap-item {
-    border: 1px solid var(--line);
-    padding: 24px;
-    background: rgba(13, 13, 13, 0.4);
-    display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
   }
-  .roadmap-item.classified {
-    border-style: dashed;
-    opacity: 0.5;
+  .model-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
   }
-  .roadmap-label { font-size: 15px; font-weight: 700; color: var(--text); }
-  .roadmap-item.classified .roadmap-label { color: var(--text-dimmer); }
-  
-  .roadmap-status {
+  .model-tag {
     font-size: 10px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    color: var(--bg);
+    background: var(--accent-green);
     padding: 4px 10px;
-    border: 1px solid var(--accent-amber);
-    color: var(--accent-amber);
+    border: 1px solid var(--accent-green);
   }
-  .roadmap-item.classified .roadmap-status {
-    border-color: var(--text-dimmer);
+  .model-tag.amber {
+    background: var(--accent-amber);
+    border-color: var(--accent-amber);
+  }
+  .model-desc {
+    font-size: 15px;
+    color: var(--text-dim2);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  .model-desc strong { color: var(--text); font-weight: 500; }
+  
+  .model-specs-inline {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .inline-spec {
+    display: flex;
+    flex-direction: column;
+  }
+  .inline-spec-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     color: var(--text-dimmer);
+    margin-bottom: 4px;
+  }
+  .inline-spec-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
   }
 
   /* ── FOOTER ── */
@@ -329,10 +314,10 @@
   /* ── MOBILE ── */
   @media (max-width: 768px) {
     .page { padding: 24px; }
-    .adv-grid, .specs-grid { grid-template-columns: 1fr; }
+    .model-card { padding: 24px; }
+    .model-header { flex-direction: column; }
     .actions { flex-direction: column; width: 100%; }
     .actions .btn { width: 100%; }
-    .roadmap-item { flex-direction: column; align-items: flex-start; gap: 12px; }
   }
 </style>
 </head>
@@ -355,101 +340,105 @@
 
     <!-- HERO -->
     <main class="hero">
-      <div class="badge">Coming Soon</div>
-      <h1 class="logo-title">Parallax<br>2.1 Pro</h1>
+      <div class="badge">Available Now</div>
+      <h1 class="logo-title">The Parallax<br>2 Family</h1>
       <p class="lede">
-        The next leap is soon to be here. <strong>Parallax 2.1 Pro</strong> is our upcoming super-flagship. It is designed to push the absolute limits of local inference, rendering cloud-based AI subscriptions entirely obsolete. <em>Big AI companies should be terrified.</em>
+        Frontier-level intelligence at every scale. From the uncompromising power of our flagship <strong>Parallax 2</strong> to the extreme efficiency of the upcoming <em>Parallax 2 Mini</em>, we are bringing elite reasoning to the hardware you actually own.
       </p>
       <div class="actions">
-        <button class="btn btn-primary" onclick="alert('The waitlist for Parallax 2.1 Pro is currently closed.')"><i class="fa-solid fa-envelope"></i> Join Waitlist</button>
-        <a href="index.html" class="btn"><i class="fa-solid fa-house"></i> Explore Current Models</a>
+        <button class="btn btn-primary" onclick="window.location.href='./chat'"><i class="fa-solid fa-comment-dots"></i> Try Parallax 2</button>
+        <a href="https://huggingface.co/parallaxlabs" target="_blank" class="btn"><i class="fa-solid fa-download"></i> Download Weights</a>
       </div>
     </main>
 
-    <!-- THE PRO ADVANTAGE -->
+    <!-- MODEL SHOWCASE -->
     <section class="section">
       <div class="section-header">
-        <span class="section-kicker">The Upgrade</span>
-        <h2 class="section-heading">Why "Pro"?</h2>
-        <p class="section-sub">Parallax 2.1 Pro is not just an incremental update. It is a fundamental leap forward in what a local model can achieve.</p>
+        <span class="section-kicker">The Lineup</span>
+        <h2 class="section-heading">Choose Your Scale</h2>
+        <p class="section-sub">Two distinct models. One shared philosophy: absolute privacy, zero subscriptions, and frontier capability running entirely offline.</p>
       </div>
 
-      <div class="adv-grid">
-        <div class="adv-card">
-          <div class="adv-icon"><i class="fa-solid fa-expand"></i></div>
-          <div class="adv-title">Massively Scaled Parameters</div>
-          <div class="adv-desc">We are scaling the architecture significantly. This allows for deeper reasoning, more complex chain-of-thought processing, and a broader knowledge base, all while retaining extreme efficiency.</div>
+      <div class="model-showcase">
+        
+        <!-- Parallax 2 -->
+        <div class="model-card active">
+          <div class="model-header">
+            <div class="model-name">Parallax 2</div>
+            <div class="model-tag">Flagship</div>
+          </div>
+          <p class="model-desc">
+            Our ultimate local intelligence engine. Trained on over 202,000 elite traces, <strong>Parallax 2</strong> is designed for complex, multi-step tasks. It features a massive 262K context window, allowing it to read entire codebases, process long research papers, and act as an autonomous agent. It is the pinnacle of local performance.
+          </p>
+          <div class="model-specs-inline">
+            <div class="inline-spec">
+              <span class="inline-spec-label">Context Window</span>
+              <span class="inline-spec-value">262,144 Tokens</span>
+            </div>
+            <div class="inline-spec">
+              <span class="inline-spec-label">Target Hardware</span>
+              <span class="inline-spec-value">Consumer GPUs</span>
+            </div>
+            <div class="inline-spec">
+              <span class="inline-spec-label">Use Case</span>
+              <span class="inline-spec-value">Coding & Agentic</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="https://huggingface.co/parallaxlabs/parallax-2" target="_blank" class="btn btn-primary"><i class="fa-solid fa-download"></i> Download Weights</a>
+            <button class="btn" onclick="window.location.href='./chat'"><i class="fa-solid fa-comment-dots"></i> Try in Chat</button>
+          </div>
         </div>
-        <div class="adv-card">
-          <div class="adv-icon"><i class="fa-solid fa-brain"></i></div>
-          <div class="adv-title">Superior Agentic Reasoning</div>
-          <div class="adv-desc">Refined on a new, highly curated dataset of agentic workflows. The Pro model can plan, execute, and self-correct complex, multi-file tasks with near-zero human intervention.</div>
+
+        <!-- Parallax 2 Mini -->
+        <div class="model-card">
+          <div class="model-header">
+            <div class="model-name">Parallax 2 Mini</div>
+            <div class="model-tag amber">Coming Soon</div>
+          </div>
+          <p class="model-desc">
+            Extreme efficiency without the compromise. <strong>Parallax 2 Mini</strong> is a marvel of distillation. Designed to run on just a few gigabytes of RAM, it can operate on almost any device—from older laptops to edge devices. It brings the Parallax family to the masses without sacrificing the core reasoning capabilities.
+          </p>
+          <div class="model-specs-inline">
+            <div class="inline-spec">
+              <span class="inline-spec-label">Context Window</span>
+              <span class="inline-spec-value">262,144 Tokens</span>
+            </div>
+            <div class="inline-spec">
+              <span class="inline-spec-label">Target Hardware</span>
+              <span class="inline-spec-value">Laptops / Edge Devices</span>
+            </div>
+            <div class="inline-spec">
+              <span class="inline-spec-label">Use Case</span>
+              <span class="inline-spec-value">Fast, Local Chat</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn" onclick="alert('Parallax 2 Mini is not yet available for download.')" style="border-color: var(--accent-amber); color: var(--accent-amber);"><i class="fa-solid fa-hourglass-half"></i> Awaiting Release</button>
+          </div>
         </div>
-        <div class="adv-card">
-          <div class="adv-icon"><i class="fa-solid fa-microchip"></i></div>
-          <div class="adv-title">Next-Gen Architecture</div>
-          <div class="adv-desc">Built on an updated version of the Parallax architecture, the Pro model handles context caching and tool calling natively, drastically reducing VRAM overhead during long sessions.</div>
-        </div>
-        <div class="adv-card">
-          <div class="adv-icon"><i class="fa-solid fa-lock"></i></div>
-          <div class="adv-title">The End of Subscriptions</div>
-          <div class="adv-desc">Designed to completely replace your monthly AI API bills. Frontier performance, absolute privacy, and zero recurring costs. Your hardware, your intelligence.</div>
-        </div>
+
       </div>
     </section>
 
-    <!-- ARCHITECTURE SPECS -->
+    <!-- SHARED PHILOSOPHY -->
     <section class="section">
       <div class="section-header">
-        <span class="section-kicker">Technical Target</span>
-        <h2 class="section-heading">Projected Architecture</h2>
-        <p class="section-sub">Our engineering targets for the 2.1 Pro release.</p>
+        <span class="section-kicker">The Baseline</span>
+        <h2 class="section-heading">The Parallax Standard</h2>
+        <p class="section-sub">Regardless of which model you choose, these core principles apply to the entire family.</p>
       </div>
 
-      <div class="specs-grid">
-        <div class="spec-row">
-          <div class="spec-label">Status</div>
-          <div class="spec-value">Active Training</div>
-          <div class="spec-desc">Currently distilling and fine-tuning in the lab.</div>
+      <div class="cap-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 900px;">
+        <div class="cap-card" style="border: 1px solid var(--line); padding: 32px; background: rgba(13, 13, 13, 0.5); text-align: center;">
+          <div class="cap-icon" style="margin: 0 auto 20px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-bright); color: var(--text);"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="cap-title" style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text);">100% Local & Private</div>
+          <div class="cap-desc" style="font-size: 13px; color: var(--text-dim2); line-height: 1.6;">Your data never leaves your device. No APIs, no cloud inference, no subscriptions. Just pure, local compute.</div>
         </div>
-        <div class="spec-row">
-          <div class="spec-label">Target Parameter Size</div>
-          <div class="spec-value">Scaled Up</div>
-          <div class="spec-desc">Significantly larger than the 9B flagship.</div>
-        </div>
-        <div class="spec-row">
-          <div class="spec-label">Context Window</div>
-          <div class="spec-value">1M+ Tokens</div>
-          <div class="spec-desc">Targeting full codebase ingestion and massive document analysis.</div>
-        </div>
-        <div class="spec-row">
-          <div class="spec-label">Inference Target</div>
-          <div class="spec-value">Consumer Hardware</div>
-          <div class="spec-desc">Optimized for high-end single GPUs such as RTX 30/40/50 series, Apple Silicon, and more!</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ROADMAP -->
-    <section class="section">
-      <div class="section-header">
-        <span class="section-kicker">The Timeline</span>
-        <h2 class="section-heading">What's Next?</h2>
-        <p class="section-sub">We are keeping the exact release date under wraps for now, but here is a glimpse at the roadmap.</p>
-      </div>
-
-      <div class="roadmap-list">
-        <div class="roadmap-item">
-          <span class="roadmap-label">Parallax 2.1 Pro</span>
-          <span class="roadmap-status">Coming Soon</span>
-        </div>
-        <div class="roadmap-item classified">
-          <span class="roadmap-label"><i class="fa-solid fa-eye-slash"></i> Project Hidden</span>
-          <span class="roadmap-status">Classified</span>
-        </div>
-        <div class="roadmap-item classified">
-          <span class="roadmap-label"><i class="fa-solid fa-eye-slash"></i> Project Hidden</span>
-          <span class="roadmap-status">Classified</span>
+        <div class="cap-card" style="border: 1px solid var(--line); padding: 32px; background: rgba(13, 13, 13, 0.5); text-align: center;">
+          <div class="cap-icon" style="margin: 0 auto 20px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-bright); color: var(--text);"><i class="fa-solid fa-code"></i></div>
+          <div class="cap-title" style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text);">Elite Data Curation</div>
+          <div class="cap-desc" style="font-size: 13px; color: var(--text-dim2); line-height: 1.6;">Both models are trained on the same elite reasoning, coding, and agentic traces that make the Parallax family so capable.</div>
         </div>
       </div>
     </section>
