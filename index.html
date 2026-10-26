@@ -12,8 +12,8 @@
   :root {
     --bg: #0a0a0a;
     --text: #e8e8e8;
-    --text-dim2: #7a7a7a;
-    --text-dimmer: #4a4a4a;
+    --text-dim2: #e8e8e8;
+    --text-dimmer: #e8e8e8;
     --line: #1e1e1e;
     --line-bright: #333333;
     --accent: #f0f0f0;
@@ -121,6 +121,7 @@
   }
   .topbar button:hover { color: var(--text); border-bottom-color: var(--text); }
 
+  /* ── HERO ── */
   .hero {
     flex: 1;
     display: flex;
@@ -128,30 +129,30 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    max-width: 720px;
+    max-width: 900px;
     width: 100%;
     margin: 0 auto;
-    padding: 40px 0 60px;
+    padding: 60px 0 100px;
   }
   .logo-title {
-    font-size: clamp(56px, 9vw, 128px);
+    font-size: clamp(64px, 10vw, 140px);
     font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 0.95;
-    margin-bottom: 48px;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    margin-bottom: 32px;
     color: var(--text);
     text-transform: uppercase;
     text-shadow: 0 4px 40px rgba(0,0,0,0.9), 0 2px 12px rgba(0,0,0,0.7);
   }
   .lede {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.8;
-    color: var(--text);
+    color: var(--text-dim2);
     max-width: 620px;
-    margin: 0 auto 40px;
+    margin: 0 auto 48px;
     text-shadow: 0 2px 20px rgba(0,0,0,0.85);
   }
-  .lede em { font-style: normal; color: var(--text-dim2); }
+  .lede em { font-style: normal; color: var(--text); font-weight: 500; }
 
   /* ── BUTTONS ── */
   .actions {
@@ -165,7 +166,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 14px 22px;
+    padding: 14px 24px;
     background: rgba(10, 10, 10, 0.6);
     backdrop-filter: blur(8px);
     color: var(--text);
@@ -188,141 +189,178 @@
     transition: background 0.2s;
   }
   .btn:hover::before { background: var(--text); }
-  .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: 0 4px 20px rgba(255,255,255,0.1); padding-left: 28px; }
+  .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: 0 4px 20px rgba(255,255,255,0.1); padding-left: 30px; }
   
   .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
   .btn-primary::before { background: var(--bg); }
-  .btn-primary:hover { background: #fff; padding-left: 22px; }
+  .btn-primary:hover { background: #fff; padding-left: 24px; }
   .btn-primary:hover::before { background: var(--bg); }
   
   .btn-secondary { background: transparent; border-color: var(--text-dimmer); }
   .btn-secondary:hover { background: transparent; color: var(--text); border-color: var(--text); }
 
-  /* ── SHOWCASE GRID (HORIZONTAL) ── */
-  .showcase-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
+  /* ── COMPACT FAMILY SECTION ── */
+  .compact-family-section {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 0;
     width: 100%;
+    padding: 60px 0;
+    border-top: 1px solid var(--line);
   }
-  .showcase-card {
-    background: rgba(13, 13, 13, 0.65);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--line);
-    padding: 28px 24px;
-    position: relative;
-    overflow: hidden;
+  
+  .family-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  
+  .family-column {
     display: flex;
     flex-direction: column;
-    text-align: center;
-    transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), transform 0.3s var(--ease);
+    gap: 16px;
   }
-  .showcase-card:hover {
-    border-color: var(--line-bright);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-    transform: translateY(-2px);
+  
+  .family-col-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim2);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
   }
-  .showcase-card::before, .showcase-card::after {
+  .family-col-header span {
+    font-size: 10px;
+    color: var(--text-dimmer);
+    letter-spacing: 0.05em;
+  }
+  
+  .family-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(13, 13, 13, 0.5);
+    border: 1px solid var(--line);
+    position: relative;
+    transition: all 0.3s var(--ease);
+  }
+  .family-row::before {
     content: '';
     position: absolute;
-    width: 12px; height: 12px;
-    border-color: var(--text-dimmer);
-    border-style: solid;
-    pointer-events: none;
-    transition: border-color 0.3s;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--line-bright);
+    transition: background 0.3s;
   }
-  .showcase-card::before {
-    top: 8px; left: 8px;
-    border-width: 1px 0 0 1px;
+  .family-row:hover {
+    border-color: var(--line-bright);
+    background: rgba(20, 20, 20, 0.6);
+    transform: translateX(4px);
   }
-  .showcase-card::after {
-    bottom: 8px; right: 8px;
-    border-width: 0 1px 1px 0;
-  }
-  .showcase-card:hover::before, .showcase-card:hover::after {
-    border-color: var(--text);
-  }
-  .showcase-card.upcoming:hover::before, .showcase-card.upcoming:hover::after {
-    border-color: var(--accent-amber);
-  }
-
-  .showcase-title {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: 12px;
-    color: var(--text);
-    text-shadow: 0 0 20px rgba(255,255,255,0.1);
-  }
-  .showcase-desc {
-    font-size: 12px;
-    line-height: 1.6;
-    color: var(--text-dim2);
-    margin: 0 auto 20px;
-    flex: 1;
-  }
-  .showcase-desc strong { color: var(--text); font-weight: 500; }
   
-  .showcase-teaser {
+  .family-row.current::before { background: var(--accent-green); }
+  .family-row.upcoming::before { background: var(--accent-amber); }
+  
+  .family-row-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .family-row-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .family-row-size {
     font-size: 10px;
     font-weight: 700;
-    color: var(--bg);
-    letter-spacing: 0.08em;
+    color: var(--accent-green);
+    border: 1px solid var(--line-bright);
+    padding: 1px 6px;
+    background: var(--bg);
+  }
+  .family-row.upcoming .family-row-size { color: var(--accent-amber); }
+  
+  .family-row-right {
+    font-size: 10px;
+    font-weight: 600;
     text-transform: uppercase;
-    padding: 8px 16px;
-    background: var(--accent-green);
-    display: inline-block;
-    align-self: center;
-    transition: transform 0.2s var(--ease);
-    border: 1px solid var(--accent-green);
-  }
-  .showcase-card:hover .showcase-teaser { transform: scale(1.05); }
-  .showcase-teaser.outline {
-    background: transparent;
-    color: var(--text);
-    border: 1px solid var(--text);
-  }
-
-  .showcase-card.upcoming {
-    border-color: rgba(251, 191, 36, 0.15);
-    background: rgba(13, 13, 13, 0.4);
-  }
-  .showcase-card.upcoming .showcase-title {
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: var(--text-dim2);
   }
-  .showcase-card.upcoming .showcase-desc {
-    color: var(--text-dimmer);
-    font-style: italic;
+
+  /* ── STATISTICS SECTION ── */
+  .stats-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 60px 0;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
   }
-  .showcase-teaser.coming {
-    background: transparent;
-    color: var(--accent-amber);
-    border: 1px dashed rgba(251, 191, 36, 0.4);
-    animation: pulse-border 3s infinite;
+  
+  .stat-block {
+    padding: 24px;
+    background: rgba(13, 13, 13, 0.4);
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
   }
-  @keyframes pulse-border {
-    0%, 100% { border-color: rgba(251, 191, 36, 0.4); }
-    50% { border-color: rgba(251, 191, 36, 0.9); box-shadow: 0 0 15px rgba(251, 191, 36, 0.1); }
+  .stat-block::after {
+    content: '';
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 6px; height: 6px;
+    border-top: 1px solid var(--text-dimmer);
+    border-right: 1px solid var(--text-dimmer);
+  }
+  
+  .stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
+  }
+  .stat-number span {
+    color: var(--accent-green);
+    font-size: 20px;
+    vertical-align: top;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-dim2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
 
-  /* ── ARTICLE / STORY SECTION ── */
-  .article-section {
+  /* ── TIMELINE SECTION ── */
+  .timeline-section {
     max-width: 800px;
-    margin: 100px auto;
+    margin: 60px auto 100px;
     width: 100%;
     padding-top: 60px;
     border-top: 1px solid var(--line);
   }
   
-  .article-header {
+  .timeline-header {
     margin-bottom: 48px;
     text-align: center;
   }
   
-  .article-kicker {
+  .timeline-kicker {
     font-size: 11px;
     font-weight: 700;
     color: var(--accent-green);
@@ -332,7 +370,7 @@
     display: block;
   }
   
-  .article-title {
+  .timeline-title {
     font-size: clamp(28px, 4vw, 42px);
     font-weight: 700;
     color: var(--text);
@@ -341,7 +379,7 @@
     margin-bottom: 16px;
   }
   
-  .article-meta {
+  .timeline-meta {
     font-size: 11px;
     color: var(--text-dimmer);
     text-transform: uppercase;
@@ -351,185 +389,92 @@
     gap: 16px;
   }
 
-  .article-body {
-    font-size: 15px;
-    line-height: 1.85;
-    color: var(--text-dim2);
+  .timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
   }
   
-  .article-body p {
-    margin-bottom: 24px;
-  }
-  
-  .article-body strong {
-    color: var(--text);
-    font-weight: 500;
-  }
-  
-  /* Drop cap */
-  .article-body > p:first-of-type::first-letter {
-    float: left;
-    font-size: 64px;
-    line-height: 0.8;
-    padding-top: 8px;
-    padding-right: 12px;
-    font-weight: 700;
-    color: var(--text);
-    text-shadow: 0 0 20px rgba(255,255,255,0.2);
-  }
-  
-  /* Inline model tag */
-  .model-tag {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--bg);
-    background: var(--text);
-    padding: 1px 6px;
-    margin: 0 2px;
-    letter-spacing: 0.02em;
-    vertical-align: baseline;
-  }
-  .model-tag.green { background: var(--accent-green); }
-  .model-tag.amber { background: var(--accent-amber); }
-  
-  /* Pull quote */
-  .article-quote {
-    margin: 40px 0;
-    padding: 24px 0;
-    border-top: 1px solid var(--line-bright);
-    border-bottom: 1px solid var(--line-bright);
-    font-size: 20px;
-    line-height: 1.6;
-    color: var(--text);
-    text-align: center;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-  
-  /* Section break */
-  .article-break {
-    text-align: center;
-    margin: 40px 0;
-    color: var(--text-dimmer);
-    letter-spacing: 0.5em;
-    font-size: 12px;
+  /* Vertical connecting line */
+  .timeline-list::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--line);
+    z-index: 0;
   }
 
-  /* ── MODEL FAMILY SECTION ── */
-  .family-section {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 60px 0 100px;
-    width: 100%;
-    border-top: 1px solid var(--line);
+  .timeline-item {
+    display: flex;
+    gap: 32px;
+    padding: 24px 0;
+    position: relative;
+    z-index: 1;
   }
-  .section-label {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-dimmer);
-    margin-bottom: 32px;
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  
+  .timeline-node {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    background: var(--bg);
+    border: 1px solid var(--line-bright);
     display: flex;
     align-items: center;
-    gap: 16px;
-  }
-  .section-label::after { content: ''; height: 1px; flex: 1; background: var(--line); }
-  
-  .family-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
-  
-  .family-card {
-    background: rgba(13, 13, 13, 0.5);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--line);
-    padding: 24px;
-    display: flex; 
-    flex-direction: column;
-    transition: all 0.3s var(--ease);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .family-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 2px;
-    background: var(--line-bright);
-    transition: background 0.3s;
-  }
-  .family-card.active::before { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
-  
-  .family-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size: 20px 20px;
-    pointer-events: none;
-    opacity: 0.5;
-    mask-image: linear-gradient(to bottom right, black, transparent);
-    -webkit-mask-image: linear-gradient(to bottom right, black, transparent);
-  }
-
-  .family-card:hover { 
-    border-color: rgba(255,255,255,0.2); 
-    transform: translateY(-2px); 
-    box-shadow: 0 12px 24px rgba(0,0,0,0.4); 
-  }
-  
-  .card-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: flex-start; 
-    margin-bottom: 16px; 
-    padding-bottom: 12px;
-    border-bottom: 1px dashed var(--line);
-    position: relative;
-    z-index: 1;
-  }
-  
-  .card-title { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
-  
-  .card-size { 
-    font-size: 10px; 
-    background: var(--bg); 
-    padding: 2px 6px; 
-    border: 1px solid var(--line-bright); 
-    color: var(--accent-green); 
+    justify-content: center;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.05em;
-  }
-  
-  .card-desc { 
-    font-size: 12px; 
-    color: var(--text-dim2); 
-    line-height: 1.6; 
-    flex: 1; 
+    color: var(--text-dim2);
     position: relative;
-    z-index: 1;
+    z-index: 2;
+  }
+  .timeline-node.green { border-color: var(--accent-green); color: var(--accent-green); }
+  .timeline-node.amber { border-color: var(--accent-amber); color: var(--accent-amber); border-style: dashed; }
+  
+  .timeline-content {
+    flex: 1;
+    padding-bottom: 24px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .timeline-item:last-child .timeline-content {
+    border-bottom: none;
+    padding-bottom: 0;
   }
   
-  .card-status { 
-    margin-top: 24px; 
-    font-size: 10px; 
-    font-weight: 600; 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-    color: var(--text-dim2); 
-    text-transform: uppercase; 
-    position: relative;
-    z-index: 1;
+  .timeline-item-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .timeline-badge {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
     letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border: 1px solid;
   }
+  .timeline-badge.green { color: var(--accent-green); border-color: rgba(74, 222, 128, 0.3); background: rgba(74, 222, 128, 0.05); }
+  .timeline-badge.amber { color: var(--accent-amber); border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.05); }
   
-  .status-dot { width: 6px; height: 6px; background: var(--text-dimmer); }
-  .status-dot.live { background: var(--accent-green); box-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
-  .status-dot.training { background: var(--accent-amber); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
+  .timeline-desc {
+    font-size: 14px;
+    color: var(--text-dim2);
+    line-height: 1.7;
+  }
+  .timeline-desc strong { color: var(--text); font-weight: 500; }
 
   /* ── FOOTER ── */
   .footer {
@@ -587,8 +532,8 @@
   .news-body code { background: var(--line); padding: 2px 6px; font-family: var(--mono); font-size: 12px; color: var(--text); border: 1px solid var(--line-bright); }
 
   @media (max-width: 1024px) {
-    .showcase-grid { grid-template-columns: 1fr 1fr; }
-    .showcase-card.upcoming { grid-column: 1 / -1; max-width: 480px; margin: 0 auto; width: 100%; }
+    .family-split { grid-template-columns: 1fr; gap: 40px; }
+    .stats-section { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 720px) {
     .page { padding: 24px; }
@@ -596,11 +541,13 @@
     .newsroom-header { padding: 16px 24px; }
     .hero .actions { flex-direction: column; width: 100%; }
     .hero .actions .btn { width: 100%; }
-    .family-grid, .showcase-grid { grid-template-columns: 1fr; }
+    .stats-section { grid-template-columns: 1fr; }
+    .timeline-section { margin: 40px auto 60px; padding-top: 40px; }
     
-    .article-section { margin: 60px auto; padding-top: 40px; }
-    .article-body { font-size: 14px; }
-    .article-quote { font-size: 17px; padding: 20px 0; }
+    .timeline-list::before { left: 16px; }
+    .timeline-item { gap: 16px; }
+    .timeline-node { width: 32px; height: 32px; font-size: 10px; }
+    .timeline-item-title { flex-direction: column; align-items: flex-start; gap: 8px; }
   }
 </style>
 </head>
@@ -622,125 +569,194 @@
         </nav>
       </div>
 
+      <!-- HERO -->
       <main class="hero">
         <h1 class="logo-title">Parallax<br>Labs</h1>
         <p class="lede">
           <em>Pioneering the next leap in local AI intelligence.</em><br>
-          Creating stunning AI models that are highly capable, yet easy to run,
-          with a focus on reasoning capabilities as well as coding.
+          Creating stunning AI models that are highly capable, yet easy to run, with a focus on reasoning capabilities as well as coding.
         </p>
         <div class="actions">
           <a href="./chat" class="btn btn-primary">Try Parallax 2</a>
           <a href="./pilot" class="btn btn-secondary">See Parallax Pilot</a>
           <button class="btn btn-secondary" onclick="proceedToDemo()">Try Parallax 2 Mini Preview</button>
+          <a href="./21pro" class="btn btn-secondary">See Parallax 2.1 Pro</a>
         </div>
       </main>
 
-      <!-- Horizontal Showcase Grid -->
-      <div class="showcase-grid">
-        <section class="showcase-card">
-          <h2 class="showcase-title">Introducing Parallax 2</h2>
-          <p class="showcase-desc">
-            Our flagship reasoning model, with <strong>9 billion parameters</strong>. Trained on over 202,000 elite reasoning, coding, and agentic traces from models like Claude Opus and GPT-5.6. It is comparable to frontier models, but <strong>Parallax 2 can run all locally</strong>. Experience top-tier reasoning locally with a 262K context window.
-          </p>
-          <a href="https://huggingface.co/parallaxlabs/parallax-2" target="_blank" class="showcase-teaser">Available Now</a>
-        </section>
+      <!-- COMPACT FAMILY SECTION -->
+      <section class="compact-family-section">
+        <div class="family-split">
+          
+          <!-- Current Family -->
+          <div class="family-column">
+            <div class="family-col-header">
+              Parallax 2 Family <span>Available Now</span>
+            </div>
+            
+            <div class="family-row current">
+              <div class="family-row-left">
+                <div class="family-row-name">Parallax 2 Mini Preview</div>
+              </div>
+              <div class="family-row-right">
+                 Available Now
+              </div>
+            </div>
 
-        <section class="showcase-card">
-          <h2 class="showcase-title">Introducing Parallax App</h2>
-          <p class="showcase-desc">
-            Our simple, yet powerful <strong>local-first AI workbench</strong>. Chat with Parallax 2, build complex projects with Parallax 2 Agent, and chat with Parallax 2 in Chat Mode. No cloud, no APIs, no subscriptions. Just you, your hardware, and the most capable local AI suite ever built.
-          </p>
-          <div class="showcase-teaser outline">Available Soon</div>
-        </section>
+            <div class="family-row current">
+              <div class="family-row-left">
+                <div class="family-row-name">Parallax 2 Preview</div>
+              </div>
+              <div class="family-row-right">
+                 Available Now
+              </div>
+            </div>
 
-        <!-- Upcoming Teaser Card (Now inline) -->
-        <section class="showcase-card upcoming">
-          <h2 class="showcase-title">Parallax 2.1 Pro</h2>
-          <p class="showcase-desc">
-            Something a little spooky is happening in the lab right now. Be ware, big AI companies.
-          </p>
-          <div class="showcase-teaser coming">Coming Soon</div>
-        </section>
-      </div>
+            <div class="family-row current">
+              <div class="family-row-left">
+                <div class="family-row-name">Parallax 2</div>
+              </div>
+              <div class="family-row-right">
+                 Available Now
+              </div>
+            </div>
+          </div>
 
-      <!-- ARTICLE SECTION -->
-      <article class="article-section">
-        <header class="article-header">
-          <span class="article-kicker">Parallax Labs - Pioneering a leap in local AI</span>
-          <h2 class="article-title">From Preview to Pro: How We Are Transforming Local AI</h2>
-          <div class="article-meta">
-            <span>Parallax Labs</span>
-            <span>•</span>
-            <span>October 2026</span>
-            <span>•</span>
-            <span>6 min read</span>
+          <!-- Upcoming Family -->
+          <div class="family-column">
+            <div class="family-col-header">
+              Parallax 2.1 Family <span>Coming Soon</span>
+            </div>
+
+            <div class="family-row upcoming" style="opacity: 0.5; border-style: dashed;">
+              <div class="family-row-left">
+                <div class="family-row-name" style="color: var(--text-dimmer);">Project Hidden</div>
+                <div class="family-row-size" style="color: var(--text-dimmer);">???</div>
+              </div>
+              <div class="family-row-right">
+                 Secret *shh*
+              </div>
+            </div>
+            
+            <div class="family-row upcoming" style="opacity: 0.3; border-style: dashed;">
+              <div class="family-row-left">
+                <div class="family-row-name" style="color: var(--text-dimmer);">Project Hidden</div>
+                <div class="family-row-size" style="color: var(--text-dimmer);">???</div>
+              </div>
+              <div class="family-row-right">
+                 secret *shh*
+              </div>
+            </div>
+
+                        <div class="family-row upcoming">
+              <div class="family-row-left">
+                <div class="family-row-name">Parallax 2.1 Pro</div>
+              </div>
+              <div class="family-row-right">
+                 Coming Soon
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- STATISTICS SECTION -->
+      <section class="stats-section">
+        <div class="stat-block">
+          <div class="stat-number">262K<span>+</span></div>
+          <div class="stat-label">Context Window</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">$32</div>
+          <div class="stat-label">Total Training Costs So Far</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">100<span>%</span></div>
+          <div class="stat-label">OPEN WEIGHTS</div>
+        </div>
+      </section>
+
+      <!-- TIMELINE SECTION -->
+      <section class="timeline-section">
+        <header class="timeline-header">
+          <span class="timeline-kicker">Parallax Labs - Helping Pioneer the Next Local AI Revolution</span>
+          <h2 class="timeline-title"> From Parallax 2 Preview to Parallax 2.1 Pro</h2>
+          <div class="timeline-meta">
+            <span>Bringing Local AI a step closer to beating the giants</span>
           </div>
         </header>
 
-        <div class="article-body">
-          <p>
-            Before Parallax Labs started, the idea was simple, if you want frontier intelligence, you need a frontier data center. The cloud was the only path. We disagreed. We believed that the most powerful AI shouldn't be locked behind an API, "rented", and have your data be used to train models by default. We believed that intelligence belongs on the hardware you actually own. This is the story of how we proved it.
-          </p>
-
-          <div class="article-break">· · ·</div>
-
-          <p>
-            Our journey began with <span class="model-tag green">Parallax 2 Preview</span>. It was our first real step into the unknown. We wanted to see if a small, highly optimized model could mimic the structured, Opus-style reasoning we were seeing from the giants. The 4B Preview wasn't just a test; it was a validation. It proved that with the right data curation and distillation techniques, a model small enough to run on a consumer GPU could handle complex coding and agentic workflows. It was the spark.
-          </p>
-
-          <p>
-            But we didn't stop there. We wanted to push the boundaries of what "tiny" actually meant. That led to <span class="model-tag green">Parallax 2 Mini Preview</span>. This was an exercise in extreme engineering. We asked ourselves: how small can we go before the reasoning breaks? The answer was 800 million parameters. The Mini model can run on almost any hardware, easily, and fast.
-          </p>
-
-          <div class="article-quote">
-            "We didn't just want to build a smaller model. We wanted to build a model that made the cloud feel unnecessary."
+        <div class="timeline-list">
+          <!-- Item 1: 4B Preview -->
+          <div class="timeline-item">
+            <div class="timeline-node green">01</div>
+            <div class="timeline-content">
+              <div class="timeline-item-title">
+                Parallax 2 Preview 
+                <span class="timeline-badge green">4B</span>
+              </div>
+              <p class="timeline-desc">
+                Our first real step. We proved that a small, highly optimized model could mimic Opus-style reasoning. This 4B model validated our distillation techniques and showed the world that consumer GPUs could handle complex coding and agentic workflows.
+              </p>
+            </div>
           </div>
 
-          <p>
-            Then came <span class="model-tag green">Parallax 2</span>. Our current flagship. This was the moment we stopped messing around. With 9 billion parameters and a massive 262K context window, Parallax 2 proved that local hardware could handle the heavy lifting. We trained it on over 202,000 elite reasoning traces, and the result was a model that didn't just compete with frontier models. It could beat some at their own game, all while running offline. We're helping pioneer the local AI revolution, one step at a time.
-          </p>
+          <!-- Item 2: 0.8B Mini -->
+          <div class="timeline-item">
+            <div class="timeline-node green">02</div>
+            <div class="timeline-content">
+              <div class="timeline-item-title">
+                Parallax 2 Mini Preview 
+                <span class="timeline-badge green">0.8B</span>
+              </div>
+              <p class="timeline-desc">
+                Extreme engineering. We pushed the boundaries of tiny to see how small we could go before reasoning broke. The answer was 800 million parameters. It runs on almost any hardware, easily and fast, bringing local AI to the masses.
+              </p>
+            </div>
+          </div>
 
-          <p>
-            The world of Frontier AI models is changing all the time. <span class="model-tag amber">Parallax 2.1 Pro</span> is OUR next leap. A super-flagship. Designed to completely reduce the need of an AI subscription to nothing. We are scaling the parameters, refining the reasoning, and pushing the limits of what local inference can achieve. Parallax 2.1 Pro isn't just an upgrade. It's a promise that the future of AI is private, local, and owned by you. Big AI companies will be left behind.
-          </p>
+          <!-- Item 3: 9B Flagship -->
+          <div class="timeline-item">
+            <div class="timeline-node green">03</div>
+            <div class="timeline-content">
+              <div class="timeline-item-title">
+                Parallax 2 
+                <span class="timeline-badge green">9B</span>
+              </div>
+              <p class="timeline-desc">
+                The current flagship. We stopped messing around. With 9 billion parameters and a 262K context window, it proved that local hardware could handle the heavy lifting. Trained on 202K+ elite traces, it competes with the giants while running entirely offline.
+              </p>
+            </div>
+          </div>
 
-          <div class="article-break">· · ·</div>
-
-          <p>
-            This is Parallax Labs. From our first preview, to our latest flagship and into the future with Parallax 2.1 Pro. We are on a mission to lead in the effort of revolutionizing local AI.
-          </p>
+          <!-- Item 4: 4B Mini -->
+          <div class="timeline-item">
+            <div class="timeline-node amber">04</div>
+            <div class="timeline-content">
+              <div class="timeline-item-title">
+                Parallax 2 Mini 
+                <span class="timeline-badge amber">Coming Soon</span>
+              </div>
+              <p class="timeline-desc">
+                The finalized revision of the Parallax 2 family's mini variant. Bringing Local AI to the masses with an ultra-small model that can run on anything. Parallax 2 Mini is more powerful than Parallax 2 Preview, while maintaining the same 4 billion parameter size you know and love!
+              </p>
+            </div>
+          </div>
         </div>
-      </article>
 
-      <section class="family-section">
-        <div class="section-label">The Parallax 2 Family</div>
-        <div class="family-grid">
-          <div class="family-card active">
-            <div class="card-header">
-              <div class="card-title">Parallax 2 Mini Preview</div>
-              <div class="card-size">0.8B</div>
+          <!-- Item 5: 2.1 Pro -->
+          <div class="timeline-item">
+            <div class="timeline-node amber">05</div>
+            <div class="timeline-content">
+              <div class="timeline-item-title">
+                Parallax 2.1 Pro 
+                <span class="timeline-badge amber">Coming Soon</span>
+              </div>
+              <p class="timeline-desc">
+                Our next leap. A super-flagship designed to completely reduce the need for an AI subscription to nothing. We are scaling parameters and refining reasoning to push local inference to its absolute limits. Big AI companies will be left behind.
+              </p>
             </div>
-            <div class="card-desc">The smallest model in the family, running on laptops with just 2GB of RAM.</div>
-            <div class="card-status"><span class="status-dot live"></span> Available Now</div>
-          </div>
-
-          <div class="family-card active">
-            <div class="card-header">
-              <div class="card-title">Parallax 2 Preview</div>
-              <div class="card-size">4B</div>
-            </div>
-            <div class="card-desc">A scaled-down version of the flagship model, featuring structured Opus-style reasoning.</div>
-            <div class="card-status"><span class="status-dot live"></span> Available Now</div>
-          </div>
-
-          <div class="family-card active">
-            <div class="card-header">
-              <div class="card-title">Parallax 2</div>
-              <div class="card-size">9B</div>
-            </div>
-            <div class="card-desc">The flagship reasoning model. 9 billion parameters, trained on 160K+ frontier traces.</div>
-            <div class="card-status"><span class="status-dot live"></span> Available Now</div>
           </div>
         </div>
       </section>
@@ -760,6 +776,15 @@
     </div>
     
     <div class="newsroom-content">
+      <article class="news-article">
+        <div class="news-date">October 26, 2026</div>
+        <h2 class="news-title">Parallax 2.1 Pro: Coming Soon</h2>
+        <div class="news-body">
+          <p>Parallax 2.1 Pro is coming soon!<strong> Designed to push the limits of local inference, Parallax 2.1 Pro is ready for ANY task.</strong>. Frontier AI giants are not ready for what's coming.</p>
+          <p>Coming soon, to a GPU near you!</p>
+        </div>
+      </article>
+
       <article class="news-article">
         <div class="news-date">October 24, 2026</div>
         <h2 class="news-title">Something spooky in the lab - Parallax 2.1 Pro</h2>
@@ -824,7 +849,6 @@
 
     const img = maskCtx.getImageData(0, 0, MW, MH).data;
     samplePixels = [];
-    // Higher density (step 2 instead of 3)
     for (let y = 0; y < MH; y += 2) {
       for (let x = 0; x < MW; x += 2) {
         if (img[(y * MW + x) * 4 + 3] > 100) {
@@ -879,7 +903,6 @@
     points.sort((a, b) => a.depth - b.depth);
     for (const p of points) {
       const depthT = (p.depth + 1) / 2;
-      // Brighter base alpha
       let alpha = 0.15 + depthT * 0.65;
       const dist = Math.sqrt(Math.pow(mouseX - p.screenX, 2) + Math.pow(mouseY - p.screenY, 2));
       if (dist < HOVER_RADIUS) alpha = Math.min(1, alpha + Math.pow(1 - dist / HOVER_RADIUS, 2) * 0.85);
@@ -953,7 +976,6 @@
       const depthT = (p.oz + ORB_RADIUS) / (2 * ORB_RADIUS);
       let alpha = 0.05 + depthT * 0.4;
       
-      // Mix green and amber based on x-position for a lab feel
       const isAmber = p.x > 20;
       ctx.fillStyle = isAmber 
         ? `rgba(251, 191, 36, ${alpha.toFixed(3)})`

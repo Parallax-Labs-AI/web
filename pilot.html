@@ -8,17 +8,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<!-- Added FontAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   :root {
     --bg: #0a0a0a;
     --text: #e8e8e8;
-    --text-dim2: #7a7a7a;
-    --text-dimmer: #4a4a4a;
+    --text-dim2: #e8e8e8;
+    --text-dimmer: #e8e8e8;
     --line: #1e1e1e;
     --line-bright: #333333;
     --accent: #f0f0f0;
+    --accent-green: #4ade80;
+    --accent-amber: #fbbf24;
     --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
     --ease: cubic-bezier(.2,.8,.2,1);
   }
@@ -34,37 +35,62 @@
     position: relative;
   }
 
-  /* ── BACKGROUND CANVASES (Reused from index) ── */
-  #sphereCanvas, #orbCanvas {
+  /* ── LAB ENVIRONMENT BACKGROUND ── */
+  .lab-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    pointer-events: none;
+  }
+
+  #sphereCanvas, #orbCanvas, #glowCanvas {
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
     display: block;
   }
-  #orbCanvas { z-index: 1; opacity: 0.4; }
+  #orbCanvas {
+    z-index: 2;
+    opacity: 0.25;
+    transform: scale(1.5) translate(10%, 5%);
+  }
+  #glowCanvas {
+    z-index: 0;
+    opacity: 0.15;
+    filter: blur(40px);
+  }
+  
+  /* Scanline effect + vignette */
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
     background:
-      radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.25) 45%, rgba(10,10,10,0.85) 85%, rgba(10,10,10,0.95) 100%),
-      linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.9) 100%);
+      radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.4) 45%, rgba(10,10,10,0.9) 85%, rgba(10,10,10,1) 100%),
+      linear-gradient(180deg, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.95) 100%),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
   }
 
   /* ── LAYOUT ── */
   .page {
     position: relative;
-    z-index: 3;
+    z-index: 4;
     display: flex;
     flex-direction: column;
     padding: 40px 56px;
     min-height: 100vh;
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
   }
   
@@ -76,20 +102,24 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
   }
   .topbar a {
     color: var(--text); text-decoration: none; border-bottom: 1px solid transparent;
     transition: 0.2s; display: flex; align-items: center; gap: 8px;
+    font-weight: 500;
   }
-  .topbar a:hover { border-bottom-color: var(--text); }
+  .topbar a:hover { border-bottom-color: var(--text); color: var(--accent-green); }
 
   /* ── HERO ── */
   .hero {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 40px 0 80px;
+    padding: 20px 0 80px;
     border-bottom: 1px solid var(--line);
+    position: relative;
   }
   .badge {
     font-size: 10px;
@@ -97,11 +127,12 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--bg);
-    background: #4ade80;
+    background: var(--accent-green);
     padding: 4px 10px;
-    border-radius: 4px;
     margin-bottom: 24px;
     display: inline-block;
+    border: 1px solid var(--accent-green);
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
   }
   .logo-title {
     font-size: clamp(48px, 8vw, 96px);
@@ -121,21 +152,31 @@
     margin-bottom: 40px;
   }
   .lede strong { color: var(--text); font-weight: 500; }
+  .lede em { font-style: normal; color: var(--accent-green); }
 
   .actions { display: flex; gap: 12px; flex-wrap: wrap; }
   .btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    padding: 14px 22px; background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(8px);
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px 24px; background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(8px);
     color: var(--text); border: 1px solid var(--text-dim2);
     font-family: var(--mono); font-size: 13px; font-weight: 500;
     text-decoration: none; cursor: pointer; transition: all .2s var(--ease);
+    position: relative; overflow: hidden;
   }
-  .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .btn::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--text-dim2); transition: background 0.2s;
+  }
+  .btn:hover::before { background: var(--text); }
+  .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); padding-left: 30px; }
+  
   .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
-  .btn-primary:hover { background: #fff; }
+  .btn-primary::before { background: var(--bg); }
+  .btn-primary:hover { background: #fff; padding-left: 24px; }
+  .btn-primary:hover::before { background: var(--bg); }
 
-  /* ── FEATURES GRID ── */
-  .features-section {
+  /* ── SECTIONS ── */
+  .section {
     padding: 80px 0;
     border-bottom: 1px solid var(--line);
   }
@@ -146,71 +187,354 @@
   }
   .section-title::after { content: ''; height: 1px; flex: 1; background: var(--line); }
 
+  /* ── INTERACTIVE FEATURES GRID ── */
   .features-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 16px;
   }
   .feature-card {
     background: rgba(13, 13, 13, 0.6);
     backdrop-filter: blur(10px);
     border: 1px solid var(--line);
     padding: 32px;
-    border-radius: 8px;
-    transition: border-color 0.3s var(--ease);
+    position: relative;
+    transition: all 0.4s var(--ease);
+    cursor: default;
+    overflow: hidden;
   }
-  .feature-card:hover { border-color: var(--line-bright); }
+  .feature-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: var(--line-bright); transition: background 0.3s;
+  }
+  .feature-card:hover {
+    border-color: var(--line-bright);
+    background: rgba(20, 20, 20, 0.8);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  }
+  .feature-card:hover::before { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
   
-  /* Updated Feature Icon Styles */
   .feature-icon {
-    width: 40px; height: 40px;
+    width: 48px; height: 48px;
     display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--line-bright); border-radius: 6px;
-    margin-bottom: 20px; font-size: 18px; color: var(--text);
-    background: var(--bg);
+    border: 1px solid var(--line-bright);
+    margin-bottom: 24px; font-size: 20px; color: var(--text);
+    background: var(--bg); transition: all 0.4s var(--ease);
+  }
+  .feature-card:hover .feature-icon {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.1);
   }
   
   .feature-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
   .feature-desc { font-size: 13px; color: var(--text-dim2); line-height: 1.7; }
 
+  /* ── PILOT GUI DEMO ── */
+  .demo-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .demo-disclaimer {
+    font-size: 11px;
+    color: var(--accent-amber);
+    border: 1px dashed rgba(251, 191, 36, 0.4);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    background: rgba(251, 191, 36, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .gui-window {
+    background: #050505;
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    height: 520px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .gui-titlebar {
+    background: #0d0d0d;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-dim2);
+    z-index: 2;
+  }
+  .gui-dots { display: flex; gap: 8px; }
+  .gui-dot { width: 10px; height: 10px; border-radius: 50%; background: #333; }
+  .gui-dot.red { background: #ef4444; }
+  .gui-dot.yellow { background: #fbbf24; }
+  .gui-dot.green { background: #4ade80; }
+  
+  .gui-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .gui-sidebar {
+    width: 240px;
+    background: #080808;
+    border-right: 1px solid var(--line);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 2;
+  }
+  .gui-nav-item {
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-dim2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+  }
+  .gui-nav-item:hover { background: rgba(255,255,255,0.03); color: var(--text); }
+  .gui-nav-item.active {
+    background: rgba(74, 222, 128, 0.05);
+    color: var(--accent-green);
+    border-left-color: var(--accent-green);
+  }
+  
+  .gui-file-tree {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--text-dim2);
+    flex: 1;
+    overflow-y: auto;
+  }
+  .gui-file-item {
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .gui-file-item i { font-size: 10px; opacity: 0.5; }
+  .gui-file-item.new { color: var(--accent-green); animation: fadeIn 0.5s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+  
+  .gui-model-info {
+    margin-top: auto; padding: 12px; border-top: 1px solid var(--line); 
+    font-size: 10px; color: var(--text-dimmer);
+  }
+  
+  .gui-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    z-index: 1;
+  }
+  
+  .gui-chat {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-size: 13px;
+  }
+  
+  .chat-msg {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 95%;
+    animation: slideUp 0.3s var(--ease);
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .chat-msg.user { align-self: flex-end; align-items: flex-end; }
+  .chat-msg.agent { align-self: flex-start; }
+  
+  .chat-bubble {
+    padding: 12px 16px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .chat-msg.user .chat-bubble {
+    background: var(--line-bright);
+    color: var(--text);
+    border-right: 2px solid var(--text);
+  }
+  .chat-msg.agent .chat-bubble {
+    background: #111;
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--accent-green);
+    color: var(--text-dim2);
+  }
+  
+  .thinking {
+    color: var(--accent-amber);
+    font-style: italic;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .tool-call {
+    margin-top: 8px;
+    background: #080808;
+    border: 1px solid var(--line);
+    padding: 12px;
+    font-size: 11px;
+    font-family: var(--mono);
+    width: 100%;
+    animation: slideUp 0.3s;
+  }
+  .tool-header {
+    color: var(--accent-amber);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .tool-body { color: var(--text-dimmer); white-space: pre-wrap; }
+  .tool-body.success { color: var(--accent-green); }
+
+  /* Simulated Code Editor Overlay inside GUI */
+  .gui-code-editor {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 240px;
+    background: #050505;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.4s var(--ease);
+    border-left: 1px solid var(--line);
+  }
+  .gui-code-editor.open { transform: translateY(0); }
+  .editor-header {
+    padding: 8px 16px;
+    background: #0d0d0d;
+    border-bottom: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--text-dim2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .editor-close { cursor: pointer; color: var(--text-dimmer); }
+  .editor-close:hover { color: var(--text); }
+  .editor-body {
+    padding: 16px;
+    font-size: 12px;
+    color: var(--text-dim2);
+    overflow-y: auto;
+    flex: 1;
+    white-space: pre;
+    line-height: 1.5;
+  }
+  .editor-body .line-num { color: var(--line-bright); margin-right: 16px; user-select: none; }
+  .editor-body .kw { color: #c678dd; }
+  .editor-body .str { color: #98c379; }
+  .editor-body .fn { color: #61afef; }
+  .editor-body .cm { color: var(--text-dimmer); }
+
+  .gui-input-area {
+    padding: 16px;
+    border-top: 1px solid var(--line);
+    background: #080808;
+    z-index: 2;
+  }
+  .gui-input-box {
+    background: var(--bg);
+    border: 1px solid var(--line-bright);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dim2);
+    font-size: 13px;
+    position: relative;
+  }
+  .gui-input-box input {
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-family: var(--mono); font-size: 13px; width: 100%;
+  }
+  .gui-send-btn {
+    color: var(--accent-green); cursor: pointer; transition: 0.2s;
+  }
+  .gui-send-btn:hover { text-shadow: 0 0 10px var(--accent-green); }
+
   /* ── TERMINAL PREVIEW ── */
-  .terminal-section { padding: 80px 0 120px; }
   .terminal {
     background: #050505;
     border: 1px solid var(--line);
-    border-radius: 8px;
     overflow: hidden;
     font-family: var(--mono);
     font-size: 13px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    height: 400px;
+    display: flex;
+    flex-direction: column;
   }
   .term-header {
     background: #0d0d0d; padding: 10px 16px; border-bottom: 1px solid var(--line);
     display: flex; gap: 8px; align-items: center;
+    flex-shrink: 0;
   }
   .term-dot { width: 10px; height: 10px; border-radius: 50%; background: #333; }
-  .term-body { padding: 24px; color: var(--text-dim2); line-height: 1.8; }
-  .term-prompt { color: #4ade80; }
+  .term-body { 
+    padding: 24px; 
+    color: var(--text-dim2); 
+    line-height: 1.8; 
+    overflow-y: auto; 
+    flex: 1;
+  }
+  .term-prompt { color: var(--accent-green); }
   .term-cmd { color: var(--text); }
-  .term-out { color: var(--text-dimmer); margin-bottom: 16px; }
-  .term-success { color: #4ade80; }
+  .term-out { color: var(--text-dimmer); }
+  .term-success { color: var(--accent-green); }
   .term-cursor {
     display: inline-block; width: 8px; height: 15px; background: var(--text);
     vertical-align: text-bottom; animation: blink 1s step-end infinite;
   }
-
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-  @media (max-width: 720px) {
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
     .page { padding: 24px; }
     .features-grid { grid-template-columns: 1fr; }
     .actions { flex-direction: column; }
     .actions .btn { width: 100%; }
+    
+    .gui-sidebar { display: none; }
+    .gui-code-editor { left: 0; }
+    .gui-window { height: 450px; }
+    .gui-chat { padding: 16px; }
+    .term-body { padding: 16px; font-size: 12px; }
   }
 </style>
 </head>
 <body>
 
+  <!-- Background Lab Elements -->
+  <div class="lab-grid"></div>
+  <canvas id="glowCanvas"></canvas>
   <canvas id="sphereCanvas"></canvas>
   <canvas id="orbCanvas"></canvas>
 
@@ -230,12 +554,96 @@
         The all-new <strong>local AI agent</strong> that doesn't just chat—it executes. Powered by the Parallax 2 architecture and featuring a massive <strong>1 million token context window</strong>, Pilot can read entire codebases, navigate file systems, and run complex tasks autonomously on your own hardware.
       </p>
       <div class="actions">
-        <button class="btn btn-primary" onclick="alert('The Parallax Pilot waitlist is currently closed.')">Join Waitlist</button>
+        <button class="btn btn-primary" onclick="alert('The Parallax Pilot waitlist is currently closed.')"><i class="fa-solid fa-envelope"></i> Join Waitlist</button>
         <a href="index.html" class="btn">Explore Parallax Labs</a>
       </div>
     </main>
 
-    <section class="features-section">
+    <!-- PILOT GUI DEMO -->
+    <section class="section">
+      <div class="section-title">Interactive Preview</div>
+      <div class="demo-wrapper">
+        
+        <div class="demo-disclaimer">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span><strong>Disclaimer:</strong> This is a simulated preview of the Parallax Pilot GUI. The interface, features, and capabilities shown are subject to change as we approach release.</span>
+        </div>
+
+        <div class="gui-window" id="guiWindow">
+          <div class="gui-titlebar">
+            <div class="gui-dots">
+              <div class="gui-dot red"></div>
+              <div class="gui-dot yellow"></div>
+              <div class="gui-dot green"></div>
+            </div>
+            <span>Parallax Pilot — ~/projects/my-app</span>
+            <i class="fa-solid fa-xmark" style="opacity: 0.5;"></i>
+          </div>
+          
+          <div class="gui-body">
+            <div class="gui-sidebar">
+              <div class="gui-nav-item active"><i class="fa-solid fa-comments"></i> Chat</div>
+              <div class="gui-nav-item"><i class="fa-solid fa-folder-tree"></i> Workspace</div>
+              <div class="gui-nav-item"><i class="fa-solid fa-clock-rotate-left"></i> History</div>
+              <div class="gui-nav-item"><i class="fa-solid fa-gear"></i> Settings</div>
+              
+              <div class="gui-file-tree" id="fileTree">
+                <div style="padding: 4px 8px; opacity: 0.5;"><i class="fa-solid fa-folder"></i> my-app</div>
+                <div class="gui-file-item" style="margin-left: 12px;"><i class="fa-regular fa-file-code"></i> app.py</div>
+                <div class="gui-file-item" style="margin-left: 12px;"><i class="fa-regular fa-file-code"></i> requirements.txt</div>
+                <!-- New files injected here -->
+              </div>
+
+              <div class="gui-model-info">
+                MODEL: PARALLAX 2 MINI<br>CONTEXT: 1M TOKENS
+              </div>
+            </div>
+            
+            <div class="gui-main">
+              <div class="gui-chat" id="demoChat">
+                <!-- Chat messages injected via JS -->
+              </div>
+              <div class="gui-input-area">
+                <div class="gui-input-box">
+                  <span style="color: var(--accent-green);">❯</span>
+                  <input type="text" id="guiInput" readonly placeholder="Waiting to start...">
+                  <i class="fa-solid fa-paper-plane gui-send-btn"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Simulated Code Editor Overlay -->
+            <div class="gui-code-editor" id="codeEditor">
+              <div class="editor-header">
+                <span><i class="fa-regular fa-file-code"></i> scrape_hn.py</span>
+                <span class="editor-close" onclick="document.getElementById('codeEditor').classList.remove('open')"><i class="fa-solid fa-xmark"></i></span>
+              </div>
+              <div class="editor-body">
+<span class="line-num">1</span><span class="kw">import</span> requests
+<span class="line-num">2</span><span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup
+<span class="line-num">3</span>
+<span class="line-num">4</span><span class="cm"># Target URL</span>
+<span class="line-num">5</span>url = <span class="str">"https://news.ycombinator.com/"</span>
+<span class="line-num">6</span>
+<span class="line-num">7</span><span class="cm"># Fetch the page</span>
+<span class="line-num">8</span>response = requests.<span class="fn">get</span>(url)
+<span class="line-num">9</span>soup = BeautifulSoup(response.text, <span class="str">"html.parser"</span>)
+<span class="line-num">10</span>
+<span class="line-num">11</span><span class="cm"># Extract titles</span>
+<span class="line-num">12</span>titles = soup.<span class="fn">select</span>(<span class="str">".titleline &gt; a"</span>)[:<span class="str">10</span>]
+<span class="line-num">13</span>
+<span class="line-num">14</span><span class="kw">for</span> i, title <span class="kw">in</span> <span class="fn">enumerate</span>(titles, 1):
+<span class="line-num">15</span>    <span class="fn">print</span>(<span class="str">f"{i}. {title.text}"</span>)
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES GRID -->
+    <section class="section">
       <div class="section-title">Pilot vs. Competition</div>
       <div class="features-grid">
         <div class="feature-card">
@@ -261,25 +669,17 @@
       </div>
     </section>
 
-    <section class="terminal-section">
+    <!-- TERMINAL -->
+    <section class="section" style="border-bottom: none; padding-bottom: 120px;">
       <div class="section-title">See it in action</div>
-      <div class="terminal">
+      <div class="terminal" id="terminalWindow">
         <div class="term-header">
           <div class="term-dot"></div>
           <div class="term-dot"></div>
           <div class="term-dot"></div>
         </div>
-        <div class="term-body">
-          <div><span class="term-prompt">❯</span> <span class="term-cmd">pilot "I need you to create me a report on why NVIDIA GPUs are great for gaming."</span></div>
-          <div class="term-out">
-[Thinking...] I need to use the web to research about NVIDIA and AMD GPUs and their advantages and disadvantages.<br>
-[Tool: web_search] <span class="term-out">Search google.com</span><br>
-[Tool Output] greenwaveelectronics.com/blog/amd-vs-nvidia-gpu-comparison, redswitches.com/blog/amd-vs-nvidia-gpus/, reddit.com/r/buildapc/comments/1oxqqne/which_is_better_nvidia_or_amd/<br>
-[Thinking...] I will read these articles / websites to extract information and compile the report.<br>
-[Tool: create_file] <span class="term-out">./nvidia-vs-amd.md</span><br>
-[Thinking...] I will now begin to write the report, and validate it.
-          </div>
-          <div><span class="term-prompt">❯</span> <span class="term-cmd">[Agent is executing 4 tool calls...]</span> <span class="term-cursor"></span></div>
+        <div class="term-body" id="terminalBody">
+          <!-- Content injected via JS -->
         </div>
       </div>
     </section>
@@ -311,8 +711,8 @@
 
     const img = maskCtx.getImageData(0, 0, MW, MH).data;
     samplePixels = [];
-    for (let y = 0; y < MH; y += 3) {
-      for (let x = 0; x < MW; x += 3) {
+    for (let y = 0; y < MH; y += 2) {
+      for (let x = 0; x < MW; x += 2) {
         if (img[(y * MW + x) * 4 + 3] > 100) {
           samplePixels.push({ nx: (x - MW / 2) / (MW / 2), ny: (y - MH / 2) / (MH / 2) });
         }
@@ -365,11 +765,11 @@
     points.sort((a, b) => a.depth - b.depth);
     for (const p of points) {
       const depthT = (p.depth + 1) / 2;
-      let alpha = 0.08 + depthT * 0.55;
+      let alpha = 0.15 + depthT * 0.65;
       const dist = Math.sqrt(Math.pow(mouseX - p.screenX, 2) + Math.pow(mouseY - p.screenY, 2));
       if (dist < HOVER_RADIUS) alpha = Math.min(1, alpha + Math.pow(1 - dist / HOVER_RADIUS, 2) * 0.85);
       ctx.fillStyle = `rgba(232, 232, 232, ${alpha.toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(p.screenX, p.screenY, 0.55 + depthT * 1.3, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(p.screenX, p.screenY, 0.6 + depthT * 1.4, 0, Math.PI * 2); ctx.fill();
     }
     requestAnimationFrame(render);
   }
@@ -394,8 +794,8 @@
   window.addEventListener('resize', resize);
 
   const orbPoints = [];
-  const ORB_RADIUS = 100;
-  const NUM_POINTS = 300;
+  const ORB_RADIUS = 120;
+  const NUM_POINTS = 400;
   for (let i = 0; i < NUM_POINTS; i++) {
     const phi = Math.acos(-1 + (2 * i) / NUM_POINTS);
     const theta = Math.sqrt(NUM_POINTS * Math.PI) * phi;
@@ -410,13 +810,13 @@
   let time = 0;
   function renderOrb() {
     ctx.clearRect(0, 0, cssW, cssH);
-    time += 0.01;
+    time += 0.008;
 
-    const cx = cssW / 2 + Math.sin(time * 0.5) * (cssW * 0.3);
-    const cy = cssH / 2 + Math.cos(time * 0.8) * (cssH * 0.3);
+    const cx = cssW / 2 + Math.sin(time * 0.4) * (cssW * 0.35);
+    const cy = cssH / 2 + Math.cos(time * 0.6) * (cssH * 0.35);
     
-    const rotX = time * 0.5;
-    const rotY = time * 0.7;
+    const rotX = time * 0.4;
+    const rotY = time * 0.6;
     const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
     const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
 
@@ -426,7 +826,7 @@
       let y2 = p.y * cosX - z1 * sinX;
       let z2 = p.y * sinX + z1 * cosX;
 
-      const persp = 300 / (300 + z2);
+      const persp = 400 / (400 + z2);
       p.ox = cx + x1 * persp;
       p.oy = cy + y2 * persp;
       p.oz = z2;
@@ -436,11 +836,15 @@
 
     for (const p of orbPoints) {
       const depthT = (p.oz + ORB_RADIUS) / (2 * ORB_RADIUS);
-      let alpha = 0.1 + depthT * 0.5;
+      let alpha = 0.05 + depthT * 0.4;
       
-      ctx.fillStyle = `rgba(120, 255, 180, ${alpha.toFixed(3)})`;
+      const isAmber = p.x > 20;
+      ctx.fillStyle = isAmber 
+        ? `rgba(251, 191, 36, ${alpha.toFixed(3)})`
+        : `rgba(74, 222, 128, ${alpha.toFixed(3)})`;
+      
       ctx.beginPath();
-      ctx.arc(p.ox, p.oy, 1 + depthT * 2, 0, Math.PI * 2);
+      ctx.arc(p.ox, p.oy, 1 + depthT * 2.5, 0, Math.PI * 2);
       ctx.fill();
     }
     requestAnimationFrame(renderOrb);
@@ -449,6 +853,285 @@
   resize();
   requestAnimationFrame(renderOrb);
 })();
+
+// ── 3. GLOWING BACKGROUND ORBS ──
+(() => {
+  const canvas = document.getElementById('glowCanvas');
+  const ctx = canvas.getContext('2d');
+  let cssW = window.innerWidth, cssH = window.innerHeight;
+  
+  function resize() {
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+
+  let time = 0;
+  function renderGlow() {
+    ctx.clearRect(0, 0, cssW, cssH);
+    time += 0.005;
+
+    const cx1 = cssW * 0.2 + Math.sin(time) * 100;
+    const cy1 = cssH * 0.3 + Math.cos(time * 0.8) * 100;
+    const r1 = 150 + Math.sin(time * 1.2) * 30;
+    
+    const grd1 = ctx.createRadialGradient(cx1, cy1, 0, cx1, cy1, r1);
+    grd1.addColorStop(0, 'rgba(74, 222, 128, 0.08)');
+    grd1.addColorStop(1, 'rgba(74, 222, 128, 0)');
+    ctx.fillStyle = grd1;
+    ctx.beginPath();
+    ctx.arc(cx1, cy1, r1, 0, Math.PI * 2);
+    ctx.fill();
+
+    const cx2 = cssW * 0.8 + Math.cos(time * 0.7) * 120;
+    const cy2 = cssH * 0.7 + Math.sin(time * 0.9) * 120;
+    const r2 = 200 + Math.cos(time) * 40;
+    
+    const grd2 = ctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, r2);
+    grd2.addColorStop(0, 'rgba(251, 191, 36, 0.05)');
+    grd2.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    ctx.fillStyle = grd2;
+    ctx.beginPath();
+    ctx.arc(cx2, cy2, r2, 0, Math.PI * 2);
+    ctx.fill();
+
+    requestAnimationFrame(renderGlow);
+  }
+
+  resize();
+  requestAnimationFrame(renderGlow);
+})();
+
+// ── 4. UTILS FOR TYPEWRITER ──
+function typeText(element, text, speed, callback) {
+  let i = 0;
+  element.innerHTML = '';
+  function type() {
+    if (i < text.length) {
+      element.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(type, speed);
+    } else if (callback) {
+      callback();
+    }
+  }
+  type();
+}
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+// ── 5. INTERACTIVE GUI DEMO ──
+const guiInput = document.getElementById('guiInput');
+const demoChat = document.getElementById('demoChat');
+const fileTree = document.getElementById('fileTree');
+const codeEditor = document.getElementById('codeEditor');
+
+async function runGUIDemo() {
+  await sleep(500);
+  
+  // 1. Type the user prompt letter by letter
+  guiInput.placeholder = '';
+  await new Promise(resolve => {
+    let i = 0;
+    const prompt = "Create a Python script to scrape the top 10 Hacker News posts.";
+    function type() {
+      if (i < prompt.length) {
+        guiInput.value += prompt.charAt(i);
+        i++;
+        setTimeout(type, Math.random() * 50 + 20); // Variable typing speed
+      } else {
+        resolve();
+      }
+    }
+    type();
+  });
+
+  await sleep(800);
+  
+  // 2. User sends message
+  guiInput.value = '';
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-msg user';
+  userMsg.innerHTML = `<div class="chat-bubble">Create a Python script to scrape the top 10 Hacker News posts.</div>`;
+  demoChat.appendChild(userMsg);
+  demoChat.scrollTop = demoChat.scrollHeight;
+
+  await sleep(1000);
+
+  // 3. Agent thinking
+  const agentMsg = document.createElement('div');
+  agentMsg.className = 'chat-msg agent';
+  agentMsg.innerHTML = `<div class="chat-bubble"><span class="thinking"><i class="fa-solid fa-circle-notch fa-spin"></i> Thinking...</span></div>`;
+  demoChat.appendChild(agentMsg);
+  demoChat.scrollTop = demoChat.scrollHeight;
+
+  await sleep(1500);
+
+  // 4. Agent text
+  agentMsg.querySelector('.chat-bubble').innerHTML = 'I will write a Python script using `requests` and `BeautifulSoup` to scrape Hacker News. First, I need to check if the required libraries are installed.';
+  demoChat.scrollTop = demoChat.scrollHeight;
+
+  await sleep(1500);
+
+  // 5. Tool call: Check deps
+  const tool1 = document.createElement('div');
+  tool1.innerHTML = `
+    <div class="tool-call">
+      <div class="tool-header"><i class="fa-solid fa-terminal"></i> Tool Call: check_dependencies</div>
+      <div class="tool-body">
+        <span class="term-cursor"></span>
+      </div>
+    </div>
+  `;
+  agentMsg.querySelector('.chat-bubble').appendChild(tool1);
+  demoChat.scrollTop = demoChat.scrollHeight;
+
+  await sleep(1000);
+  
+  const tool1Body = tool1.querySelector('.tool-body');
+  tool1Body.innerHTML = 'Checking environment...<br>';
+  await sleep(800);
+  tool1Body.innerHTML += '<span class="success">requests (2.31.0) found.</span><br>';
+  await sleep(500);
+  tool1Body.innerHTML += '<span class="success">beautifulsoup4 (4.12.2) found.</span>';
+  demoChat.scrollTop = demoChat.scrollHeight;
+
+  await sleep(1500);
+
+  // 6. Agent text
+  const agentMsg2 = document.createElement('div');
+  agentMsg2.className = 'chat-msg agent';
+  agentMsg2.innerHTML = `<div class="chat-bubble">Dependencies are ready. I am now generating the script and saving it to the workspace.</div>`;
+  demoChat.appendChild(agentMsg2);
+  demoChat.scrollTop = demoChat.scrollHeight;
+
+  await sleep(1000);
+
+  // 7. Tool call: Create file
+  const tool2 = document.createElement('div');
+  tool2.innerHTML = `
+    <div class="tool-call">
+      <div class="tool-header"><i class="fa-solid fa-file-code"></i> Tool Call: create_file</div>
+      <div class="tool-body">
+        <span class="term-cursor"></span>
+      </div>
+    </div>
+  `;
+  agentMsg2.querySelector('.chat-bubble').appendChild(tool2);
+  demoChat.scrollTop = demoChat.scrollHeight;
+
+  await sleep(1000);
+  
+  const tool2Body = tool2.querySelector('.tool-body');
+  await new Promise(resolve => {
+    let i = 0;
+    const text = './scrape_hn.py\n';
+    function type() {
+      if (i < text.length) {
+        tool2Body.innerHTML = `Writing to ` + text.substring(0, i+1) + `<span class="term-cursor"></span>`;
+        i++;
+        setTimeout(type, 100);
+      } else {
+        tool2Body.innerHTML = '<span class="success">Successfully created ./scrape_hn.py (1.2 KB)</span>';
+        resolve();
+      }
+    }
+    type();
+  });
+  
+  // Add to file tree
+  const newFile = document.createElement('div');
+  newFile.className = 'gui-file-item new';
+  newFile.style.marginLeft = '12px';
+  newFile.innerHTML = '<i class="fa-regular fa-file-code"></i> scrape_hn.py';
+  fileTree.appendChild(newFile);
+
+  // Open code editor
+  await sleep(500);
+  codeEditor.classList.add('open');
+
+  await sleep(2000);
+
+  // 8. Final agent message
+  const agentMsg3 = document.createElement('div');
+  agentMsg3.className = 'chat-msg agent';
+  agentMsg3.innerHTML = `<div class="chat-bubble">The script is ready. Would you like me to run it now to verify the output?</div>`;
+  demoChat.appendChild(agentMsg3);
+  demoChat.scrollTop = demoChat.scrollHeight;
+}
+
+const guiObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    runGUIDemo();
+    guiObserver.disconnect();
+  }
+}, { threshold: 0.5 });
+
+guiObserver.observe(document.getElementById('guiWindow'));
+
+
+// ── 6. TERMINAL TYPEWRITER ──
+const termBody = document.getElementById('terminalBody');
+const termLines = [
+  { text: '❯ pilot "I need you to create a report on why NVIDIA GPUs are great for gaming."', class: 'term-cmd', typeSpeed: 30 },
+  { text: '\n[Thinking...] I need to use the web to research about NVIDIA GPUs and their advantages.\n', class: 'term-out', typeSpeed: 15 },
+  { text: '[Tool: web_search] Searching google.com\n', class: 'term-out', typeSpeed: 15 },
+  { text: '[Tool Output] Found 3 relevant articles.\n', class: 'term-out', typeSpeed: 15 },
+  { text: '[Thinking...] I will read these articles to extract information and compile the report.\n', class: 'term-out', typeSpeed: 15 },
+  { text: '[Tool: create_file] ./nvidia-report.md\n', class: 'term-out', typeSpeed: 15 },
+  { text: '[Thinking...] Writing the report and validating it.\n', class: 'term-out', typeSpeed: 15 },
+  { text: '❯ [Agent is executing 4 tool calls...]', class: 'term-cmd', typeSpeed: 30 }
+];
+
+async function runTerminalDemo() {
+  await sleep(500);
+  
+  for (let i = 0; i < termLines.length; i++) {
+    const line = termLines[i];
+    const div = document.createElement('div');
+    div.className = line.class;
+    termBody.appendChild(div);
+    
+    // Type out this line
+    await new Promise(resolve => {
+      let charI = 0;
+      const text = line.text;
+      function typeChar() {
+        if (charI < text.length) {
+          div.innerHTML += text.charAt(charI).replace('\n', '<br>');
+          charI++;
+          // Randomize speed slightly for realism
+          const speed = line.typeSpeed + (Math.random() * 20 - 10);
+          setTimeout(typeChar, Math.max(5, speed));
+        } else {
+          resolve();
+        }
+      }
+      typeChar();
+    });
+    
+    // Pause between lines
+    await sleep(400);
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+  
+  // Add blinking cursor at the end
+  const cursorDiv = document.createElement('div');
+  cursorDiv.innerHTML = '<span class="term-cursor"></span>';
+  termBody.appendChild(cursorDiv);
+}
+
+const termObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    runTerminalDemo();
+    termObserver.disconnect();
+  }
+}, { threshold: 0.5 });
+
+termObserver.observe(document.getElementById('terminalWindow'));
 </script>
 </body>
 </html>
