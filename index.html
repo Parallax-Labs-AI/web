@@ -8,12 +8,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   :root {
     --bg: #0a0a0a;
     --text: #e8e8e8;
-    --text-dim2: #e8e8e8;
-    --text-dimmer: #e8e8e8;
+    --text-dim2: #adadad;
+    --text-dimmer: #4a4a4a;
     --line: #1e1e1e;
     --line-bright: #333333;
     --accent: #f0f0f0;
@@ -296,6 +297,101 @@
     color: var(--text-dim2);
   }
 
+  /* ── SQUADRON SECTION ── */
+  .squadron-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 80px 0;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .squadron-header {
+    text-align: center;
+    margin-bottom: 48px;
+    max-width: 800px;
+  }
+  .squadron-kicker {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-amber);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .squadron-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .squadron-sub {
+    font-size: 15px;
+    color: var(--text-dim2);
+    line-height: 1.7;
+  }
+
+  .squadron-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+  
+  .squadron-card {
+    border: 1px solid var(--line);
+    padding: 32px;
+    background: rgba(13, 13, 13, 0.5);
+    position: relative;
+    transition: all 0.3s var(--ease);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .squadron-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--line-bright);
+    transition: background 0.3s;
+  }
+  .squadron-card:hover {
+    border-color: var(--line-bright);
+    background: rgba(20, 20, 20, 0.7);
+    transform: translateY(-2px);
+  }
+  .squadron-card:hover::before { background: var(--accent-amber); }
+  
+  .squadron-icon {
+    width: 48px; height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line-bright);
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: var(--accent-amber);
+    background: var(--bg);
+  }
+  .squadron-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .squadron-card-desc {
+    font-size: 13px;
+    color: var(--text-dim2);
+    line-height: 1.6;
+  }
+  .squadron-card-desc strong { color: var(--text); font-weight: 500; }
+
   /* ── STATISTICS SECTION ── */
   .stats-section {
     max-width: 1200px;
@@ -396,7 +492,6 @@
     position: relative;
   }
   
-  /* Vertical connecting line */
   .timeline-list::before {
     content: '';
     position: absolute;
@@ -533,6 +628,7 @@
 
   @media (max-width: 1024px) {
     .family-split { grid-template-columns: 1fr; gap: 40px; }
+    .squadron-grid { grid-template-columns: 1fr; }
     .stats-section { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 720px) {
@@ -579,6 +675,7 @@
         <div class="actions">
           <a href="./chat" class="btn btn-primary">Try Parallax 2</a>
           <a href="./pilot" class="btn btn-secondary">See Parallax Pilot</a>
+          <a href="./squadron" class="btn btn-secondary">See Parallax Squadron</a>
           <a href="./current" class="btn btn-secondary">See Parallax 2 Family</a>
           <a href="./next" class="btn btn-secondary">See Parallax 2.1 Family</a>
         </div>
@@ -648,7 +745,7 @@
               </div>
             </div>
 
-                        <div class="family-row upcoming">
+            <div class="family-row upcoming">
               <div class="family-row-left">
                 <div class="family-row-name">Parallax 2.1 Pro & ProCode variant</div>
               </div>
@@ -657,6 +754,41 @@
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      <!-- SQUADRON SECTION -->
+      <section class="squadron-section">
+        <div class="squadron-header">
+          <span class="squadron-kicker">Exclusive Tooling</span>
+          <h2 class="squadron-title">Parallax Squadron</h2>
+          <p class="squadron-sub">
+            The Parallax models are powerful on their own, but <strong>Parallax Squadron</strong> takes them to the next level. This framework allows a commander model to deploy parallel sub-agents of itself, delegate workloads, and orchestrate complex tasks across your local hardware—all while drastically improving overall efficiency.
+          </p>
+        </div>
+
+        <div class="squadron-grid">
+          <div class="squadron-card">
+            <div class="squadron-icon"><i class="fa-solid fa-jet-fighter"></i></div>
+            <div class="squadron-card-title">Parallel Sub-Agents</div>
+            <div class="squadron-card-desc">
+              Deploy multiple instances of a Parallax model simultaneously. While one agent writes the frontend code, another handles the backend logic, and a third audits for security flaws.
+            </div>
+          </div>
+          <div class="squadron-card">
+            <div class="squadron-icon"><i class="fa-solid fa-network-wired"></i></div>
+            <div class="squadron-card-title">Intelligent Delegation</div>
+            <div class="squadron-card-desc">
+              The commander model automatically breaks down complex prompts into smaller, manageable tasks and assigns them to the most suitable sub-agents in the swarm.
+            </div>
+          </div>
+          <div class="squadron-card">
+            <div class="squadron-icon"><i class="fa-solid fa-bolt"></i></div>
+            <div class="squadron-card-title">Maximized Efficiency</div>
+            <div class="squadron-card-desc">
+              By distributing the workload across parallel agents, Squadron minimizes latency and maximizes throughput, turning your local machine into a mini supercomputer.
+            </div>
           </div>
         </div>
       </section>
@@ -725,7 +857,7 @@
                 <span class="timeline-badge green">9B</span>
               </div>
               <p class="timeline-desc">
-                The current flagship. We stopped messing around. With 9 billion parameters and a 262K context window, it proved that local hardware could handle the heavy lifting. Trained on 202K+ elite traces, it competes with the giants while running entirely offline.
+                The current flagship. We stopped messing around. With 9 billion parameters and a 262K context window, it proved that local hardware could handle the heavy lifting. Trained on 150K+ elite traces, it competes with the giants while running entirely offline.
               </p>
             </div>
           </div>
@@ -743,7 +875,6 @@
               </p>
             </div>
           </div>
-        </div>
 
           <!-- Item 5: 2.1 Pro -->
           <div class="timeline-item">

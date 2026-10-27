@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallax Squadron — Parallel Sub-Agents</title>
+<meta name="description" content="Parallax Squadron: The ultimate orchestration tool for local AI. Deploy parallel sub-agents, delegate workloads, and maximize efficiency.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --text: #e8e8e8;
+    --text-dim2: #adadad;
+    --text-dimmer: #4a4a4a;
+    --line: #1e1e1e;
+    --line-bright: #333333;
+    --accent: #f0f0f0;
+    --accent-green: #4ade80;
+    --accent-amber: #fbbf24;
+    --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+    --ease: cubic-bezier(.2,.8,.2,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow-x: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+
+  /* ── LAB ENVIRONMENT BACKGROUND ── */
+  .lab-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    pointer-events: none;
+  }
+
+  #sphereCanvas, #orbCanvas, #glowCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+    display: block;
+  }
+  #orbCanvas {
+    z-index: 2;
+    opacity: 0.25;
+    transform: scale(1.5) translate(10%, 5%);
+  }
+  #glowCanvas {
+    z-index: 0;
+    opacity: 0.15;
+    filter: blur(40px);
+  }
+  
+  /* Scanline effect + vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.4) 45%, rgba(10,10,10,0.9) 85%, rgba(10,10,10,1) 100%),
+      linear-gradient(180deg, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.95) 100%),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 56px;
+    min-height: 100vh;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .topbar {
+    font-size: 12px;
+    color: var(--text-dim2);
+    letter-spacing: 0.08em;
+    margin-bottom: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+  }
+  .topbar a {
+    color: var(--text); text-decoration: none; border-bottom: 1px solid transparent;
+    transition: 0.2s; display: flex; align-items: center; gap: 8px;
+    font-weight: 500;
+  }
+  .topbar a:hover { border-bottom-color: var(--text); color: var(--accent-amber); }
+
+  /* ── HERO (Centered) ── */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 0 80px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--bg);
+    background: var(--accent-amber);
+    padding: 4px 10px;
+    margin-bottom: 24px;
+    display: inline-block;
+    border: 1px solid var(--accent-amber);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+  }
+  .logo-title {
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin-bottom: 24px;
+    color: var(--text);
+    text-transform: uppercase;
+    text-shadow: 0 4px 40px rgba(0,0,0,0.9);
+  }
+  .lede {
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--text-dim2);
+    max-width: 720px;
+    margin: 0 auto 40px;
+  }
+  .lede strong { color: var(--text); font-weight: 500; }
+  .lede em { font-style: normal; color: var(--accent-amber); }
+
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px 24px; background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(8px);
+    color: var(--text); border: 1px solid var(--text-dim2);
+    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    text-decoration: none; cursor: pointer; transition: all .2s var(--ease);
+    position: relative; overflow: hidden;
+  }
+  .btn::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--text-dim2); transition: background 0.2s;
+  }
+  .btn:hover::before { background: var(--text); }
+  .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); padding-left: 30px; }
+  
+  .btn-primary { background: var(--accent-amber); color: var(--bg); border-color: var(--accent-amber); }
+  .btn-primary::before { background: var(--bg); }
+  .btn-primary:hover { background: #fcd34d; padding-left: 24px; }
+  .btn-primary:hover::before { background: var(--bg); }
+
+  /* ── SECTIONS (Centered) ── */
+  .section {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .section:last-of-type {
+    border-bottom: none;
+  }
+  
+  .section-header {
+    margin-bottom: 48px;
+    text-align: center;
+    max-width: 800px;
+  }
+  .section-kicker {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent-amber); margin-bottom: 12px; display: block;
+  }
+  .section-heading {
+    font-size: 32px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 15px; color: var(--text-dim2); line-height: 1.7;
+  }
+
+  /* ── FEATURE GRID ── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+  }
+  .feature-card {
+    border: 1px solid var(--line);
+    padding: 32px;
+    background: rgba(13, 13, 13, 0.5);
+    position: relative;
+    transition: all 0.3s var(--ease);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: var(--line-bright); transition: background 0.3s;
+  }
+  .feature-card:hover {
+    border-color: var(--line-bright);
+    background: rgba(20, 20, 20, 0.7);
+    transform: translateY(-2px);
+  }
+  .feature-card:hover::before { background: var(--accent-amber); }
+  
+  .feature-icon {
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--line-bright);
+    margin-bottom: 20px; font-size: 20px; color: var(--accent-amber);
+    background: var(--bg);
+  }
+  .feature-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+  .feature-desc { font-size: 13px; color: var(--text-dim2); line-height: 1.6; }
+  .feature-desc strong { color: var(--text); font-weight: 500; }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch-diagram {
+    width: 100%;
+    max-width: 800px;
+    background: #050505;
+    border: 1px solid var(--line);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    margin-top: 24px;
+  }
+  
+  .arch-layer {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    position: relative;
+  }
+  
+  .arch-node {
+    background: var(--bg);
+    border: 1px solid var(--accent-amber);
+    padding: 16px 24px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
+    position: relative;
+    z-index: 2;
+  }
+  .arch-node.commander {
+    border-width: 2px;
+    padding: 20px 32px;
+    font-size: 15px;
+  }
+  .arch-node.sub {
+    border-color: var(--line-bright);
+    color: var(--text-dim2);
+    font-weight: 500;
+    font-size: 12px;
+    padding: 12px 20px;
+  }
+  .arch-node.sub:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+  }
+  
+  .arch-connector {
+    width: 1px;
+    height: 32px;
+    background: var(--line-bright);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .arch-branch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 60%;
+    height: 1px;
+    background: var(--line-bright);
+    transform: translateX(-50%);
+  }
+  
+  /* ── USE CASES ── */
+  .usecase-list {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .usecase-item {
+    border: 1px solid var(--line);
+    background: rgba(13, 13, 13, 0.4);
+    padding: 24px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .usecase-icon {
+    font-size: 24px;
+    color: var(--accent-amber);
+    margin-top: 4px;
+  }
+  .usecase-content h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .usecase-content p {
+    font-size: 13px;
+    color: var(--text-dim2);
+    line-height: 1.6;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding-top: 32px; border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--text-dimmer);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    margin-top: 60px;
+  }
+  .footer a { color: var(--text-dimmer); text-decoration: none; }
+  .footer a:hover { color: var(--text); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    .page { padding: 24px; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .arch-layer { flex-direction: column; align-items: center; }
+    .arch-connector, .arch-branch { display: none; }
+    .arch-diagram { padding: 24px; }
+    .actions { flex-direction: column; width: 100%; }
+    .actions .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Background Lab Elements -->
+  <div class="lab-grid"></div>
+  <canvas id="glowCanvas"></canvas>
+  <canvas id="sphereCanvas"></canvas>
+  <canvas id="orbCanvas"></canvas>
+
+  <div class="page">
+    <div class="topbar">
+      <span>PARALLAX LABS</span>
+      <a href="index.html">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to Home
+      </a>
+    </div>
+
+    <!-- HERO -->
+    <main class="hero">
+      <h1 class="logo-title">Parallax<br>Squadron</h1>
+      <p class="lede">
+        One model is powerful. A fleet is unstoppable. <strong>Parallax Squadron</strong> is the ultimate orchestration framework for local AI. It allows a commander model to deploy <em>parallel sub-agents</em> of itself, delegate workloads, and orchestrate complex tasks across your hardware with unprecedented efficiency.
+      </p>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="alert('Unfortunately, Parallax Squadron is currently being tested internally only. No external testing is needed nor available right now.')"><i class="fa-solid fa-lock"></i> Request Early Access</button>
+        <a href="index.html" class="btn"><i class="fa-solid fa-house"></i> Explore Models</a>
+      </div>
+    </main>
+
+    <!-- THE ARCHITECTURE -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-kicker">The Architecture</span>
+        <h2 class="section-heading">How Squadron Works</h2>
+        <p class="section-sub">A hierarchical multi-agent system designed to break down and conquer the most complex tasks.</p>
+      </div>
+
+      <div class="arch-diagram">
+        <div class="arch-layer">
+          <div class="arch-node commander">
+            <i class="fa-solid fa-tower-broadcast" style="margin-right: 8px;"></i>
+            Commander Model
+          </div>
+        </div>
+        
+        <div class="arch-connector" style="height: 24px;"></div>
+        
+        <div class="arch-layer" style="position: relative;">
+          <div class="arch-branch" style="top: -12px; width: 80%;"></div>
+          
+          <div class="arch-node sub">Sub-Agent A<br><span style="color: var(--accent-green); font-size: 10px;">(Frontend)</span></div>
+          <div class="arch-node sub">Sub-Agent B<br><span style="color: var(--accent-green); font-size: 10px;">(Backend)</span></div>
+          <div class="arch-node sub">Sub-Agent C<br><span style="color: var(--accent-green); font-size: 10px;">(QA / Audit)</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CORE FEATURES -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-kicker">Core Features</span>
+        <h2 class="section-heading">Built for Parallelism</h2>
+        <p class="section-sub">Squadron isn't just about running multiple models; it's about making them work together.</p>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-jet-fighter"></i></div>
+          <div class="feature-title">Parallel Sub-Agents</div>
+          <div class="feature-desc">Deploy multiple instances of a Parallax model simultaneously. While one agent writes the frontend code, another handles the backend logic, and a third audits for security flaws.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-network-wired"></i></div>
+          <div class="feature-title">Intelligent Delegation</div>
+          <div class="feature-desc">The commander model automatically breaks down complex prompts into smaller, manageable tasks and assigns them to the most suitable sub-agents in the swarm.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+          <div class="feature-title">Maximized Efficiency</div>
+          <div class="feature-desc">By distributing the workload across parallel agents, Squadron minimizes latency and maximizes throughput, turning your local machine into a mini supercomputer.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- USE CASES -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-kicker">In Practice</span>
+        <h2 class="section-heading">What Can You Build?</h2>
+        <p class="section-sub">Squadron unlocks workflows that were previously impossible on local hardware.</p>
+      </div>
+
+      <div class="usecase-list">
+        <div class="usecase-item">
+          <div class="usecase-icon"><i class="fa-solid fa-code-branch"></i></div>
+          <div class="usecase-content">
+            <h3>Full-Stack Development</h3>
+            <p>Prompt the Commander to build a full-stack application. It will automatically spin up a frontend agent, a backend agent, and a database agent, coordinating their efforts to deliver a complete, functional project.</p>
+          </div>
+        </div>
+        <div class="usecase-item">
+          <div class="usecase-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+          <div class="usecase-content">
+            <h3>Deep Research & Auditing</h3>
+            <p>Deploy a swarm of research agents to read dozens of documents simultaneously. Each agent summarizes a specific document, and the Commander synthesizes their findings into a single comprehensive report.</p>
+          </div>
+        </div>
+        <div class="usecase-item">
+          <div class="usecase-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="usecase-content">
+            <h3>Red Team vs. Blue Team</h3>
+            <p>Set up a self-improving loop. One agent attempts to write secure code (Blue Team), while another agent actively tries to find vulnerabilities (Red Team). The Commander mediates and enforces fixes until the code is bulletproof.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>A subsidiary of <a href="https://parallaxstudios.xyz">Parallax Studios</a></span>
+      <span>© 2026 Parallax Studios</span>
+    </footer>
+  </div>
+
+<script>
+// ── 1. BACKGROUND SPHERE ANIMATION (Denser, brighter) ──
+(() => {
+  const canvas = document.getElementById('sphereCanvas');
+  const ctx = canvas.getContext('2d');
+  const maskCanvas = document.createElement('canvas');
+  const maskCtx = maskCanvas.getContext('2d');
+  let samplePixels = [];
+
+  function buildMask() {
+    const MW = 900, MH = 220;
+    maskCanvas.width = MW; maskCanvas.height = MH;
+    maskCtx.clearRect(0, 0, MW, MH);
+    maskCtx.fillStyle = '#fff';
+    maskCtx.font = `700 100px 'JetBrains Mono', monospace`;
+    maskCtx.textAlign = 'center'; maskCtx.textBaseline = 'middle';
+    const text = 'PARALLAX LABS';
+    const measured = maskCtx.measureText(text).width;
+    maskCtx.save();
+    maskCtx.translate(MW / 2, MH / 2);
+    maskCtx.scale(Math.min(1, (MW * 0.92) / measured), 1);
+    maskCtx.fillText(text, 0, 0);
+    maskCtx.restore();
+
+    const img = maskCtx.getImageData(0, 0, MW, MH).data;
+    samplePixels = [];
+    for (let y = 0; y < MH; y += 2) {
+      for (let x = 0; x < MW; x += 2) {
+        if (img[(y * MW + x) * 4 + 3] > 100) {
+          samplePixels.push({ nx: (x - MW / 2) / (MW / 2), ny: (y - MH / 2) / (MH / 2) });
+        }
+      }
+    }
+  }
+
+  let points = [];
+  function buildPoints() {
+    buildMask();
+    points = [];
+    const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < samplePixels.length; i++) {
+      const t = i / Math.max(1, samplePixels.length - 1);
+      const y = 1 - 2 * t;
+      const r = Math.sqrt(Math.max(0, 1 - y * y));
+      const theta = GOLDEN * i;
+      points.push({ x: Math.cos(theta) * r, y, z: Math.sin(theta) * r, tx: samplePixels[i].nx, ty: samplePixels[i].ny, screenX: 0, screenY: 0, depth: 0 });
+    }
+  }
+
+  let cssW = window.innerWidth, cssH = window.innerHeight;
+  function resize() {
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  let mouseX = -9999, mouseY = -9999;
+  window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+  window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
+
+  function render(now) {
+    ctx.clearRect(0, 0, cssW, cssH);
+    const cx = cssW / 2, cy = cssH / 2, R = Math.min(cssW, cssH) * 0.55;
+    const rotY = now * 0.00022, cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const cosX = Math.cos(0.28), sinX = Math.sin(0.28);
+    const PULL = 0.26, HOVER_RADIUS = 130;
+
+    for (const p of points) {
+      const sx = p.x * (1 - PULL) + p.tx * PULL, sy = p.y * (1 - PULL) + p.ty * PULL, sz = p.z * (1 - PULL);
+      const x1 = sx * cosY - sz * sinY, z1 = sx * sinY + sz * cosY;
+      const y2 = sy * cosX - z1 * sinX, z2 = sy * sinX + z1 * cosX;
+      const persp = 1.9 / (1.9 + z2);
+      p.screenX = cx + x1 * R * persp; p.screenY = cy + y2 * R * persp; p.depth = z2;
+    }
+
+    points.sort((a, b) => a.depth - b.depth);
+    for (const p of points) {
+      const depthT = (p.depth + 1) / 2;
+      let alpha = 0.15 + depthT * 0.65;
+      const dist = Math.sqrt(Math.pow(mouseX - p.screenX, 2) + Math.pow(mouseY - p.screenY, 2));
+      if (dist < HOVER_RADIUS) alpha = Math.min(1, alpha + Math.pow(1 - dist / HOVER_RADIUS, 2) * 0.85);
+      ctx.fillStyle = `rgba(232, 232, 232, ${alpha.toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(p.screenX, p.screenY, 0.6 + depthT * 1.4, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(render);
+  }
+
+  window.addEventListener('resize', resize);
+  document.fonts.ready.then(() => { resize(); buildPoints(); requestAnimationFrame(render); });
+})();
+
+// ── 2. FLOATING PIXEL ORB (Green / Amber mix) ──
+(() => {
+  const canvas = document.getElementById('orbCanvas');
+  const ctx = canvas.getContext('2d');
+  let cssW = window.innerWidth, cssH = window.innerHeight;
+  
+  function resize() {
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+
+  const orbPoints = [];
+  const ORB_RADIUS = 120;
+  const NUM_POINTS = 400;
+  for (let i = 0; i < NUM_POINTS; i++) {
+    const phi = Math.acos(-1 + (2 * i) / NUM_POINTS);
+    const theta = Math.sqrt(NUM_POINTS * Math.PI) * phi;
+    orbPoints.push({
+      x: ORB_RADIUS * Math.cos(theta) * Math.sin(phi),
+      y: ORB_RADIUS * Math.sin(theta) * Math.sin(phi),
+      z: ORB_RADIUS * Math.cos(phi),
+      ox: 0, oy: 0, oz: 0
+    });
+  }
+
+  let time = 0;
+  function renderOrb() {
+    ctx.clearRect(0, 0, cssW, cssH);
+    time += 0.008;
+
+    const cx = cssW / 2 + Math.sin(time * 0.4) * (cssW * 0.35);
+    const cy = cssH / 2 + Math.cos(time * 0.6) * (cssH * 0.35);
+    
+    const rotX = time * 0.4;
+    const rotY = time * 0.6;
+    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+
+    for (const p of orbPoints) {
+      let x1 = p.x * cosY - p.z * sinY;
+      let z1 = p.x * sinY + p.z * cosY;
+      let y2 = p.y * cosX - z1 * sinX;
+      let z2 = p.y * sinX + z1 * cosX;
+
+      const persp = 400 / (400 + z2);
+      p.ox = cx + x1 * persp;
+      p.oy = cy + y2 * persp;
+      p.oz = z2;
+    }
+
+    orbPoints.sort((a, b) => a.oz - b.oz);
+
+    for (const p of orbPoints) {
+      const depthT = (p.oz + ORB_RADIUS) / (2 * ORB_RADIUS);
+      let alpha = 0.05 + depthT * 0.4;
+      
+      const isAmber = p.x > 20;
+      ctx.fillStyle = isAmber 
+        ? `rgba(251, 191, 36, ${alpha.toFixed(3)})`
+        : `rgba(74, 222, 128, ${alpha.toFixed(3)})`;
+      
+      ctx.beginPath();
+      ctx.arc(p.ox, p.oy, 1 + depthT * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    requestAnimationFrame(renderOrb);
+  }
+
+  resize();
+  requestAnimationFrame(renderOrb);
+})();
+
+// ── 3. GLOWING BACKGROUND ORBS ──
+(() => {
+  const canvas = document.getElementById('glowCanvas');
+  const ctx = canvas.getContext('2d');
+  let cssW = window.innerWidth, cssH = window.innerHeight;
+  
+  function resize() {
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+
+  let time = 0;
+  function renderGlow() {
+    ctx.clearRect(0, 0, cssW, cssH);
+    time += 0.005;
+
+    const cx1 = cssW * 0.2 + Math.sin(time) * 100;
+    const cy1 = cssH * 0.3 + Math.cos(time * 0.8) * 100;
+    const r1 = 150 + Math.sin(time * 1.2) * 30;
+    
+    const grd1 = ctx.createRadialGradient(cx1, cy1, 0, cx1, cy1, r1);
+    grd1.addColorStop(0, 'rgba(74, 222, 128, 0.08)');
+    grd1.addColorStop(1, 'rgba(74, 222, 128, 0)');
+    ctx.fillStyle = grd1;
+    ctx.beginPath();
+    ctx.arc(cx1, cy1, r1, 0, Math.PI * 2);
+    ctx.fill();
+
+    const cx2 = cssW * 0.8 + Math.cos(time * 0.7) * 120;
+    const cy2 = cssH * 0.7 + Math.sin(time * 0.9) * 120;
+    const r2 = 200 + Math.cos(time) * 40;
+    
+    const grd2 = ctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, r2);
+    grd2.addColorStop(0, 'rgba(251, 191, 36, 0.05)');
+    grd2.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    ctx.fillStyle = grd2;
+    ctx.beginPath();
+    ctx.arc(cx2, cy2, r2, 0, Math.PI * 2);
+    ctx.fill();
+
+    requestAnimationFrame(renderGlow);
+  }
+
+  resize();
+  requestAnimationFrame(renderGlow);
+})();
+</script>
+</body>
+</html>
