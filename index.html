@@ -665,6 +665,91 @@
         </nav>
       </div>
 
+<!-- Announcement bar — place inside .page, right after .topbar -->
+<div class="announce-bar" id="announce-bar">
+  <span class="announce-dot"></span>
+  <span class="announce-text">
+    <strong>Parallax 2 Mini</strong> — launching later today. Stay tuned.
+  </span>
+  <button class="announce-close" onclick="document.getElementById('announce-bar').remove()" aria-label="Dismiss">×</button>
+</div>
+
+<style>
+  .announce-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    margin-bottom: 32px;
+    background: rgba(13, 13, 13, 0.5);
+    border: 1px solid var(--line);
+    position: relative;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    color: var(--text-dim2);
+    transition: all 0.3s var(--ease);
+  }
+  .announce-bar::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--accent-amber);
+    animation: announce-pulse 2s ease-in-out infinite;
+  }
+  .announce-bar:hover {
+    border-color: var(--line-bright);
+    background: rgba(20, 20, 20, 0.6);
+  }
+
+  .announce-dot {
+    width: 6px; height: 6px;
+    flex-shrink: 0;
+    background: var(--accent-amber);
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+    animation: announce-pulse 2s ease-in-out infinite;
+  }
+
+  .announce-text {
+    flex: 1;
+    line-height: 1.5;
+  }
+  .announce-text strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .announce-close {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-dimmer);
+    font-family: var(--mono);
+    font-size: 16px;
+    line-height: 1;
+    padding: 2px 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .announce-close:hover {
+    color: var(--text);
+    border-color: var(--line-bright);
+  }
+
+  @keyframes announce-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @media (max-width: 720px) {
+    .announce-bar {
+      font-size: 11px;
+      padding: 10px 16px;
+      margin-bottom: 24px;
+    }
+  }
+</style>
+
       <!-- HERO -->
       <main class="hero">
         <h1 class="logo-title">Parallax<br>Labs</h1>
@@ -673,11 +758,10 @@
           Creating stunning AI models that are highly capable, yet easy to run, with a focus on reasoning capabilities as well as coding.
         </p>
         <div class="actions">
-          <a href="./chat" class="btn btn-primary">Try Parallax 2</a>
-          <a href="./pilot" class="btn btn-secondary">See Parallax Pilot</a>
-          <a href="./squadron" class="btn btn-secondary">See Parallax Squadron</a>
-          <a href="./current" class="btn btn-secondary">See Parallax 2 Family</a>
-          <a href="./next" class="btn btn-secondary">See Parallax 2.1 Family</a>
+          <a href="./pilot" class="btn btn-secondary">Parallax Pilot</a>
+          <a href="./squadron" class="btn btn-secondary">Parallax Squadron</a>
+          <a href="./current" class="btn btn-secondary">Parallax 2 Family</a>
+          <a href="./next" class="btn btn-secondary">Parallax 2.1 Family</a>
         </div>
       </main>
 
@@ -690,15 +774,6 @@
             <div class="family-col-header">
               Parallax 2 Family <span>Available Now</span>
             </div>
-            
-            <div class="family-row current">
-              <div class="family-row-left">
-                <div class="family-row-name">Parallax 2 Mini Preview</div>
-              </div>
-              <div class="family-row-right">
-                 Available Now
-              </div>
-            </div>
 
             <div class="family-row current">
               <div class="family-row-left">
@@ -706,6 +781,15 @@
               </div>
               <div class="family-row-right">
                  Available Now
+              </div>
+            </div>
+
+                        <div class="family-row upcoming">
+              <div class="family-row-left">
+                <div class="family-row-name">Parallax 2 Mini</div>
+              </div>
+              <div class="family-row-right">
+                 Coming later today
               </div>
             </div>
 
@@ -735,19 +819,18 @@
               </div>
             </div>
             
-            <div class="family-row upcoming" style="opacity: 0.3; border-style: dashed;">
+            <div class="family-row upcoming">
               <div class="family-row-left">
-                <div class="family-row-name" style="color: var(--text-dimmer);">Project Hidden</div>
-                <div class="family-row-size" style="color: var(--text-dimmer);">???</div>
+                <div class="family-row-name">Parallax 2.1 Plus</div>
               </div>
               <div class="family-row-right">
-                 secret *shh*
+                 Coming Soon
               </div>
             </div>
 
             <div class="family-row upcoming">
               <div class="family-row-left">
-                <div class="family-row-name">Parallax 2.1 Pro & ProCode variant</div>
+                <div class="family-row-name">Parallax 2.1 Pro </div>
               </div>
               <div class="family-row-right">
                  Coming Soon
@@ -793,27 +876,11 @@
         </div>
       </section>
 
-      <!-- STATISTICS SECTION -->
-      <section class="stats-section">
-        <div class="stat-block">
-          <div class="stat-number">262K<span>+</span></div>
-          <div class="stat-label">Context Window</div>
-        </div>
-        <div class="stat-block">
-          <div class="stat-number">$32</div>
-          <div class="stat-label">Total Training Costs So Far</div>
-        </div>
-        <div class="stat-block">
-          <div class="stat-number">100<span>%</span></div>
-          <div class="stat-label">OPEN WEIGHTS</div>
-        </div>
-      </section>
-
       <!-- TIMELINE SECTION -->
       <section class="timeline-section">
         <header class="timeline-header">
           <span class="timeline-kicker">Parallax Labs - Helping Pioneer the Next Local AI Revolution</span>
-          <h2 class="timeline-title"> From Parallax 2 Preview to Parallax 2.1 Pro</h2>
+          <h2 class="timeline-title"> From Preview to Pro</h2>
           <div class="timeline-meta">
             <span>Bringing Local AI a step closer to beating the giants</span>
           </div>
@@ -906,6 +973,16 @@
       <button class="newsroom-close" onclick="closeNewsroom()">Close ×</button>
     </div>
     
+    <div class="newsroom-content">
+      <article class="news-article">
+        <div class="news-date">November 23, 2026</div>
+        <h2 class="news-title">Parallax 2 Mini: Coming Later Day</h2>
+        <div class="news-body">
+          <p>Parallax 2 Mini is releasing today!<strong> Designed to answer you with utmost speed, and our signature reasoning. Parallax 2 Mini is ready to answer before you can read the first sentence!</strong>. 2 Mini chases speed, and precision.</p>
+          <p>Coming today, to a GPU near you!</p>
+        </div>
+      </article>
+
     <div class="newsroom-content">
       <article class="news-article">
         <div class="news-date">October 26, 2026</div>
