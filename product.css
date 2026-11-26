@@ -1,0 +1,101 @@
+.product .hero {
+  display: grid;
+  justify-items: start;
+  gap: 18px;
+  margin: 30px 0 0;
+  padding: clamp(26px, 6vw, 76px);
+  border-radius: var(--radius);
+  background: var(--accent-wash);
+}
+.product .hero .logo-title { font-size: clamp(2.75rem, 7.4vw, 6.5rem); }
+.product .hero .actions { margin-top: 6px; }
+.product .section { margin: clamp(36px, 6vw, 74px) 0; }
+.section-header { margin-bottom: 22px; }
+.section-kicker { color: var(--accent); font-weight: 700; font-size: .875rem; }
+.section-heading, .section-title {
+  font-size: clamp(1.875rem, 4vw, 3rem);
+  font-weight: 750;
+  letter-spacing: -.055em;
+  line-height: 1.12;
+}
+.section-sub { color: var(--text-dim2); max-width: 65ch; margin-top: 8px; }
+.section > .section-title { margin-bottom: 18px; }
+.model-showcase, .cap-grid, .feature-grid, .features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.feature-grid, .features-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.model-card, .cap-card, .feature-card, .squadron-box, .arch-diagram, .roadmap-item, .usecase-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  padding: clamp(18px, 3vw, 30px);
+}
+.model-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.model-card.active, .model-card.featured { background: var(--accent-panel); border-color: var(--accent-line); }
+.model-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 10px;
+  width: 100%;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.model-name, .squadron-title { font-size: clamp(1.375rem, 3vw, 1.875rem); font-weight: 750; letter-spacing: -.04em; }
+.model-tag, .roadmap-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: .875rem;
+}
+.model-tag.green { background: var(--green-wash); color: var(--accent-green); }
+.model-desc { margin: 14px 0 20px; color: var(--text-dim2); }
+.model-specs-inline { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 24px; }
+.inline-spec { display: grid; }
+.inline-spec-label { font-size: .875rem; color: var(--text-dim2); }
+.inline-spec-value { font-weight: 700; }
+.model-card > .actions, .model-card > .btn { margin-top: auto; }
+.feature-icon, .cap-icon, .usecase-icon, .squadron-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--accent-wash);
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.feature-title, .cap-title, .usecase-content h3 { font-size: 1.125rem; font-weight: 750; margin-bottom: 5px; }
+.feature-desc, .cap-desc, .usecase-content p, .squadron-desc { color: var(--text-dim2); }
+.squadron-features, .squadron-feature { display: flex; align-items: center; gap: 8px; }
+.squadron-features { flex-wrap: wrap; margin-top: 16px; }
+.squadron-feature { padding: 5px 11px; border-radius: 10px; background: var(--green-wash); color: var(--accent-green); }
+.roadmap-list, .usecase-list { display: grid; gap: 12px; }
+.roadmap-item, .usecase-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.usecase-icon { margin: 0; flex: none; }
+.usecase-content { flex: 1 1 225px; }
+.roadmap-item { justify-content: space-between; }
+.roadmap-status.upcoming { background: var(--amber-wash); color: var(--accent-amber); }
+.roadmap-item.classified { border-style: dashed; }
+.arch-diagram { display: grid; justify-items: center; }
+.arch-layer { display: flex; justify-content: space-between; gap: 12px; width: min(100%, 720px); }
+.arch-layer:first-child { justify-content: center; }
+.arch-node { text-align: center; flex: 0 1 28%; padding: 10px; border-radius: 12px; background: var(--accent-wash); color: var(--accent); font-weight: 700; }
+.arch-node.commander { flex-basis: auto; padding-inline: 18px; }
+.arch-node.sub { background: var(--green-wash); color: var(--accent-green); }
+.arch-connector { width: 1px; background: var(--line-bright); }
+.arch-branch { position: absolute; left: 10%; height: 12px; border: 1px solid var(--line-bright); border-bottom: 0; }
+
+@media (max-width: 720px) {
+  .feature-grid, .features-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .model-showcase, .cap-grid, .feature-grid, .features-grid { grid-template-columns: 1fr; }
+  .arch-layer { flex-direction: column; text-align: center; gap: 8px; }
+  .arch-branch { display: none; }
+}

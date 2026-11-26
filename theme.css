@@ -1,0 +1,72 @@
+:root {
+  color-scheme: dark;
+  --bg: #111112;
+  --paper: #1b1b1e;
+  --text: #f4f4f6;
+  --text-dim2: #c9c9ce;
+  --text-dimmer: #aeafb8;
+  --line: #34343a;
+  --line-bright: #51515b;
+  --accent: #a4b7ff;
+  --accent-solid: #345be8;
+  --accent-hover: #4165ea;
+  --accent-ink: #fff;
+  --accent-wash: #1b2444;
+  --accent-wash-hover: #24325c;
+  --accent-line: #3d518e;
+  --accent-panel: #191d2c;
+  --accent-green: #a0dfbf;
+  --green-wash: #17352c;
+  --green-wash-hover: #204a3b;
+  --accent-amber: #f1c78b;
+  --amber-wash: #3b2d1d;
+  --backdrop: #080809b3;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f5f8fc;
+  --paper: #fff;
+  --text: #17293f;
+  --text-dim2: #41566e;
+  --text-dimmer: #4f6379;
+  --line: #d5e0ed;
+  --line-bright: #b1c5db;
+  --accent: #2549bc;
+  --accent-solid: #3155d3;
+  --accent-hover: #2647bb;
+  --accent-wash: #e6ecff;
+  --accent-wash-hover: #d9e3ff;
+  --accent-line: #c2cff6;
+  --accent-panel: #eef2ff;
+  --accent-green: #24694e;
+  --green-wash: #e7f2eb;
+  --green-wash-hover: #d5e9dc;
+  --accent-amber: #875219;
+  --amber-wash: #f6ecdf;
+}
+
+.topbar .theme-toggle {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+.topbar .theme-toggle::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 20px;
+  margin: auto;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:root[data-theme='light'] .topbar .theme-toggle::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M20.9 13.35A9 9 0 0 1 10.65 3.1 9 9 0 1 0 20.9 13.35Z'/%3E%3C/svg%3E");
+}
+.topbar .theme-toggle:hover { background: var(--accent-wash-hover); }

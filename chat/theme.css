@@ -1,0 +1,59 @@
+:root {
+  --bg-sidebar: var(--paper);
+  --bg-elev: var(--accent-panel);
+  --bg-elev-2: var(--accent-wash);
+  --bg-code: #141416;
+  --border: var(--line);
+  --border-soft: var(--line);
+  --border-strong: var(--line-bright);
+  --text-dim: var(--text-dim2);
+  --ok: var(--accent-green);
+  --bad: #df4242;
+  --warn: var(--accent-amber);
+  --radius: 12px;
+  --font: 'DM Sans', system-ui, sans-serif;
+}
+
+body, .new-chat, .model-pill, .suggestion, #prompt,
+.btn-primary, .btn-ghost, .action-btn, .setting-control select { font-family: var(--font); }
+.welcome-title { letter-spacing: -.045em; }
+.sidebar-brand, .topbar-title { letter-spacing: 0; text-transform: none; font-size: .875rem; font-weight: 700; }
+.msg-body, #prompt { font-size: 1rem; }
+.new-chat, .suggestion, .model-pill { font-size: .875rem; }
+.composer { border-radius: 18px; }
+.modal { border-radius: 22px; max-height: 100%; overflow-y: auto; }
+.msg-avatar, .user-avatar, .action-circle, .modal-close { border-radius: 9px; }
+.upload-zone { border-radius: 20px; border-width: 1px; background: var(--bg-elev); }
+.btn-primary, #send { background: var(--accent-solid); color: var(--accent-ink); }
+.btn-primary:hover, #send:hover:not(:disabled) { background: var(--accent-hover); }
+.composer:focus-within { border-color: var(--accent); }
+.msg-body pre, .msg-body pre code, .code-header { color: #edf4ff; }
+.code-header button { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+@media (max-width: 680px) {
+  .topbar { column-gap: 6px; padding-inline: 10px; }
+  .local-chat { flex-direction: column; }
+  .local-chat .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 8px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+  }
+  .local-chat .sidebar-top, .local-chat .context-meter {
+    border: 0;
+    padding: 4px 0;
+    gap: 4px;
+    background: transparent;
+  }
+  .local-chat .sidebar-brand { padding-bottom: 0; }
+  .local-chat .new-chat { margin: 0; }
+  .local-chat .chat-inner, .local-chat .composer-wrap { padding-inline: 14px; }
+  .local-chat .welcome { min-height: 0; padding-block: 24px; }
+  .local-chat .upload-zone { padding: 22px 12px; }
+}

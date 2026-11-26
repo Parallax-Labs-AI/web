@@ -1,983 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parallax Labs</title>
-<meta name="description" content="Parallax Labs — pioneering the next leap in local AI intelligence. Creating highly capable, yet tiny AI models.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-  :root {
-    --bg: #0a0a0a;
-    --text: #e8e8e8;
-    --text-dim2: #adadad;
-    --text-dimmer: #4a4a4a;
-    --line: #1e1e1e;
-    --line-bright: #333333;
-    --accent: #f0f0f0;
-    --accent-green: #4ade80;
-    --accent-amber: #fbbf24;
-    --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-    --ease: cubic-bezier(.2,.8,.2,1);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow-x: hidden; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 14px;
-    line-height: 1.7;
-    -webkit-font-smoothing: antialiased;
-    position: relative;
-  }
-
-  /* ── LAB ENVIRONMENT BACKGROUND ── */
-  .lab-grid {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    background-image: 
-      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-    pointer-events: none;
-  }
-
-  #sphereCanvas, #orbCanvas, #glowCanvas {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1;
-    pointer-events: none;
-    display: block;
-  }
-  #orbCanvas {
-    z-index: 2;
-    opacity: 0.25;
-    transform: scale(1.5) translate(10%, 5%);
-  }
-  #glowCanvas {
-    z-index: 0;
-    opacity: 0.15;
-    filter: blur(40px);
-  }
-  
-  /* Scanline effect + vignette */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 3;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.4) 45%, rgba(10,10,10,0.9) 85%, rgba(10,10,10,1) 100%),
-      linear-gradient(180deg, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.95) 100%),
-      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
-  }
-
-  /* ── MAIN LAYOUT ── */
-  .main-wrapper {
-    position: relative;
-    z-index: 4;
-    transition: transform 0.6s var(--ease), opacity 0.4s var(--ease);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  .main-wrapper.slide-out {
-    transform: translateX(-100vw);
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .page {
-    display: flex;
-    flex-direction: column;
-    padding: 40px 56px;
-    flex: 1;
-  }
-  .topbar {
-    font-size: 12px;
-    color: var(--text-dim2);
-    letter-spacing: 0.08em;
-    margin-bottom: 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 16px;
-  }
-  .topbar nav { display: flex; gap: 16px; }
-  .topbar button {
-    background: transparent; border: 1px solid transparent;
-    color: var(--text-dimmer); font-family: var(--mono); font-size: 12px;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .topbar button:hover { color: var(--text); border-bottom-color: var(--text); }
-
-  /* ── HERO ── */
-  .hero {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    max-width: 900px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 60px 0 100px;
-  }
-  .logo-title {
-    font-size: clamp(64px, 10vw, 140px);
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    line-height: 0.9;
-    margin-bottom: 32px;
-    color: var(--text);
-    text-transform: uppercase;
-    text-shadow: 0 4px 40px rgba(0,0,0,0.9), 0 2px 12px rgba(0,0,0,0.7);
-  }
-  .lede {
-    font-size: 16px;
-    line-height: 1.8;
-    color: var(--text-dim2);
-    max-width: 620px;
-    margin: 0 auto 48px;
-    text-shadow: 0 2px 20px rgba(0,0,0,0.85);
-  }
-  .lede em { font-style: normal; color: var(--text); font-weight: 500; }
-
-  /* ── BUTTONS ── */
-  .actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 14px 24px;
-    background: rgba(10, 10, 10, 0.6);
-    backdrop-filter: blur(8px);
-    color: var(--text);
-    border: 1px solid var(--text-dim2);
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all .2s var(--ease);
-    position: relative;
-    overflow: hidden;
-  }
-  .btn::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--text-dim2);
-    transition: background 0.2s;
-  }
-  .btn:hover::before { background: var(--text); }
-  .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: 0 4px 20px rgba(255,255,255,0.1); padding-left: 30px; }
-  
-  .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
-  .btn-primary::before { background: var(--bg); }
-  .btn-primary:hover { background: #fff; padding-left: 24px; }
-  .btn-primary:hover::before { background: var(--bg); }
-  
-  .btn-secondary { background: transparent; border-color: var(--text-dimmer); }
-  .btn-secondary:hover { background: transparent; color: var(--text); border-color: var(--text); }
-
-  /* ── COMPACT FAMILY SECTION ── */
-  .compact-family-section {
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    padding: 60px 0;
-    border-top: 1px solid var(--line);
-  }
-  
-  .family-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-  }
-  
-  .family-column {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .family-col-header {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-dim2);
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--line);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-  .family-col-header span {
-    font-size: 10px;
-    color: var(--text-dimmer);
-    letter-spacing: 0.05em;
-  }
-  
-  .family-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    background: rgba(13, 13, 13, 0.5);
-    border: 1px solid var(--line);
-    position: relative;
-    transition: all 0.3s var(--ease);
-  }
-  .family-row::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 2px;
-    background: var(--line-bright);
-    transition: background 0.3s;
-  }
-  .family-row:hover {
-    border-color: var(--line-bright);
-    background: rgba(20, 20, 20, 0.6);
-    transform: translateX(4px);
-  }
-  
-  .family-row.current::before { background: var(--accent-green); }
-  .family-row.upcoming::before { background: var(--accent-amber); }
-  
-  .family-row-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .family-row-name {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
-  }
-  .family-row-size {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--accent-green);
-    border: 1px solid var(--line-bright);
-    padding: 1px 6px;
-    background: var(--bg);
-  }
-  .family-row.upcoming .family-row-size { color: var(--accent-amber); }
-  
-  .family-row-right {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-dim2);
-  }
-
-  /* ── SQUADRON SECTION ── */
-  .squadron-section {
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    padding: 80px 0;
-    border-top: 1px solid var(--line);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .squadron-header {
-    text-align: center;
-    margin-bottom: 48px;
-    max-width: 800px;
-  }
-  .squadron-kicker {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--accent-amber);
-    margin-bottom: 12px;
-    display: block;
-  }
-  .squadron-title {
-    font-size: 36px;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.02em;
-    margin-bottom: 16px;
-  }
-  .squadron-sub {
-    font-size: 15px;
-    color: var(--text-dim2);
-    line-height: 1.7;
-  }
-
-  .squadron-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-    width: 100%;
-  }
-  
-  .squadron-card {
-    border: 1px solid var(--line);
-    padding: 32px;
-    background: rgba(13, 13, 13, 0.5);
-    position: relative;
-    transition: all 0.3s var(--ease);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .squadron-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 2px;
-    background: var(--line-bright);
-    transition: background 0.3s;
-  }
-  .squadron-card:hover {
-    border-color: var(--line-bright);
-    background: rgba(20, 20, 20, 0.7);
-    transform: translateY(-2px);
-  }
-  .squadron-card:hover::before { background: var(--accent-amber); }
-  
-  .squadron-icon {
-    width: 48px; height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--line-bright);
-    margin-bottom: 20px;
-    font-size: 20px;
-    color: var(--accent-amber);
-    background: var(--bg);
-  }
-  .squadron-card-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: var(--text);
-  }
-  .squadron-card-desc {
-    font-size: 13px;
-    color: var(--text-dim2);
-    line-height: 1.6;
-  }
-  .squadron-card-desc strong { color: var(--text); font-weight: 500; }
-
-  /* ── STATISTICS SECTION ── */
-  .stats-section {
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    padding: 60px 0;
-    border-top: 1px solid var(--line);
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-  
-  .stat-block {
-    padding: 24px;
-    background: rgba(13, 13, 13, 0.4);
-    border: 1px solid var(--line);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-  }
-  .stat-block::after {
-    content: '';
-    position: absolute;
-    top: 8px; right: 8px;
-    width: 6px; height: 6px;
-    border-top: 1px solid var(--text-dimmer);
-    border-right: 1px solid var(--text-dimmer);
-  }
-  
-  .stat-number {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 8px;
-    letter-spacing: -0.03em;
-  }
-  .stat-number span {
-    color: var(--accent-green);
-    font-size: 20px;
-    vertical-align: top;
-  }
-  .stat-label {
-    font-size: 11px;
-    color: var(--text-dim2);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  /* ── TIMELINE SECTION ── */
-  .timeline-section {
-    max-width: 800px;
-    margin: 60px auto 100px;
-    width: 100%;
-    padding-top: 60px;
-    border-top: 1px solid var(--line);
-  }
-  
-  .timeline-header {
-    margin-bottom: 48px;
-    text-align: center;
-  }
-  
-  .timeline-kicker {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--accent-green);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    display: block;
-  }
-  
-  .timeline-title {
-    font-size: clamp(28px, 4vw, 42px);
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    margin-bottom: 16px;
-  }
-  
-  .timeline-meta {
-    font-size: 11px;
-    color: var(--text-dimmer);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-  }
-
-  .timeline-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    position: relative;
-  }
-  
-  .timeline-list::before {
-    content: '';
-    position: absolute;
-    left: 20px;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: var(--line);
-    z-index: 0;
-  }
-
-  .timeline-item {
-    display: flex;
-    gap: 32px;
-    padding: 24px 0;
-    position: relative;
-    z-index: 1;
-  }
-  .timeline-item:last-child {
-    padding-bottom: 0;
-  }
-  
-  .timeline-node {
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-    background: var(--bg);
-    border: 1px solid var(--line-bright);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-dim2);
-    position: relative;
-    z-index: 2;
-  }
-  .timeline-node.green { border-color: var(--accent-green); color: var(--accent-green); }
-  .timeline-node.amber { border-color: var(--accent-amber); color: var(--accent-amber); border-style: dashed; }
-  
-  .timeline-content {
-    flex: 1;
-    padding-bottom: 24px;
-    border-bottom: 1px dashed var(--line);
-  }
-  .timeline-item:last-child .timeline-content {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-  
-  .timeline-item-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  
-  .timeline-badge {
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 2px 8px;
-    border: 1px solid;
-  }
-  .timeline-badge.green { color: var(--accent-green); border-color: rgba(74, 222, 128, 0.3); background: rgba(74, 222, 128, 0.05); }
-  .timeline-badge.amber { color: var(--accent-amber); border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.05); }
-  
-  .timeline-desc {
-    font-size: 14px;
-    color: var(--text-dim2);
-    line-height: 1.7;
-  }
-  .timeline-desc strong { color: var(--text); font-weight: 500; }
-
-  /* ── FOOTER ── */
-  .footer {
-    padding-top: 32px; border-top: 1px solid var(--line);
-    font-size: 12px; color: var(--text-dimmer);
-    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-  }
-  .footer a { color: var(--text-dimmer); text-decoration: none; }
-  .footer a:hover { color: var(--text); }
-
-  /* ── NEWSROOM OVERLAY ── */
-  .newsroom-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10;
-    background: var(--bg);
-    transform: translateX(100vw);
-    transition: transform 0.6s var(--ease);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-  }
-  .newsroom-overlay.active { transform: translateX(0); }
-  
-  .newsroom-header {
-    position: sticky; top: 0; z-index: 11;
-    padding: 20px 56px; background: rgba(10,10,10,0.9); backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--line);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .newsroom-close {
-    background: transparent; border: 1px solid var(--text-dimmer);
-    color: var(--text); padding: 8px 16px; cursor: pointer;
-    font-family: var(--mono); font-size: 12px; transition: 0.2s;
-  }
-  .newsroom-close:hover { background: var(--text); color: var(--bg); }
-  
-  .newsroom-content { max-width: 800px; margin: 0 auto; padding: 60px 24px; width: 100%; }
-  .news-article {
-    margin-bottom: 60px; padding-bottom: 40px;
-    border-bottom: 1px solid var(--line);
-    opacity: 0; transform: translateY(20px);
-    transition: all 0.5s var(--ease);
-  }
-  .newsroom-overlay.active .news-article { opacity: 1; transform: translateY(0); }
-  .newsroom-overlay.active .news-article:nth-child(2) { transition-delay: 0.1s; }
-  .newsroom-overlay.active .news-article:nth-child(3) { transition-delay: 0.2s; }
-  .newsroom-overlay.active .news-article:nth-child(4) { transition-delay: 0.3s; }
-  
-  .news-date { font-size: 11px; color: var(--text-dim2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-  .news-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
-  .news-body { font-size: 14px; color: var(--text-dim2); line-height: 1.8; }
-  .news-body p { margin-bottom: 16px; }
-  .news-body strong { color: var(--text); font-weight: 500; }
-  .news-body code { background: var(--line); padding: 2px 6px; font-family: var(--mono); font-size: 12px; color: var(--text); border: 1px solid var(--line-bright); }
-
-  @media (max-width: 1024px) {
-    .family-split { grid-template-columns: 1fr; gap: 40px; }
-    .squadron-grid { grid-template-columns: 1fr; }
-    .stats-section { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 720px) {
-    .page { padding: 24px; }
-    .topbar { margin-bottom: 40px; }
-    .newsroom-header { padding: 16px 24px; }
-    .hero .actions { flex-direction: column; width: 100%; }
-    .hero .actions .btn { width: 100%; }
-    .stats-section { grid-template-columns: 1fr; }
-    .timeline-section { margin: 40px auto 60px; padding-top: 40px; }
-    
-    .timeline-list::before { left: 16px; }
-    .timeline-item { gap: 16px; }
-    .timeline-node { width: 32px; height: 32px; font-size: 10px; }
-    .timeline-item-title { flex-direction: column; align-items: flex-start; gap: 8px; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="theme.js"></script>
+  <title>Parallax Labs</title>
+  <meta name="description" content="Explore local AI models and tools for reasoning and coding from Parallax Labs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;650;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="site.css">
+  <link rel="stylesheet" href="home.css">
+  <script src="space-flight.js" defer></script>
 </head>
-<body>
+<body class="home">
+  <div class="page">
+    <header class="topbar">
+      <a class="wordmark" href="./"><img class="brand-mark" src="parallax-logo.png" alt="" width="32" height="32">Parallax Labs</a>
+      <nav aria-label="Main navigation">
+        <a href="#models">Models</a>
+        <a href="#tools">Tools</a>
+        <button type="button" id="newsroom-open">Newsroom</button>
+        <a href="https://huggingface.co/parallaxlabs" target="_blank" rel="noopener">Hugging Face</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light mode" hidden></button>
+    </header>
 
-  <!-- Background Lab Elements -->
-  <div class="lab-grid"></div>
-  <canvas id="glowCanvas"></canvas>
-  <canvas id="sphereCanvas"></canvas>
-  <canvas id="orbCanvas"></canvas>
-
-  <div class="main-wrapper" id="main-wrapper">
-    <div class="page">
-      <div class="topbar">
-        <span>PARALLAX LABS</span>
-        <nav>
-          <button onclick="openNewsroom()">Newsroom</button>
-          <a href="https://huggingface.co/parallaxlabs" target="_blank" style="color:var(--text-dimmer); text-decoration:none; border-bottom:1px solid transparent; transition:0.2s;" onmouseover="this.style.color='var(--text)'; this.style.borderBottomColor='var(--text)'" onmouseout="this.style.color='var(--text-dimmer)'; this.style.borderBottomColor='transparent'">HuggingFace</a>
-        </nav>
-      </div>
-
-<!-- Announcement bar — place inside .page, right after .topbar -->
-<div class="announce-bar" id="announce-bar">
-  <span class="announce-dot"></span>
-  <span class="announce-text">
-    <strong>Parallax 2 Mini</strong> — available now!
-  </span>
-  <button class="announce-close" onclick="document.getElementById('announce-bar').remove()" aria-label="Dismiss">×</button>
-</div>
-
-<style>
-  .announce-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    margin-bottom: 32px;
-    background: rgba(13, 13, 13, 0.5);
-    border: 1px solid var(--line);
-    position: relative;
-    font-size: 12px;
-    letter-spacing: 0.03em;
-    color: var(--text-dim2);
-    transition: all 0.3s var(--ease);
-  }
-  .announce-bar::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 2px;
-    background: var(--accent-green);
-    animation: announce-pulse 2s ease-in-out infinite;
-  }
-  .announce-bar:hover {
-    border-color: var(--line-bright);
-    background: rgba(20, 20, 20, 0.6);
-  }
-
-  .announce-dot {
-    width: 6px; height: 6px;
-    flex-shrink: 0;
-    background: var(--accent-green);
-    box-shadow: 0 0 8px var(--accent-green);
-    animation: announce-pulse 2s ease-in-out infinite;
-  }
-
-  .announce-text {
-    flex: 1;
-    line-height: 1.5;
-  }
-  .announce-text strong {
-    color: var(--text);
-    font-weight: 700;
-  }
-
-  .announce-close {
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--text-dimmer);
-    font-family: var(--mono);
-    font-size: 16px;
-    line-height: 1;
-    padding: 2px 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .announce-close:hover {
-    color: var(--text);
-    border-color: var(--line-bright);
-  }
-
-  @keyframes announce-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  @media (max-width: 720px) {
-    .announce-bar {
-      font-size: 11px;
-      padding: 10px 16px;
-      margin-bottom: 24px;
-    }
-  }
-</style>
-
-      <!-- HERO -->
-      <main class="hero">
-        <h1 class="logo-title">Parallax<br>Labs</h1>
-        <p class="lede">
-          <em>Pioneering the next leap in local AI intelligence.</em><br>
-          Creating stunning AI models that are highly capable, yet easy to run, with a focus on reasoning capabilities as well as coding.
-        </p>
-        <div class="actions">
-          <a href="./pilot" class="btn btn-secondary">Parallax Pilot</a>
-          <a href="./squadron" class="btn btn-secondary">Parallax Squadron</a>
-          <a href="./current" class="btn btn-secondary">Parallax 2 Family</a>
-          <a href="./next" class="btn btn-secondary">Parallax 2.1 Family</a>
+    <main>
+      <section class="home-hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="announce-bar" id="announce-bar">
+            <a href="current.html#parallax-2-mini">Parallax 2 Mini is available now</a>
+            <button type="button" id="announce-close" aria-label="Dismiss announcement">&times;</button>
+          </div>
+          <h1 id="hero-title" class="logo-title">AI that runs on your hardware.</h1>
+          <p class="lede">Explore the Parallax family of compact models for reasoning and coding, designed to run locally.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="current.html">Explore Parallax 2</a>
+            <a class="btn" href="next.html">Preview Parallax 2.1</a>
+          </div>
         </div>
-      </main>
+        <div class="space-flight">
+          <canvas id="space-flight" width="288" height="180" role="img" aria-label="Pixel-art rocket labeled PARALLAX 2.1 flying through stars with its thrusters firing."></canvas>
+          <button class="space-flight-toggle" id="space-flight-toggle" type="button" hidden>Pause animation</button>
+        </div>
+      </section>
 
-      <!-- COMPACT FAMILY SECTION -->
-      <section class="compact-family-section">
+      <section class="home-section" id="models" aria-labelledby="models-title">
+        <h2 class="section-title" id="models-title">Our Models</h2>
         <div class="family-split">
-          
-          <!-- Current Family -->
-          <div class="family-column">
-            <div class="family-col-header">
-              Parallax 2 Family <span>Available Now</span>
-            </div>
-
-            <div class="family-row current">
-              <div class="family-row-left">
-                <div class="family-row-name">Parallax 2 Mini</div>
-              </div>
-              <div class="family-row-right">
-                 Available Now
-              </div>
-            </div>
-
-            <div class="family-row current">
-              <div class="family-row-left">
-                <div class="family-row-name">Parallax 2</div>
-              </div>
-              <div class="family-row-right">
-                 Available Now
-              </div>
-            </div>
-          </div>
-
-          <!-- Upcoming Family -->
-          <div class="family-column">
-            <div class="family-col-header">
-              Parallax 2.1 Family <span>Coming Soon</span>
-            </div>
-
-            <div class="family-row upcoming" style="opacity: 0.5; border-style: dashed;">
-              <div class="family-row-left">
-                <div class="family-row-name" style="color: var(--text-dimmer);">Project Hidden</div>
-                <div class="family-row-size" style="color: var(--text-dimmer);">???</div>
-              </div>
-              <div class="family-row-right">
-                 Secret *shh*
-              </div>
-            </div>
-            
-            <div class="family-row upcoming">
-              <div class="family-row-left">
-                <div class="family-row-name">Parallax 2.1 Plus</div>
-              </div>
-              <div class="family-row-right">
-                 Coming Soon
-              </div>
-            </div>
-
-            <div class="family-row upcoming">
-              <div class="family-row-left">
-                <div class="family-row-name">Parallax 2.1 Pro </div>
-              </div>
-              <div class="family-row-right">
-                 Coming Soon
-              </div>
-            </div>
-
-          </div>
+          <article class="family-column">
+            <header class="family-col-header">
+              <h3><a href="current.html">Parallax 2 Family</a></h3>
+              <span class="badge available">Available now</span>
+            </header>
+            <ul class="family-list">
+              <li>Parallax 2 Mini</li>
+              <li>Parallax 2</li>
+            </ul>
+          </article>
+          <article class="family-column future">
+            <header class="family-col-header">
+              <h3><a href="next.html">Parallax 2.1 Family</a></h3>
+              <span class="badge upcoming">Coming soon</span>
+            </header>
+            <ul class="family-list">
+              <li>Parallax 2.1 Plus</li>
+              <li>Parallax 2.1 Pro</li>
+              <li>Project Hidden</li>
+            </ul>
+          </article>
         </div>
       </section>
 
-      <!-- SQUADRON SECTION -->
-      <section class="squadron-section">
-        <div class="squadron-header">
-          <span class="squadron-kicker">Exclusive Tooling</span>
-          <h2 class="squadron-title">Parallax Squadron</h2>
-          <p class="squadron-sub">
-            The Parallax models are powerful on their own, but <strong>Parallax Squadron</strong> takes them to the next level. This framework allows a commander model to deploy parallel sub-agents of itself, delegate workloads, and orchestrate complex tasks across your local hardware—all while drastically improving overall efficiency.
-          </p>
+      <section class="home-section" id="tools" aria-labelledby="tools-title">
+        <h2 class="section-title" id="tools-title">Tools for real work</h2>
+        <div class="tools-grid">
+          <article class="tool-card">
+            <h3>Parallax Pilot</h3>
+            <p>See how a Parallax agent works through a coding task in the interactive demo.</p>
+            <a class="btn" href="pilot.html">Open Pilot</a>
+          </article>
+          <article class="tool-card">
+            <h3>Parallax Squadron</h3>
+            <p>Coordinate multiple agents to divide work and run tasks in parallel on local hardware.</p>
+            <a class="btn" href="squadron.html">Explore Squadron</a>
+          </article>
         </div>
-
-        <div class="squadron-grid">
-          <div class="squadron-card">
-            <div class="squadron-icon"><i class="fa-solid fa-jet-fighter"></i></div>
-            <div class="squadron-card-title">Parallel Sub-Agents</div>
-            <div class="squadron-card-desc">
-              Deploy multiple instances of a Parallax model simultaneously. While one agent writes the frontend code, another handles the backend logic, and a third audits for security flaws.
-            </div>
-          </div>
-          <div class="squadron-card">
-            <div class="squadron-icon"><i class="fa-solid fa-network-wired"></i></div>
-            <div class="squadron-card-title">Intelligent Delegation</div>
-            <div class="squadron-card-desc">
-              The commander model automatically breaks down complex prompts into smaller, manageable tasks and assigns them to the most suitable sub-agents in the swarm.
-            </div>
-          </div>
-          <div class="squadron-card">
-            <div class="squadron-icon"><i class="fa-solid fa-bolt"></i></div>
-            <div class="squadron-card-title">Maximized Efficiency</div>
-            <div class="squadron-card-desc">
-              By distributing the workload across parallel agents, Squadron minimizes latency and maximizes throughput, turning your local machine into a mini supercomputer.
-            </div>
-          </div>
+        <div class="squadron-details">
+          <div><h3>Parallel Sub-Agents</h3><p>Deploy multiple instances of a Parallax model simultaneously. While one agent writes the frontend code, another handles the backend logic, and a third audits for security flaws.</p></div>
+          <div><h3>Intelligent Delegation</h3><p>The commander model automatically breaks down complex prompts into smaller, manageable tasks and assigns them to the most suitable sub-agents in the swarm.</p></div>
+          <div><h3>Maximized Efficiency</h3><p>By distributing the workload across parallel agents, Squadron minimizes latency and maximizes throughput, turning your local machine into a mini supercomputer.</p></div>
         </div>
       </section>
 
-      <!-- TIMELINE SECTION -->
-      <section class="timeline-section">
-        <header class="timeline-header">
-          <span class="timeline-kicker">Parallax Labs - Helping Pioneer the Next Local AI Revolution</span>
-          <h2 class="timeline-title"> From Preview to Pro</h2>
-          <div class="timeline-meta">
-            <span>Bringing Local AI a step closer to beating the giants</span>
-          </div>
-        </header>
-
-        <div class="timeline-list">
-          <!-- Item 1: 4B Preview -->
-          <div class="timeline-item">
-            <div class="timeline-node green">01</div>
-            <div class="timeline-content">
-              <div class="timeline-item-title">
-                Parallax 2 Preview 
-                <span class="timeline-badge green">4B</span>
+      <section class="home-section" id="benchmarks" aria-labelledby="benchmarks-title">
+        <h2 class="section-title" id="benchmarks-title">Parallax 2 Mini benchmarks</h2>
+        <div class="benchmark-grid">
+          <article class="benchmark-card" aria-labelledby="cruxeval-title">
+            <h3 id="cruxeval-title">CRUXEval Output</h3>
+            <p class="benchmark-meta">Predict the output of code · 800 tasks</p>
+            <dl class="benchmark-scores">
+              <div>
+                <dt>Pass@1</dt>
+                <dd>59.25%</dd>
               </div>
-              <p class="timeline-desc">
-                Our first real step. We proved that a small, highly optimized model could mimic Opus-style reasoning. This 4B model validated our distillation techniques and showed the world that consumer GPUs could handle complex coding and agentic workflows.
-              </p>
-            </div>
-          </div>
-
-          <!-- Item 2: 0.8B Mini -->
-          <div class="timeline-item">
-            <div class="timeline-node green">02</div>
-            <div class="timeline-content">
-              <div class="timeline-item-title">
-                Parallax 2 Mini Preview 
-                <span class="timeline-badge green">0.8B</span>
+              <div>
+                <dt>Pass@10</dt>
+                <dd>82.75%</dd>
               </div>
-              <p class="timeline-desc">
-                Extreme engineering. We pushed the boundaries of tiny to see how small we could go before reasoning broke. The answer was 800 million parameters. It runs on almost any hardware, easily and fast, bringing local AI to the masses.
-              </p>
-            </div>
-          </div>
-
-          <!-- Item 3: 9B Flagship -->
-          <div class="timeline-item">
-            <div class="timeline-node green">03</div>
-            <div class="timeline-content">
-              <div class="timeline-item-title">
-                Parallax 2 
-                <span class="timeline-badge green">9B</span>
+            </dl>
+            <p class="benchmark-note">Pass@1 estimates the chance of a correct result in one attempt. Pass@10 estimates the chance of at least one correct result in ten attempts.</p>
+          </article>
+          <article class="benchmark-card" aria-labelledby="mmlu-title">
+            <h3 id="mmlu-title">MMLU-Pro</h3>
+            <p class="benchmark-meta">General and STEM knowledge · 12,032 questions</p>
+            <dl class="benchmark-scores">
+              <div>
+                <dt>Overall accuracy</dt>
+                <dd>65.81%</dd>
               </div>
-              <p class="timeline-desc">
-                The current flagship. We stopped messing around. With 9 billion parameters and a 262K context window, it proved that local hardware could handle the heavy lifting. Trained on 150K+ elite traces, it competes with the giants while running entirely offline.
-              </p>
-            </div>
-          </div>
-
-          <!-- Item 4: 4B Mini -->
-          <div class="timeline-item">
-            <div class="timeline-node amber">04</div>
-            <div class="timeline-content">
-              <div class="timeline-item-title">
-                Parallax 2 Mini 
-                <span class="timeline-badge green">4B</span>
-              </div>
-              <p class="timeline-desc">
-                The finalized revision of the Parallax 2 family's mini variant. Bringing Local AI to the masses with an ultra-small model that can run on anything. Parallax 2 Mini is more powerful than Parallax 2 Preview, while maintaining the same 4 billion parameter size you know and love!
-              </p>
-            </div>
-          </div>
-
-          <!-- Item 5: 2.1 Pro -->
-          <div class="timeline-item">
-            <div class="timeline-node amber">05</div>
-            <div class="timeline-content">
-              <div class="timeline-item-title">
-                Parallax 2.1 Pro 
-                <span class="timeline-badge amber">Coming Soon</span>
-              </div>
-              <p class="timeline-desc">
-                Our next leap. A super-flagship designed to completely reduce the need for an AI subscription to nothing. We are scaling parameters and refining reasoning to push local inference to its absolute limits. Big AI companies will be left behind.
-              </p>
-            </div>
-          </div>
+            </dl>
+            <p class="benchmark-note">Exact-match scoring with 10 answer choices per question and no examples in the prompt (zero-shot).</p>
+          </article>
         </div>
+        <details class="benchmark-breakdown">
+          <summary>MMLU-Pro scores by subject <span>14 subjects</span></summary>
+          <div class="benchmark-table-wrap">
+            <table class="benchmark-table" aria-label="MMLU-Pro scores by subject">
+              <thead>
+                <tr><th scope="col">Subject</th><th scope="col">Questions</th><th scope="col">Score</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Math</th><td>1,351</td><td>88.90%</td></tr>
+                <tr><th scope="row">Business</th><td>789</td><td>77.74%</td></tr>
+                <tr><th scope="row">Biology</th><td>717</td><td>70.71%</td></tr>
+                <tr><th scope="row">Chemistry</th><td>1,132</td><td>84.81%</td></tr>
+                <tr><th scope="row">Economics</th><td>844</td><td>62.56%</td></tr>
+                <tr><th scope="row">Physics</th><td>1,299</td><td>81.45%</td></tr>
+                <tr><th scope="row">Psychology</th><td>798</td><td>55.01%</td></tr>
+                <tr><th scope="row">Computer Science</th><td>410</td><td>66.59%</td></tr>
+                <tr><th scope="row">Health</th><td>818</td><td>49.51%</td></tr>
+                <tr><th scope="row">Other</th><td>924</td><td>47.51%</td></tr>
+                <tr><th scope="row">Philosophy</th><td>499</td><td>45.09%</td></tr>
+                <tr><th scope="row">Engineering</th><td>969</td><td>68.83%</td></tr>
+                <tr><th scope="row">History</th><td>381</td><td>34.38%</td></tr>
+                <tr><th scope="row">Law</th><td>1,101</td><td>32.70%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </details>
       </section>
+    </main>
 
-      <footer class="footer">
-        <span>A subsidiary of <a href="https://parallaxstudios.xyz">Parallax Studios</a></span>
-        <span>© 2026 Parallax Studios</span>
-      </footer>
-    </div>
+    <footer class="footer">
+      <span>A subsidiary of <a href="https://parallaxstudios.xyz">Parallax Studios</a></span>
+      <span>&copy; 2026 Parallax Studios</span>
+    </footer>
   </div>
 
-  <!-- NEWSROOM OVERLAY -->
-  <div class="newsroom-overlay" id="newsroom">
-    <div class="newsroom-header">
-      <span style="font-family:var(--mono); font-weight:700;">PARALLAX NEWSROOM</span>
-      <button class="newsroom-close" onclick="closeNewsroom()">Close ×</button>
-    </div>
-    
+  <dialog class="newsroom-overlay" id="newsroom" aria-labelledby="newsroom-title">
+    <header class="newsroom-header">
+      <h2 id="newsroom-title">Parallax Newsroom</h2>
+      <form method="dialog"><button class="newsroom-close" autofocus>Close</button></form>
+    </header>
     <div class="newsroom-content">
       <article class="news-article">
         <div class="news-date">November 23, 2026</div>
-        <h2 class="news-title">Parallax 2 Mini: Coming Later Day</h2>
+        <h3 class="news-title">Parallax 2 Mini: Available Now!</h3>
+        <div class="news-body">
+          <p>Parallax 2 Mini is available now!<strong> Designed to answer you with utmost speed, and our signature reasoning. Parallax 2 Mini is ready to answer before you can read the first sentence!</strong>. 2 Mini chases speed, and precision.</p>
+          <p>Available Now, on a device near you!</p>
+        </div>
+      </article>
+
+      <article class="news-article">
+        <div class="news-date">November 23, 2026</div>
+        <h3 class="news-title">Parallax 2 Mini: Coming Later Today</h3>
         <div class="news-body">
           <p>Parallax 2 Mini is releasing today!<strong> Designed to answer you with utmost speed, and our signature reasoning. Parallax 2 Mini is ready to answer before you can read the first sentence!</strong>. 2 Mini chases speed, and precision.</p>
           <p>Coming today, to a GPU near you!</p>
         </div>
       </article>
 
-    <div class="newsroom-content">
       <article class="news-article">
         <div class="news-date">October 26, 2026</div>
-        <h2 class="news-title">Parallax 2.1 Pro: Coming Soon</h2>
+        <h3 class="news-title">Parallax 2.1 Pro: Coming Soon</h3>
         <div class="news-body">
           <p>Parallax 2.1 Pro is coming soon!<strong> Designed to push the limits of local inference, Parallax 2.1 Pro is ready for ANY task.</strong>. Frontier AI giants are not ready for what's coming.</p>
           <p>Coming soon, to a GPU near you!</p>
@@ -986,25 +195,25 @@
 
       <article class="news-article">
         <div class="news-date">October 24, 2026</div>
-        <h2 class="news-title">Something spooky in the lab - Parallax 2.1 Pro</h2>
+        <h3 class="news-title">Something spooky in the lab - Parallax 2.1 Pro</h3>
         <div class="news-body">
           <p>Something quite spooky is happening in the lab today,<strong> they're saying that big AI companies should be scared.</strong>. What could they mean? Something truly terrifying must be brewing in the lab.</p>
           <p>Parallax 2.1 Pro is trying to be spooooooky again.</p>
         </div>
       </article>
-    
+
       <article class="news-article">
         <div class="news-date">October 20, 2026</div>
-        <h2 class="news-title">Parallax 2 is Officially Available</h2>
+        <h3 class="news-title">Parallax 2 is Officially Available</h3>
         <div class="news-body">
           <p>We are thrilled to announce the public release of <strong>Parallax 2</strong>. After a successful training run on over 150,000 frontier traces, our flagship 9-billion-parameter model is ready for the world. It is designed to be a top-tier local AI for reasoning, coding, and autonomous agentic tasks.</p>
           <p>Parallax 2 is now available for download on HuggingFace. You can run it locally using tools like LM Studio or Ollama, and experience frontier-level intelligence on your own hardware.</p>
         </div>
       </article>
-    
+
       <article class="news-article">
         <div class="news-date">October 19, 2026</div>
-        <h2 class="news-title">A Game Built by AI: Parallax 2 on an RTX 5070</h2>
+        <h3 class="news-title">A Game Built by AI: Parallax 2 on an RTX 5070</h3>
         <div class="news-body">
           <p>In a recent internal test, we tasked Parallax 2 with building a multiplayer, 3D game from scratch. Running locally on an RTX 5070, the model autonomously architected a multi-file project (JS, CSS, HTML), wrote a WebRTC-based networking layer, and generated a full 3D game engine using Three.js.</p>
           <p>The model's ability to build a complex codebase and debug its own errors in real-time demonstrates the power of our agentic training data. This is a new era for local AI software engineering.</p>
@@ -1013,251 +222,21 @@
 
       <article class="news-article">
         <div class="news-date">October 19, 2026</div>
-        <h2 class="news-title">The $32 Frontier: How We Trained a 9B Model on a Budget</h2>
+        <h3 class="news-title">The $32 Frontier: How We Trained a 9B Model on a Budget</h3>
         <div class="news-body">
           <p>While cloud giants spend billions on data centers, we rented a single RTX PRO 6000 for <code>$32</code>. By curating elite traces from Opus, Fable, and OpenSWE, we distilled frontier-level intelligence into a 9B model that runs on consumer hardware.</p>
           <p>This is our manifesto: <strong>Intelligence belongs on the hardware you actually own.</strong></p>
         </div>
       </article>
     </div>
-  </div>
-
-<script>
-// ── 1. BACKGROUND SPHERE ANIMATION (Denser, brighter) ──
-(() => {
-  const canvas = document.getElementById('sphereCanvas');
-  const ctx = canvas.getContext('2d');
-  const maskCanvas = document.createElement('canvas');
-  const maskCtx = maskCanvas.getContext('2d');
-  let samplePixels = [];
-
-  function buildMask() {
-    const MW = 900, MH = 220;
-    maskCanvas.width = MW; maskCanvas.height = MH;
-    maskCtx.clearRect(0, 0, MW, MH);
-    maskCtx.fillStyle = '#fff';
-    maskCtx.font = `700 100px 'JetBrains Mono', monospace`;
-    maskCtx.textAlign = 'center'; maskCtx.textBaseline = 'middle';
-    const text = 'PARALLAX LABS';
-    const measured = maskCtx.measureText(text).width;
-    maskCtx.save();
-    maskCtx.translate(MW / 2, MH / 2);
-    maskCtx.scale(Math.min(1, (MW * 0.92) / measured), 1);
-    maskCtx.fillText(text, 0, 0);
-    maskCtx.restore();
-
-    const img = maskCtx.getImageData(0, 0, MW, MH).data;
-    samplePixels = [];
-    for (let y = 0; y < MH; y += 2) {
-      for (let x = 0; x < MW; x += 2) {
-        if (img[(y * MW + x) * 4 + 3] > 100) {
-          samplePixels.push({ nx: (x - MW / 2) / (MW / 2), ny: (y - MH / 2) / (MH / 2) });
-        }
-      }
-    }
-  }
-
-  let points = [];
-  function buildPoints() {
-    buildMask();
-    points = [];
-    const GOLDEN = Math.PI * (3 - Math.sqrt(5));
-    for (let i = 0; i < samplePixels.length; i++) {
-      const t = i / Math.max(1, samplePixels.length - 1);
-      const y = 1 - 2 * t;
-      const r = Math.sqrt(Math.max(0, 1 - y * y));
-      const theta = GOLDEN * i;
-      points.push({ x: Math.cos(theta) * r, y, z: Math.sin(theta) * r, tx: samplePixels[i].nx, ty: samplePixels[i].ny, screenX: 0, screenY: 0, depth: 0 });
-    }
-  }
-
-  let cssW = window.innerWidth, cssH = window.innerHeight;
-  function resize() {
-    cssW = window.innerWidth; cssH = window.innerHeight;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
-    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  let mouseX = -9999, mouseY = -9999;
-  window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-  window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
-
-  function render(now) {
-    ctx.clearRect(0, 0, cssW, cssH);
-    const cx = cssW / 2, cy = cssH / 2, R = Math.min(cssW, cssH) * 0.55;
-    const rotY = now * 0.00022, cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-    const cosX = Math.cos(0.28), sinX = Math.sin(0.28);
-    const PULL = 0.26, HOVER_RADIUS = 130;
-
-    for (const p of points) {
-      const sx = p.x * (1 - PULL) + p.tx * PULL, sy = p.y * (1 - PULL) + p.ty * PULL, sz = p.z * (1 - PULL);
-      const x1 = sx * cosY - sz * sinY, z1 = sx * sinY + sz * cosY;
-      const y2 = sy * cosX - z1 * sinX, z2 = sy * sinX + z1 * cosX;
-      const persp = 1.9 / (1.9 + z2);
-      p.screenX = cx + x1 * R * persp; p.screenY = cy + y2 * R * persp; p.depth = z2;
-    }
-
-    points.sort((a, b) => a.depth - b.depth);
-    for (const p of points) {
-      const depthT = (p.depth + 1) / 2;
-      let alpha = 0.15 + depthT * 0.65;
-      const dist = Math.sqrt(Math.pow(mouseX - p.screenX, 2) + Math.pow(mouseY - p.screenY, 2));
-      if (dist < HOVER_RADIUS) alpha = Math.min(1, alpha + Math.pow(1 - dist / HOVER_RADIUS, 2) * 0.85);
-      ctx.fillStyle = `rgba(232, 232, 232, ${alpha.toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(p.screenX, p.screenY, 0.6 + depthT * 1.4, 0, Math.PI * 2); ctx.fill();
-    }
-    requestAnimationFrame(render);
-  }
-
-  window.addEventListener('resize', resize);
-  document.fonts.ready.then(() => { resize(); buildPoints(); requestAnimationFrame(render); });
-})();
-
-// ── 2. FLOATING PIXEL ORB (Green / Amber mix) ──
-(() => {
-  const canvas = document.getElementById('orbCanvas');
-  const ctx = canvas.getContext('2d');
-  let cssW = window.innerWidth, cssH = window.innerHeight;
-  
-  function resize() {
-    cssW = window.innerWidth; cssH = window.innerHeight;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
-    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  window.addEventListener('resize', resize);
-
-  const orbPoints = [];
-  const ORB_RADIUS = 120;
-  const NUM_POINTS = 400;
-  for (let i = 0; i < NUM_POINTS; i++) {
-    const phi = Math.acos(-1 + (2 * i) / NUM_POINTS);
-    const theta = Math.sqrt(NUM_POINTS * Math.PI) * phi;
-    orbPoints.push({
-      x: ORB_RADIUS * Math.cos(theta) * Math.sin(phi),
-      y: ORB_RADIUS * Math.sin(theta) * Math.sin(phi),
-      z: ORB_RADIUS * Math.cos(phi),
-      ox: 0, oy: 0, oz: 0
+  </dialog>
+  <script>
+    const newsroom = document.getElementById('newsroom');
+    document.getElementById('newsroom-open').addEventListener('click', () => newsroom.showModal());
+    document.getElementById('announce-close').addEventListener('click', () => {
+      document.getElementById('announce-bar').remove();
+      document.querySelector('.hero-copy .btn-primary').focus();
     });
-  }
-
-  let time = 0;
-  function renderOrb() {
-    ctx.clearRect(0, 0, cssW, cssH);
-    time += 0.008;
-
-    const cx = cssW / 2 + Math.sin(time * 0.4) * (cssW * 0.35);
-    const cy = cssH / 2 + Math.cos(time * 0.6) * (cssH * 0.35);
-    
-    const rotX = time * 0.4;
-    const rotY = time * 0.6;
-    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
-    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-
-    for (const p of orbPoints) {
-      let x1 = p.x * cosY - p.z * sinY;
-      let z1 = p.x * sinY + p.z * cosY;
-      let y2 = p.y * cosX - z1 * sinX;
-      let z2 = p.y * sinX + z1 * cosX;
-
-      const persp = 400 / (400 + z2);
-      p.ox = cx + x1 * persp;
-      p.oy = cy + y2 * persp;
-      p.oz = z2;
-    }
-
-    orbPoints.sort((a, b) => a.oz - b.oz);
-
-    for (const p of orbPoints) {
-      const depthT = (p.oz + ORB_RADIUS) / (2 * ORB_RADIUS);
-      let alpha = 0.05 + depthT * 0.4;
-      
-      const isAmber = p.x > 20;
-      ctx.fillStyle = isAmber 
-        ? `rgba(251, 191, 36, ${alpha.toFixed(3)})`
-        : `rgba(74, 222, 128, ${alpha.toFixed(3)})`;
-      
-      ctx.beginPath();
-      ctx.arc(p.ox, p.oy, 1 + depthT * 2.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    requestAnimationFrame(renderOrb);
-  }
-
-  resize();
-  requestAnimationFrame(renderOrb);
-})();
-
-// ── 3. GLOWING BACKGROUND ORBS ──
-(() => {
-  const canvas = document.getElementById('glowCanvas');
-  const ctx = canvas.getContext('2d');
-  let cssW = window.innerWidth, cssH = window.innerHeight;
-  
-  function resize() {
-    cssW = window.innerWidth; cssH = window.innerHeight;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
-    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  window.addEventListener('resize', resize);
-
-  let time = 0;
-  function renderGlow() {
-    ctx.clearRect(0, 0, cssW, cssH);
-    time += 0.005;
-
-    const cx1 = cssW * 0.2 + Math.sin(time) * 100;
-    const cy1 = cssH * 0.3 + Math.cos(time * 0.8) * 100;
-    const r1 = 150 + Math.sin(time * 1.2) * 30;
-    
-    const grd1 = ctx.createRadialGradient(cx1, cy1, 0, cx1, cy1, r1);
-    grd1.addColorStop(0, 'rgba(74, 222, 128, 0.08)');
-    grd1.addColorStop(1, 'rgba(74, 222, 128, 0)');
-    ctx.fillStyle = grd1;
-    ctx.beginPath();
-    ctx.arc(cx1, cy1, r1, 0, Math.PI * 2);
-    ctx.fill();
-
-    const cx2 = cssW * 0.8 + Math.cos(time * 0.7) * 120;
-    const cy2 = cssH * 0.7 + Math.sin(time * 0.9) * 120;
-    const r2 = 200 + Math.cos(time) * 40;
-    
-    const grd2 = ctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, r2);
-    grd2.addColorStop(0, 'rgba(251, 191, 36, 0.05)');
-    grd2.addColorStop(1, 'rgba(251, 191, 36, 0)');
-    ctx.fillStyle = grd2;
-    ctx.beginPath();
-    ctx.arc(cx2, cy2, r2, 0, Math.PI * 2);
-    ctx.fill();
-
-    requestAnimationFrame(renderGlow);
-  }
-
-  resize();
-  requestAnimationFrame(renderGlow);
-})();
-
-// ── 4. NEWSROOM SLIDING LOGIC ──
-function openNewsroom() {
-  document.getElementById('main-wrapper').classList.add('slide-out');
-  document.getElementById('newsroom').classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeNewsroom() {
-  document.getElementById('main-wrapper').classList.remove('slide-out');
-  document.getElementById('newsroom').classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-function proceedToDemo() {
-  window.location.href = '/chat/wch';
-}
-</script>
+  </script>
 </body>
 </html>

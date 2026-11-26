@@ -3,235 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="theme.js"></script>
 <title>Parallax Pilot — The Local AI Agent</title>
 <meta name="description" content="Parallax Pilot: The all-new local AI agent with up to 1 million context. It doesn't just chat—it executes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="product.css">
 <style>
-  :root {
-    --bg: #0a0a0a;
-    --text: #e8e8e8;
-    --text-dim2: #e8e8e8;
-    --text-dimmer: #e8e8e8;
-    --line: #1e1e1e;
-    --line-bright: #333333;
-    --accent: #f0f0f0;
-    --accent-green: #4ade80;
-    --accent-amber: #fbbf24;
-    --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-    --ease: cubic-bezier(.2,.8,.2,1);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow-x: hidden; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 14px;
-    line-height: 1.7;
-    -webkit-font-smoothing: antialiased;
-    position: relative;
-  }
-
-  /* ── LAB ENVIRONMENT BACKGROUND ── */
-  .lab-grid {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    background-image: 
-      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-    pointer-events: none;
-  }
-
-  #sphereCanvas, #orbCanvas, #glowCanvas {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1;
-    pointer-events: none;
-    display: block;
-  }
-  #orbCanvas {
-    z-index: 2;
-    opacity: 0.25;
-    transform: scale(1.5) translate(10%, 5%);
-  }
-  #glowCanvas {
-    z-index: 0;
-    opacity: 0.15;
-    filter: blur(40px);
-  }
-  
-  /* Scanline effect + vignette */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 3;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.4) 45%, rgba(10,10,10,0.9) 85%, rgba(10,10,10,1) 100%),
-      linear-gradient(180deg, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.95) 100%),
-      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
-  }
-
-  /* ── LAYOUT ── */
-  .page {
-    position: relative;
-    z-index: 4;
-    display: flex;
-    flex-direction: column;
-    padding: 40px 56px;
-    min-height: 100vh;
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-  
-  .topbar {
-    font-size: 12px;
-    color: var(--text-dim2);
-    letter-spacing: 0.08em;
-    margin-bottom: 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 16px;
-  }
-  .topbar a {
-    color: var(--text); text-decoration: none; border-bottom: 1px solid transparent;
-    transition: 0.2s; display: flex; align-items: center; gap: 8px;
-    font-weight: 500;
-  }
-  .topbar a:hover { border-bottom-color: var(--text); color: var(--accent-green); }
-
-  /* ── HERO ── */
-  .hero {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px 0 80px;
-    border-bottom: 1px solid var(--line);
-    position: relative;
-  }
-  .badge {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--bg);
-    background: var(--accent-green);
-    padding: 4px 10px;
-    margin-bottom: 24px;
-    display: inline-block;
-    border: 1px solid var(--accent-green);
-    box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
-  }
-  .logo-title {
-    font-size: clamp(48px, 8vw, 96px);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 0.95;
-    margin-bottom: 24px;
-    color: var(--text);
-    text-transform: uppercase;
-    text-shadow: 0 4px 40px rgba(0,0,0,0.9);
-  }
-  .lede {
-    font-size: 18px;
-    line-height: 1.7;
-    color: var(--text-dim2);
-    max-width: 720px;
-    margin-bottom: 40px;
-  }
-  .lede strong { color: var(--text); font-weight: 500; }
-  .lede em { font-style: normal; color: var(--accent-green); }
-
-  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 14px 24px; background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(8px);
-    color: var(--text); border: 1px solid var(--text-dim2);
-    font-family: var(--mono); font-size: 13px; font-weight: 500;
-    text-decoration: none; cursor: pointer; transition: all .2s var(--ease);
-    position: relative; overflow: hidden;
-  }
-  .btn::before {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-    width: 3px; background: var(--text-dim2); transition: background 0.2s;
-  }
-  .btn:hover::before { background: var(--text); }
-  .btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); padding-left: 30px; }
-  
-  .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
-  .btn-primary::before { background: var(--bg); }
-  .btn-primary:hover { background: #fff; padding-left: 24px; }
-  .btn-primary:hover::before { background: var(--bg); }
-
-  /* ── SECTIONS ── */
-  .section {
-    padding: 80px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .section-title {
-    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--text-dimmer); margin-bottom: 32px;
-    display: flex; align-items: center; gap: 16px;
-  }
-  .section-title::after { content: ''; height: 1px; flex: 1; background: var(--line); }
-
-  /* ── INTERACTIVE FEATURES GRID ── */
-  .features-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .feature-card {
-    background: rgba(13, 13, 13, 0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--line);
-    padding: 32px;
-    position: relative;
-    transition: all 0.4s var(--ease);
-    cursor: default;
-    overflow: hidden;
-  }
-  .feature-card::before {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-    width: 2px; background: var(--line-bright); transition: background 0.3s;
-  }
-  .feature-card:hover {
-    border-color: var(--line-bright);
-    background: rgba(20, 20, 20, 0.8);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-  }
-  .feature-card:hover::before { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
-  
-  .feature-icon {
-    width: 48px; height: 48px;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--line-bright);
-    margin-bottom: 24px; font-size: 20px; color: var(--text);
-    background: var(--bg); transition: all 0.4s var(--ease);
-  }
-  .feature-card:hover .feature-icon {
-    border-color: var(--accent-green);
-    color: var(--accent-green);
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 0 20px rgba(74, 222, 128, 0.1);
-  }
-  
-  .feature-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
-  .feature-desc { font-size: 13px; color: var(--text-dim2); line-height: 1.7; }
-
   /* ── PILOT GUI DEMO ── */
   .demo-wrapper {
     display: flex;
@@ -251,7 +34,7 @@
   }
   
   .gui-window {
-    background: #050505;
+    background: #0c1420;
     border: 1px solid var(--line);
     box-shadow: 0 30px 60px rgba(0,0,0,0.8);
     display: flex;
@@ -262,7 +45,7 @@
   }
   
   .gui-titlebar {
-    background: #0d0d0d;
+    background: #182538;
     padding: 12px 16px;
     border-bottom: 1px solid var(--line);
     display: flex;
@@ -287,7 +70,7 @@
   
   .gui-sidebar {
     width: 240px;
-    background: #080808;
+    background: #101b2b;
     border-right: 1px solid var(--line);
     padding: 16px;
     display: flex;
@@ -378,7 +161,7 @@
     border-right: 2px solid var(--text);
   }
   .chat-msg.agent .chat-bubble {
-    background: #111;
+    background: #172639;
     border: 1px solid var(--line);
     border-left: 2px solid var(--accent-green);
     color: var(--text-dim2);
@@ -395,7 +178,7 @@
   
   .tool-call {
     margin-top: 8px;
-    background: #080808;
+    background: #101b2b;
     border: 1px solid var(--line);
     padding: 12px;
     font-size: 11px;
@@ -418,7 +201,7 @@
   .gui-code-editor {
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 240px;
-    background: #050505;
+    background: #0c1420;
     z-index: 10;
     display: flex;
     flex-direction: column;
@@ -429,7 +212,7 @@
   .gui-code-editor.open { transform: translateY(0); }
   .editor-header {
     padding: 8px 16px;
-    background: #0d0d0d;
+    background: #182538;
     border-bottom: 1px solid var(--line);
     font-size: 11px;
     color: var(--text-dim2);
@@ -457,7 +240,7 @@
   .gui-input-area {
     padding: 16px;
     border-top: 1px solid var(--line);
-    background: #080808;
+    background: #101b2b;
     z-index: 2;
   }
   .gui-input-box {
@@ -482,7 +265,7 @@
 
   /* ── TERMINAL PREVIEW ── */
   .terminal {
-    background: #050505;
+    background: #0c1420;
     border: 1px solid var(--line);
     overflow: hidden;
     font-family: var(--mono);
@@ -493,7 +276,7 @@
     flex-direction: column;
   }
   .term-header {
-    background: #0d0d0d; padding: 10px 16px; border-bottom: 1px solid var(--line);
+    background: #182538; padding: 10px 16px; border-bottom: 1px solid var(--line);
     display: flex; gap: 8px; align-items: center;
     flex-shrink: 0;
   }
@@ -517,10 +300,6 @@
 
   /* ── MOBILE ── */
   @media (max-width: 768px) {
-    .page { padding: 24px; }
-    .features-grid { grid-template-columns: 1fr; }
-    .actions { flex-direction: column; }
-    .actions .btn { width: 100%; }
     
     .gui-sidebar { display: none; }
     .gui-code-editor { left: 0; }
@@ -528,28 +307,37 @@
     .gui-chat { padding: 16px; }
     .term-body { padding: 16px; font-size: 12px; }
   }
+
+  .gui-window, .terminal { border-radius: var(--radius); }
+  .demo-disclaimer, .gui-input-box, .chat-bubble, .tool-call { border-radius: 12px; }
+  .gui-window, .terminal {
+    --bg: #0e1928;
+    --text: #edf4ff;
+    --text-dim2: #c2d0e2;
+    --text-dimmer: #aabbd0;
+    --line: #2a3b50;
+    --line-bright: #425d7b;
+    --accent-green: #8bd8ac;
+    color: var(--text);
+    color-scheme: dark;
+  }
 </style>
 </head>
-<body>
-
-  <!-- Background Lab Elements -->
-  <div class="lab-grid"></div>
-  <canvas id="glowCanvas"></canvas>
-  <canvas id="sphereCanvas"></canvas>
-  <canvas id="orbCanvas"></canvas>
+<body class="product">
 
   <div class="page">
-    <div class="topbar">
-      <span>PARALLAX LABS</span>
-      <a href="index.html">
-        <i class="fa-solid fa-arrow-left"></i>
-        Back to Home
-      </a>
-    </div>
+    <header class="topbar">
+      <a class="wordmark" href="index.html"><img class="brand-mark" src="parallax-logo.png" alt="" width="32" height="32">Parallax Labs</a>
+      <nav aria-label="Main navigation">
+        <a href="index.html#models">Models</a>
+        <a href="index.html#tools">Tools</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light mode" hidden></button>
+    </header>
 
     <main class="hero">
-      <div class="badge">Coming Soon</div>
-      <h1 class="logo-title">Parallax<br>Pilot</h1>
+      <div class="badge upcoming">Coming soon</div>
+      <h1 class="logo-title">Parallax Pilot</h1>
       <p class="lede">
         The all-new <strong>local AI agent</strong> that doesn't just chat—it executes. Powered by the Parallax Mini model architecture and featuring a massive <strong>1 million token context window</strong>, Pilot can read entire codebases, navigate file systems, and run complex tasks autonomously on your own hardware.
       </p>
@@ -686,226 +474,6 @@
   </div>
 
 <script>
-// ── 1. BACKGROUND SPHERE ANIMATION ──
-(() => {
-  const canvas = document.getElementById('sphereCanvas');
-  const ctx = canvas.getContext('2d');
-  const maskCanvas = document.createElement('canvas');
-  const maskCtx = maskCanvas.getContext('2d');
-  let samplePixels = [];
-
-  function buildMask() {
-    const MW = 900, MH = 220;
-    maskCanvas.width = MW; maskCanvas.height = MH;
-    maskCtx.clearRect(0, 0, MW, MH);
-    maskCtx.fillStyle = '#fff';
-    maskCtx.font = `700 100px 'JetBrains Mono', monospace`;
-    maskCtx.textAlign = 'center'; maskCtx.textBaseline = 'middle';
-    const text = 'PARALLAX LABS';
-    const measured = maskCtx.measureText(text).width;
-    maskCtx.save();
-    maskCtx.translate(MW / 2, MH / 2);
-    maskCtx.scale(Math.min(1, (MW * 0.92) / measured), 1);
-    maskCtx.fillText(text, 0, 0);
-    maskCtx.restore();
-
-    const img = maskCtx.getImageData(0, 0, MW, MH).data;
-    samplePixels = [];
-    for (let y = 0; y < MH; y += 2) {
-      for (let x = 0; x < MW; x += 2) {
-        if (img[(y * MW + x) * 4 + 3] > 100) {
-          samplePixels.push({ nx: (x - MW / 2) / (MW / 2), ny: (y - MH / 2) / (MH / 2) });
-        }
-      }
-    }
-  }
-
-  let points = [];
-  function buildPoints() {
-    buildMask();
-    points = [];
-    const GOLDEN = Math.PI * (3 - Math.sqrt(5));
-    for (let i = 0; i < samplePixels.length; i++) {
-      const t = i / Math.max(1, samplePixels.length - 1);
-      const y = 1 - 2 * t;
-      const r = Math.sqrt(Math.max(0, 1 - y * y));
-      const theta = GOLDEN * i;
-      points.push({ x: Math.cos(theta) * r, y, z: Math.sin(theta) * r, tx: samplePixels[i].nx, ty: samplePixels[i].ny, screenX: 0, screenY: 0, depth: 0 });
-    }
-  }
-
-  let cssW = window.innerWidth, cssH = window.innerHeight;
-  function resize() {
-    cssW = window.innerWidth; cssH = window.innerHeight;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
-    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  let mouseX = -9999, mouseY = -9999;
-  window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-  window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
-
-  function render(now) {
-    ctx.clearRect(0, 0, cssW, cssH);
-    const cx = cssW / 2, cy = cssH / 2, R = Math.min(cssW, cssH) * 0.55;
-    const rotY = now * 0.00022, cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-    const cosX = Math.cos(0.28), sinX = Math.sin(0.28);
-    const PULL = 0.26, HOVER_RADIUS = 130;
-
-    for (const p of points) {
-      const sx = p.x * (1 - PULL) + p.tx * PULL, sy = p.y * (1 - PULL) + p.ty * PULL, sz = p.z * (1 - PULL);
-      const x1 = sx * cosY - sz * sinY, z1 = sx * sinY + sz * cosY;
-      const y2 = sy * cosX - z1 * sinX, z2 = sy * sinX + z1 * cosX;
-      const persp = 1.9 / (1.9 + z2);
-      p.screenX = cx + x1 * R * persp; p.screenY = cy + y2 * R * persp; p.depth = z2;
-    }
-
-    points.sort((a, b) => a.depth - b.depth);
-    for (const p of points) {
-      const depthT = (p.depth + 1) / 2;
-      let alpha = 0.15 + depthT * 0.65;
-      const dist = Math.sqrt(Math.pow(mouseX - p.screenX, 2) + Math.pow(mouseY - p.screenY, 2));
-      if (dist < HOVER_RADIUS) alpha = Math.min(1, alpha + Math.pow(1 - dist / HOVER_RADIUS, 2) * 0.85);
-      ctx.fillStyle = `rgba(232, 232, 232, ${alpha.toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(p.screenX, p.screenY, 0.6 + depthT * 1.4, 0, Math.PI * 2); ctx.fill();
-    }
-    requestAnimationFrame(render);
-  }
-
-  window.addEventListener('resize', resize);
-  document.fonts.ready.then(() => { resize(); buildPoints(); requestAnimationFrame(render); });
-})();
-
-// ── 2. FLOATING PIXEL ORB ──
-(() => {
-  const canvas = document.getElementById('orbCanvas');
-  const ctx = canvas.getContext('2d');
-  let cssW = window.innerWidth, cssH = window.innerHeight;
-  
-  function resize() {
-    cssW = window.innerWidth; cssH = window.innerHeight;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
-    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  window.addEventListener('resize', resize);
-
-  const orbPoints = [];
-  const ORB_RADIUS = 120;
-  const NUM_POINTS = 400;
-  for (let i = 0; i < NUM_POINTS; i++) {
-    const phi = Math.acos(-1 + (2 * i) / NUM_POINTS);
-    const theta = Math.sqrt(NUM_POINTS * Math.PI) * phi;
-    orbPoints.push({
-      x: ORB_RADIUS * Math.cos(theta) * Math.sin(phi),
-      y: ORB_RADIUS * Math.sin(theta) * Math.sin(phi),
-      z: ORB_RADIUS * Math.cos(phi),
-      ox: 0, oy: 0, oz: 0
-    });
-  }
-
-  let time = 0;
-  function renderOrb() {
-    ctx.clearRect(0, 0, cssW, cssH);
-    time += 0.008;
-
-    const cx = cssW / 2 + Math.sin(time * 0.4) * (cssW * 0.35);
-    const cy = cssH / 2 + Math.cos(time * 0.6) * (cssH * 0.35);
-    
-    const rotX = time * 0.4;
-    const rotY = time * 0.6;
-    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
-    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-
-    for (const p of orbPoints) {
-      let x1 = p.x * cosY - p.z * sinY;
-      let z1 = p.x * sinY + p.z * cosY;
-      let y2 = p.y * cosX - z1 * sinX;
-      let z2 = p.y * sinX + z1 * cosX;
-
-      const persp = 400 / (400 + z2);
-      p.ox = cx + x1 * persp;
-      p.oy = cy + y2 * persp;
-      p.oz = z2;
-    }
-
-    orbPoints.sort((a, b) => a.oz - b.oz);
-
-    for (const p of orbPoints) {
-      const depthT = (p.oz + ORB_RADIUS) / (2 * ORB_RADIUS);
-      let alpha = 0.05 + depthT * 0.4;
-      
-      const isAmber = p.x > 20;
-      ctx.fillStyle = isAmber 
-        ? `rgba(251, 191, 36, ${alpha.toFixed(3)})`
-        : `rgba(74, 222, 128, ${alpha.toFixed(3)})`;
-      
-      ctx.beginPath();
-      ctx.arc(p.ox, p.oy, 1 + depthT * 2.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    requestAnimationFrame(renderOrb);
-  }
-
-  resize();
-  requestAnimationFrame(renderOrb);
-})();
-
-// ── 3. GLOWING BACKGROUND ORBS ──
-(() => {
-  const canvas = document.getElementById('glowCanvas');
-  const ctx = canvas.getContext('2d');
-  let cssW = window.innerWidth, cssH = window.innerHeight;
-  
-  function resize() {
-    cssW = window.innerWidth; cssH = window.innerHeight;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(cssW * dpr); canvas.height = Math.floor(cssH * dpr);
-    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  window.addEventListener('resize', resize);
-
-  let time = 0;
-  function renderGlow() {
-    ctx.clearRect(0, 0, cssW, cssH);
-    time += 0.005;
-
-    const cx1 = cssW * 0.2 + Math.sin(time) * 100;
-    const cy1 = cssH * 0.3 + Math.cos(time * 0.8) * 100;
-    const r1 = 150 + Math.sin(time * 1.2) * 30;
-    
-    const grd1 = ctx.createRadialGradient(cx1, cy1, 0, cx1, cy1, r1);
-    grd1.addColorStop(0, 'rgba(74, 222, 128, 0.08)');
-    grd1.addColorStop(1, 'rgba(74, 222, 128, 0)');
-    ctx.fillStyle = grd1;
-    ctx.beginPath();
-    ctx.arc(cx1, cy1, r1, 0, Math.PI * 2);
-    ctx.fill();
-
-    const cx2 = cssW * 0.8 + Math.cos(time * 0.7) * 120;
-    const cy2 = cssH * 0.7 + Math.sin(time * 0.9) * 120;
-    const r2 = 200 + Math.cos(time) * 40;
-    
-    const grd2 = ctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, r2);
-    grd2.addColorStop(0, 'rgba(251, 191, 36, 0.05)');
-    grd2.addColorStop(1, 'rgba(251, 191, 36, 0)');
-    ctx.fillStyle = grd2;
-    ctx.beginPath();
-    ctx.arc(cx2, cy2, r2, 0, Math.PI * 2);
-    ctx.fill();
-
-    requestAnimationFrame(renderGlow);
-  }
-
-  resize();
-  requestAnimationFrame(renderGlow);
-})();
-
-// ── 4. UTILS FOR TYPEWRITER ──
 function typeText(element, text, speed, callback) {
   let i = 0;
   element.innerHTML = '';

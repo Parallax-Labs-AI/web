@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="../theme.js"></script>
 <title>Parallax Labs — Chat</title>
 <meta name="description" content="Parallax 2 — a compact reasoning model by Parallax Labs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,23 +12,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --bg-sidebar: #0d0d0d;
-    --bg-elev: #141414;
-    --bg-elev-2: #1a1a1a;
-    --bg-code: #050505;
-    --border: #1e1e1e;
-    --border-soft: #171717;
-    --border-strong: #2a2a2a;
-    --text: #e8e8e8;
-    --text-dim: #7a7a7a;
-    --text-dimmer: #4a4a4a;
-    --ok: #4ade80;
-    --bad: #ef4444;
-    --warn: #fbbf24;
     --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
     --ease: cubic-bezier(.2,.8,.2,1);
-    --radius: 3px;
     --sidebar-w: 260px;
     --chat-max: 768px;
   }
@@ -470,7 +456,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 8px 12px;
-    background: #0d0d0d;
+    background: var(--bg-code);
     border-bottom: 1px solid var(--border);
     font-family: var(--mono);
     font-size: 10px;
@@ -901,6 +887,9 @@
     .topbar-title { font-size: 11px; }
   }
 </style>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 
@@ -949,6 +938,7 @@
       <span class="status-dot"></span>
       <span id="modelName">Parallax 2</span>
     </button>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light mode" hidden></button>
   </div>
 
   <div class="chat-scroll" id="chatScroll">
