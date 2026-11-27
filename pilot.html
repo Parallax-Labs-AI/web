@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="theme.js"></script>
-<title>Parallax Pilot — The Local AI Agent</title>
-<meta name="description" content="Parallax Pilot: The all-new local AI agent with up to 1 million context. It doesn't just chat—it executes.">
+<title>Parallax Pilot — Autonomous AI Teammates</title>
+<meta name="description" content="Parallax Pilot is a local AI agent that can start work before you send a prompt and work alongside teammates you can message directly.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -339,7 +339,7 @@
       <div class="badge upcoming">Coming soon</div>
       <h1 class="logo-title">Parallax Pilot</h1>
       <p class="lede">
-        The all-new <strong>local AI agent</strong> that doesn't just chat—it executes. Powered by the Parallax Mini model architecture and featuring a massive <strong>1 million token context window</strong>, Pilot can read entire codebases, navigate file systems, and run complex tasks autonomously on your own hardware.
+        Parallax Pilot is a local AI agent that can start work before you send a prompt. Run multiple Pilot teammates so they can message each other, share findings, and work on different parts of a project in parallel. You can message any teammate directly to ask for an update or change its priorities.
       </p>
       <div class="actions">
         <button class="btn btn-primary" onclick="alert('The Parallax Pilot waitlist is currently closed.')"><i class="fa-solid fa-envelope"></i> Join Waitlist</button>
@@ -349,12 +349,12 @@
 
     <!-- PILOT GUI DEMO -->
     <section class="section">
-      <div class="section-title">Interactive Preview</div>
+      <h2 class="section-title">A Pilot team at work</h2>
       <div class="demo-wrapper">
         
         <div class="demo-disclaimer">
           <i class="fa-solid fa-triangle-exclamation"></i>
-          <span><strong>Disclaimer:</strong> This is a simulated preview of the Parallax Pilot GUI. The interface, features, and capabilities shown are subject to change as we approach release.</span>
+          <span>Simulated preview of teammates starting a task and coordinating in a shared workspace.</span>
         </div>
 
         <div class="gui-window" id="guiWindow">
@@ -370,7 +370,7 @@
           
           <div class="gui-body">
             <div class="gui-sidebar">
-              <div class="gui-nav-item active"><i class="fa-solid fa-comments"></i> Chat</div>
+              <div class="gui-nav-item active"><i class="fa-solid fa-comments"></i> Team chat</div>
               <div class="gui-nav-item"><i class="fa-solid fa-folder-tree"></i> Workspace</div>
               <div class="gui-nav-item"><i class="fa-solid fa-clock-rotate-left"></i> History</div>
               <div class="gui-nav-item"><i class="fa-solid fa-gear"></i> Settings</div>
@@ -394,7 +394,7 @@
               <div class="gui-input-area">
                 <div class="gui-input-box">
                   <span style="color: var(--accent-green);">❯</span>
-                  <input type="text" id="guiInput" readonly placeholder="Waiting to start...">
+                  <input type="text" aria-label="Simulated team message" readonly placeholder="Message a teammate…">
                   <i class="fa-solid fa-paper-plane gui-send-btn"></i>
                 </div>
               </div>
@@ -403,25 +403,14 @@
             <!-- Simulated Code Editor Overlay -->
             <div class="gui-code-editor" id="codeEditor">
               <div class="editor-header">
-                <span><i class="fa-regular fa-file-code"></i> scrape_hn.py</span>
+                <span><i class="fa-regular fa-file-code"></i> test_empty_state.py</span>
                 <span class="editor-close" onclick="document.getElementById('codeEditor').classList.remove('open')"><i class="fa-solid fa-xmark"></i></span>
               </div>
               <div class="editor-body">
-<span class="line-num">1</span><span class="kw">import</span> requests
-<span class="line-num">2</span><span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup
-<span class="line-num">3</span>
-<span class="line-num">4</span><span class="cm"># Target URL</span>
-<span class="line-num">5</span>url = <span class="str">"https://news.ycombinator.com/"</span>
-<span class="line-num">6</span>
-<span class="line-num">7</span><span class="cm"># Fetch the page</span>
-<span class="line-num">8</span>response = requests.<span class="fn">get</span>(url)
-<span class="line-num">9</span>soup = BeautifulSoup(response.text, <span class="str">"html.parser"</span>)
-<span class="line-num">10</span>
-<span class="line-num">11</span><span class="cm"># Extract titles</span>
-<span class="line-num">12</span>titles = soup.<span class="fn">select</span>(<span class="str">".titleline &gt; a"</span>)[:<span class="str">10</span>]
-<span class="line-num">13</span>
-<span class="line-num">14</span><span class="kw">for</span> i, title <span class="kw">in</span> <span class="fn">enumerate</span>(titles, 1):
-<span class="line-num">15</span>    <span class="fn">print</span>(<span class="str">f"{i}. {title.text}"</span>)
+<span class="line-num">1</span><span class="kw">from</span> app <span class="kw">import</span> render_tasks
+<span class="line-num">2</span>
+<span class="line-num">3</span><span class="kw">def</span> <span class="fn">test_empty_state</span>():
+<span class="line-num">4</span>    <span class="kw">assert</span> render_tasks([]) == <span class="str">"No tasks yet."</span>
               </div>
             </div>
 
@@ -432,34 +421,44 @@
 
     <!-- FEATURES GRID -->
     <section class="section">
-      <div class="section-title">Pilot vs. Competition</div>
+      <h2 class="section-title">What Pilot teammates can do</h2>
       <div class="features-grid">
         <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+          <h3 class="feature-title">Get started on their own</h3>
+          <p class="feature-desc">Pilot can take the first step on work in your workspace before you send a chat message.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-people-group"></i></div>
+          <h3 class="feature-title">Work together</h3>
+          <p class="feature-desc">Teammates can message each other, divide tasks, and hand off work. One can make a change while another writes tests.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-comments"></i></div>
+          <h3 class="feature-title">Hear from you directly</h3>
+          <p class="feature-desc">Message a specific teammate to ask what it’s doing, share context, or steer the work already in progress.</p>
+        </div>
+        <div class="feature-card">
           <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
-          <div class="feature-title">1 Million Token Context</div>
-          <div class="feature-desc">Pilot, powered by Parallax Labs' Mini models, uses Gated DeltaNet architecture. This means that Pilot can run significantly more efficient than standard Transformer models. It can run its full 1 million context on approximately 5GB of VRAM.</div>
+          <h3 class="feature-title">Read across a codebase</h3>
+          <p class="feature-desc">Parallax Mini models give Pilot up to 1 million tokens of context for working across files in a project.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-          <div class="feature-title">Agentic Toolcalling</div>
-          <div class="feature-desc">Pilot doesn't just provide an answer, it can take action, such as create or edit files, create folders, run commands, search the web, and more tasks with the Parallax App API.</div>
+          <h3 class="feature-title">Use workspace tools</h3>
+          <p class="feature-desc">Teammates can read and edit files, run commands, and use web search when a task calls for it.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
-          <div class="feature-title">100% Local, 100% Private</div>
-          <div class="feature-desc">Pilot is designed for local on-device inference, meaning your data is safe with Pilot, and never leaves your device.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
-          <div class="feature-title">Powered by Parallax Mini models</div>
-          <div class="feature-desc">Pilot is powered by our Parallax Mini tier of AI models, with scalability allowing for users to option higher tiers. Pilot uses Mini, with an extended 1 million context window for maximum understanding and capability.</div>
+          <h3 class="feature-title">Run on your hardware</h3>
+          <p class="feature-desc">Pilot runs inference locally using Parallax models.</p>
         </div>
       </div>
     </section>
 
     <!-- TERMINAL -->
     <section class="section" style="border-bottom: none; padding-bottom: 120px;">
-      <div class="section-title">See it in action</div>
+      <h2 class="section-title">Sample activity log</h2>
       <div class="terminal" id="terminalWindow">
         <div class="term-header">
           <div class="term-dot"></div>
@@ -474,161 +473,43 @@
   </div>
 
 <script>
-function typeText(element, text, speed, callback) {
-  let i = 0;
-  element.innerHTML = '';
-  function type() {
-    if (i < text.length) {
-      element.innerHTML += text.charAt(i);
-      i++;
-      setTimeout(type, speed);
-    } else if (callback) {
-      callback();
-    }
-  }
-  type();
-}
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-// ── 5. INTERACTIVE GUI DEMO ──
-const guiInput = document.getElementById('guiInput');
 const demoChat = document.getElementById('demoChat');
 const fileTree = document.getElementById('fileTree');
 const codeEditor = document.getElementById('codeEditor');
 
+const teamMessages = [
+  ['Planner', 'I spotted an empty-list bug in the task tracker and started checking it. Builder, can you handle the fix? Reviewer, could you cover the test?'],
+  ['Builder', 'I’ll update the empty state. Reviewer, I’ll share the change when it’s ready.'],
+  ['Reviewer', 'I’ll write a test for the empty list while you work on the fix.'],
+  ['You', '@Reviewer Can you also check that existing tasks still render?'],
+  ['Reviewer', 'Yes. The new test covers the empty list, and I confirmed existing tasks still render.'],
+];
+
 async function runGUIDemo() {
-  await sleep(500);
-  
-  // 1. Type the user prompt letter by letter
-  guiInput.placeholder = '';
-  await new Promise(resolve => {
-    let i = 0;
-    const prompt = "Create a Python script to scrape the top 10 Hacker News posts.";
-    function type() {
-      if (i < prompt.length) {
-        guiInput.value += prompt.charAt(i);
-        i++;
-        setTimeout(type, Math.random() * 50 + 20); // Variable typing speed
-      } else {
-        resolve();
-      }
-    }
-    type();
-  });
+  for (const [speaker, message] of teamMessages) {
+    await sleep(950);
+    const row = document.createElement('div');
+    row.className = speaker === 'You' ? 'chat-msg user' : 'chat-msg agent';
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    const name = document.createElement('strong');
+    name.textContent = speaker;
+    bubble.append(name, document.createElement('br'), message);
+    row.appendChild(bubble);
+    demoChat.appendChild(row);
+    demoChat.scrollTop = demoChat.scrollHeight;
+  }
 
-  await sleep(800);
-  
-  // 2. User sends message
-  guiInput.value = '';
-  const userMsg = document.createElement('div');
-  userMsg.className = 'chat-msg user';
-  userMsg.innerHTML = `<div class="chat-bubble">Create a Python script to scrape the top 10 Hacker News posts.</div>`;
-  demoChat.appendChild(userMsg);
-  demoChat.scrollTop = demoChat.scrollHeight;
-
-  await sleep(1000);
-
-  // 3. Agent thinking
-  const agentMsg = document.createElement('div');
-  agentMsg.className = 'chat-msg agent';
-  agentMsg.innerHTML = `<div class="chat-bubble"><span class="thinking"><i class="fa-solid fa-circle-notch fa-spin"></i> Thinking...</span></div>`;
-  demoChat.appendChild(agentMsg);
-  demoChat.scrollTop = demoChat.scrollHeight;
-
-  await sleep(1500);
-
-  // 4. Agent text
-  agentMsg.querySelector('.chat-bubble').innerHTML = 'I will write a Python script using `requests` and `BeautifulSoup` to scrape Hacker News. First, I need to check if the required libraries are installed.';
-  demoChat.scrollTop = demoChat.scrollHeight;
-
-  await sleep(1500);
-
-  // 5. Tool call: Check deps
-  const tool1 = document.createElement('div');
-  tool1.innerHTML = `
-    <div class="tool-call">
-      <div class="tool-header"><i class="fa-solid fa-terminal"></i> Tool Call: check_dependencies</div>
-      <div class="tool-body">
-        <span class="term-cursor"></span>
-      </div>
-    </div>
-  `;
-  agentMsg.querySelector('.chat-bubble').appendChild(tool1);
-  demoChat.scrollTop = demoChat.scrollHeight;
-
-  await sleep(1000);
-  
-  const tool1Body = tool1.querySelector('.tool-body');
-  tool1Body.innerHTML = 'Checking environment...<br>';
-  await sleep(800);
-  tool1Body.innerHTML += '<span class="success">requests (2.31.0) found.</span><br>';
-  await sleep(500);
-  tool1Body.innerHTML += '<span class="success">beautifulsoup4 (4.12.2) found.</span>';
-  demoChat.scrollTop = demoChat.scrollHeight;
-
-  await sleep(1500);
-
-  // 6. Agent text
-  const agentMsg2 = document.createElement('div');
-  agentMsg2.className = 'chat-msg agent';
-  agentMsg2.innerHTML = `<div class="chat-bubble">Dependencies are ready. I am now generating the script and saving it to the workspace.</div>`;
-  demoChat.appendChild(agentMsg2);
-  demoChat.scrollTop = demoChat.scrollHeight;
-
-  await sleep(1000);
-
-  // 7. Tool call: Create file
-  const tool2 = document.createElement('div');
-  tool2.innerHTML = `
-    <div class="tool-call">
-      <div class="tool-header"><i class="fa-solid fa-file-code"></i> Tool Call: create_file</div>
-      <div class="tool-body">
-        <span class="term-cursor"></span>
-      </div>
-    </div>
-  `;
-  agentMsg2.querySelector('.chat-bubble').appendChild(tool2);
-  demoChat.scrollTop = demoChat.scrollHeight;
-
-  await sleep(1000);
-  
-  const tool2Body = tool2.querySelector('.tool-body');
-  await new Promise(resolve => {
-    let i = 0;
-    const text = './scrape_hn.py\n';
-    function type() {
-      if (i < text.length) {
-        tool2Body.innerHTML = `Writing to ` + text.substring(0, i+1) + `<span class="term-cursor"></span>`;
-        i++;
-        setTimeout(type, 100);
-      } else {
-        tool2Body.innerHTML = '<span class="success">Successfully created ./scrape_hn.py (1.2 KB)</span>';
-        resolve();
-      }
-    }
-    type();
-  });
-  
-  // Add to file tree
   const newFile = document.createElement('div');
   newFile.className = 'gui-file-item new';
   newFile.style.marginLeft = '12px';
-  newFile.innerHTML = '<i class="fa-regular fa-file-code"></i> scrape_hn.py';
+  newFile.textContent = 'test_empty_state.py';
   fileTree.appendChild(newFile);
 
-  // Open code editor
-  await sleep(500);
+  await sleep(1500);
   codeEditor.classList.add('open');
-
-  await sleep(2000);
-
-  // 8. Final agent message
-  const agentMsg3 = document.createElement('div');
-  agentMsg3.className = 'chat-msg agent';
-  agentMsg3.innerHTML = `<div class="chat-bubble">The script is ready. Would you like me to run it now to verify the output?</div>`;
-  demoChat.appendChild(agentMsg3);
-  demoChat.scrollTop = demoChat.scrollHeight;
 }
 
 const guiObserver = new IntersectionObserver((entries) => {
@@ -644,14 +525,12 @@ guiObserver.observe(document.getElementById('guiWindow'));
 // ── 6. TERMINAL TYPEWRITER ──
 const termBody = document.getElementById('terminalBody');
 const termLines = [
-  { text: '❯ pilot "I need you to create a report on why NVIDIA GPUs are great for gaming."', class: 'term-cmd', typeSpeed: 30 },
-  { text: '\n[Thinking...] I need to use the web to research about NVIDIA GPUs and their advantages.\n', class: 'term-out', typeSpeed: 15 },
-  { text: '[Tool: web_search] Searching google.com\n', class: 'term-out', typeSpeed: 15 },
-  { text: '[Tool Output] Found 3 relevant articles.\n', class: 'term-out', typeSpeed: 15 },
-  { text: '[Thinking...] I will read these articles to extract information and compile the report.\n', class: 'term-out', typeSpeed: 15 },
-  { text: '[Tool: create_file] ./nvidia-report.md\n', class: 'term-out', typeSpeed: 15 },
-  { text: '[Thinking...] Writing the report and validating it.\n', class: 'term-out', typeSpeed: 15 },
-  { text: '❯ [Agent is executing 4 tool calls...]', class: 'term-cmd', typeSpeed: 30 }
+  { text: '[Planner] Started checking the task tracker.', class: 'term-cmd', typeSpeed: 16 },
+  { text: '[Planner to Builder] Fix the empty-list state.', class: 'term-out', typeSpeed: 15 },
+  { text: '[Planner to Reviewer] Add an empty-state test.', class: 'term-out', typeSpeed: 15 },
+  { text: '[You to Reviewer] Check that existing tasks still render.', class: 'term-cmd', typeSpeed: 16 },
+  { text: '[Builder] Updated the empty state.', class: 'term-success', typeSpeed: 15 },
+  { text: '[Reviewer] Empty and populated list checks passed.', class: 'term-success', typeSpeed: 15 }
 ];
 
 async function runTerminalDemo() {

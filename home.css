@@ -66,6 +66,34 @@
 
 .home-section { margin-bottom: clamp(45px, 8vw, 100px); }
 .section-title { font-size: clamp(2rem, 4vw, 3.25rem); letter-spacing: -.06em; line-height: 1.08; }
+.app-launch {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: center;
+  gap: clamp(20px, 4vw, 48px);
+  padding: clamp(16px, 4vw, 44px);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius);
+  background: var(--accent-panel);
+}
+.app-launch-copy { display: grid; justify-items: start; gap: 16px; }
+.app-launch-copy p { max-width: 43ch; color: var(--text-dim2); }
+.app-launch-features {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-inline-start: 1.2em;
+  color: var(--text-dim2);
+}
+.app-launch-features strong { color: var(--text); }
+.app-launch-features li::marker { color: var(--accent); }
+.app-launch-screenshot {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line-bright);
+  border-radius: 12px;
+}
 .family-split, .tools-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 22px; }
 .family-column, .tool-card { border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(18px, 3vw, 30px); }
 .family-column { background: var(--paper); }
@@ -190,7 +218,7 @@
 body:has(dialog[open]) { overflow: hidden; }
 
 @media (max-width: 740px) {
-  .home-hero, .benchmark-grid { grid-template-columns: 1fr; }
+  .home-hero, .app-launch, .benchmark-grid { grid-template-columns: 1fr; }
   .hero-copy { gap: 14px; }
 }
 
